@@ -1,0 +1,36 @@
+.main-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f9fafb; /* gris clair pour le fond */
+}
+
+/* Contenu principal (décalé quand sidebar ouverte) */
+.main-content {
+  transition: all 0.3s ease;
+}
+
+.sidebar-closed .main-content {
+  margin-left: 0;
+}
+
+
+/* Quand sidebar est ouverte (desktop) */
+.main-content.sidebar-open {
+  margin-left: 16rem; /* largeur de la sidebar */
+}
+
+/* Zone centrale où s'affichent les pages */
+.main-content-area {
+  padding: 1.5rem;
+}
+
+/* Responsive : en mobile, pas de décalage */
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0 !important;
+  }
+
+  .main-content.sidebar-open {
+    margin-left: 0 !important;
+  }
+}

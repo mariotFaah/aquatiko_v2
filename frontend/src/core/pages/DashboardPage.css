@@ -1,0 +1,185 @@
+.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* En-tête du dashboard */
+.dashboard-header {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+}
+
+.dashboard-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #111827;
+  margin-bottom: 1rem;
+  margin-top: 0;
+}
+
+.dashboard-subtitle {
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Grille des modules */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Cartes des modules */
+.dashboard-card {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  text-decoration: none;
+  transition: box-shadow 0.3s ease;
+  border-left: 4px solid;
+  display: block;
+}
+
+.dashboard-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Carte Comptabilité */
+.dashboard-card-comptabilite {
+  border-left-color: #3b82f6;
+}
+
+/* Carte Import-Export */
+.dashboard-card-import-export {
+  border-left-color: #10b981;
+}
+
+/* Carte CRM */
+.dashboard-card-crm {
+  border-left-color: #8b5cf6;
+}
+
+/* En-tête des cartes */
+.dashboard-card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.dashboard-card-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.75rem;
+  font-weight: bold;
+}
+
+/* Icône Comptabilité */
+.dashboard-card-comptabilite .dashboard-card-icon {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+/* Icône Import-Export */
+.dashboard-card-import-export .dashboard-card-icon {
+  background-color: #d1fae5;
+  color: #047857;
+}
+
+/* Icône CRM */
+.dashboard-card-crm .dashboard-card-icon {
+  background-color: #ede9fe;
+  color: #7c3aed;
+}
+
+.dashboard-card-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.dashboard-card-description {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.dashboard-card-cta {
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  display: block;
+}
+
+/* CTA Comptabilité */
+.dashboard-card-comptabilite .dashboard-card-cta {
+  color: #2563eb;
+}
+
+/* CTA Import-Export */
+.dashboard-card-import-export .dashboard-card-cta {
+  color: #059669;
+}
+
+/* CTA CRM */
+.dashboard-card-crm .dashboard-card-cta {
+  color: #7c3aed;
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+  .dashboard-page {
+    gap: 1rem;
+  }
+  
+  .dashboard-header {
+    padding: 1rem;
+  }
+  
+  .dashboard-title {
+    font-size: 1.25rem;
+  }
+  
+  .dashboard-card {
+    padding: 1rem;
+  }
+  
+  .dashboard-card-header {
+    margin-bottom: 0.75rem;
+  }
+  
+  .dashboard-card-icon {
+    width: 2rem;
+    height: 2rem;
+    margin-right: 0.5rem;
+  }
+  
+  .dashboard-card-title {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-grid {
+    gap: 1rem;
+  }
+  
+  .dashboard-card {
+    padding: 0.75rem;
+  }
+}
