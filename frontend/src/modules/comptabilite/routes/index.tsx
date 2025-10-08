@@ -4,6 +4,9 @@ import ComptabilitePage from '../pages/ComptabilitePage';
 import FacturesListPage from '../pages/FacturesListPage';
 import { FactureForm } from '../components/FactureForm/FactureForm.tsx';
 
+// 👇 Nouveau composant pour gérer les tiers
+import {TiersListPage} from '../pages/TiersListPage';
+
 export const comptabiliteRoutes: RouteObject[] = [
   {
     path: 'comptabilite',
@@ -26,15 +29,10 @@ export const comptabiliteRoutes: RouteObject[] = [
         path: 'factures/nouvelle',
         element: <FactureForm />,
       },
-      // 👇 AJOUTE CES ROUTES MANQUANTES
+      // 👇 Gestion des tiers
       {
         path: 'tiers',
-        element: (
-          <div className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Gestion des Clients et Fournisseurs</h2>
-            <p>Page en cours de développement...</p>
-          </div>
-        ),
+        element: <TiersListPage />,
       },
       {
         path: 'articles',

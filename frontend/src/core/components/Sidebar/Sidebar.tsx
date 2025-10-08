@@ -51,6 +51,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
       <div className={`sidebar ${isOpen ? 'open' : 'closed'}`}>
         <div className="sidebar-header">
           {isOpen && <h1 className="sidebar-title">Aquatiko</h1>}
+
+          {/* ✅ Bouton toggle intégré mais toujours visible */}
+          <button onClick={onToggle} className="sidebar-toggle inside">
+            {isOpen ? '◀' : '▶'}
+          </button>
         </div>
 
         <nav className="sidebar-nav">
@@ -68,13 +73,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             </div>
           ))}
         </nav>
-      </div>
-
-      {/* Bouton toggle fixé */}
-      <div className={`sidebar-toggle-container ${isOpen ? 'sidebar-open' : ''}`}>
-        <button onClick={onToggle} className="sidebar-toggle">
-          {isOpen ? '◀' : '▶'}
-        </button>
       </div>
     </>
   );
