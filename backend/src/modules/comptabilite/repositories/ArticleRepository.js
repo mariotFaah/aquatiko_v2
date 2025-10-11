@@ -2,13 +2,11 @@ import { db } from '../../../core/database/connection.js';
 
 export class ArticleRepository {
   
-  // Récupérer tous les articles actifs
   async findAll() {
     try {
       const articles = await db('articles')
         .select('*')
-        .where('actif', true)
-        .orderBy('description', 'asc');
+        .orderBy('code_article', 'asc');
       
       return articles;
     } catch (error) {
@@ -17,7 +15,6 @@ export class ArticleRepository {
     }
   }
 
-  // Récupérer un article par code
   async findByCode(code_article) {
     try {
       const article = await db('articles')
@@ -31,7 +28,6 @@ export class ArticleRepository {
     }
   }
 
-  // Créer un nouvel article
   async create(articleData) {
     try {
       await db('articles').insert(articleData);
@@ -44,7 +40,6 @@ export class ArticleRepository {
     }
   }
 
-  // Mettre à jour un article
   async update(code_article, articleData) {
     try {
       await db('articles')
@@ -62,24 +57,20 @@ export class ArticleRepository {
     }
   }
 
-  // Désactiver un article
   async delete(code_article) {
     try {
       await db('articles')
         .where('code_article', code_article)
-        .update({
-          actif: false,
-          updated_at: new Date()
-        });
+        .delete();
       
-      return { message: 'Article désactivé avec succès' };
+      return { message: 'Article supprimé avec succès' };
     } catch (error) {
       console.error('Erreur ArticleRepository.delete:', error);
-      throw new Error('Erreur lors de la désactivation de l\'article');
+      throw new Error('Erreur lors de la suppression de l\'article');
     }
   }
 
-  // Vérifier si un code article existe
+  // Vérifier si un code article existe déjà
   async codeExists(code_article) {
     try {
       const exists = await db('articles')
@@ -89,7 +80,22 @@ export class ArticleRepository {
       return !!exists;
     } catch (error) {
       console.error('Erreur ArticleRepository.codeExists:', error);
-      throw new Error('Erreur lors de la vérification du code article');
+      throw error;
+    }
+  }
+
+  // AJOUTER LA MÉTHODE POUR RECHERCHER PAR DEVISE
+  async findByDevise(devise) {
+    try {
+      const articles = await db('articles')
+        .where('devise', devise)
+        .andWhere('actif', true)
+        .select('*');
+      
+      return articles;
+    } catch (error) {
+      console.error('Erreur ArticleRepository.findByDevise:', error);
+      throw new Error('Erreur lors de la récupération des articles par devise');
     }
   }
 }

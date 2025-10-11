@@ -10,16 +10,16 @@ export const createTiersSchema = Joi.object({
     'any.only': 'Le type de tiers doit être "client" ou "fournisseur"',
     'any.required': 'Le type de tiers est obligatoire'
   }),
-  numero: Joi.string().max(50).optional().messages({
+  numero: Joi.string().max(50).allow('').optional().messages({
     'string.max': 'Le numéro ne peut pas dépasser 50 caractères'
   }),
-  adresse: Joi.string().max(500).optional().messages({
+  adresse: Joi.string().max(500).allow('').optional().messages({
     'string.max': 'L\'adresse ne peut pas dépasser 500 caractères'
   }),
-  email: Joi.string().email().optional().messages({
+  email: Joi.string().email().allow('').optional().messages({
     'string.email': 'L\'email doit être une adresse email valide'
   }),
-  telephone: Joi.string().max(20).optional().messages({
+  telephone: Joi.string().max(20).allow('').optional().messages({
     'string.max': 'Le téléphone ne peut pas dépasser 20 caractères'
   })
 });
@@ -27,8 +27,8 @@ export const createTiersSchema = Joi.object({
 export const updateTiersSchema = Joi.object({
   nom: Joi.string().min(2).max(255).optional(),
   type_tiers: Joi.string().valid('client', 'fournisseur').optional(),
-  numero: Joi.string().max(50).optional(),
-  adresse: Joi.string().max(500).optional(),
-  email: Joi.string().email().optional(),
-  telephone: Joi.string().max(20).optional()
-});
+  numero: Joi.string().max(50).allow('').optional(),
+  adresse: Joi.string().max(500).allow('').optional(),
+  email: Joi.string().email().allow('').optional(),
+  telephone: Joi.string().max(20).allow('').optional()
+}).min(1); // 👈 Ajoutez cette ligne pour s'assurer qu'au moins un champ est fourni

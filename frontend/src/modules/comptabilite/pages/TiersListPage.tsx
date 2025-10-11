@@ -14,16 +14,22 @@ export const TiersListPage: React.FC = () => {
     loadTiers();
   }, []);
 
-  const loadTiers = async () => {
-    try {
-      const data = await comptabiliteApi.getTiers();
-      setTiers(data);
-    } catch (err) {
-      console.error('Erreur lors du chargement des tiers:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+// Dans TiersListPage.tsx - améliorer loadTiers
+const loadTiers = async () => {
+  try {
+    setLoading(true);
+    const data = await comptabiliteApi.getTiers();
+    console.log('📋 Tiers chargés:', data); // Debug
+    setTiers(data);
+  } catch (err) {
+    console.error('Erreur lors du chargement des tiers:', err);
+    // En cas d'erreur, définir un tableau vide pour éviter les crashs
+    setTiers([]);
+    alert('Erreur lors du chargement des clients/fournisseurs');
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleDelete = async (id: number) => {
     if (!window.confirm('Supprimer ce client/fournisseur ?')) return;

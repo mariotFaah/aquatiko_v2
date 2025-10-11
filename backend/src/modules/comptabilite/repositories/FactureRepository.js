@@ -17,6 +17,9 @@ export class FactureRepository {
           'f.total_tva',
           'f.total_ttc',
           'f.statut',
+          'f.devise',
+          'f.taux_change',
+          'f.notes',
           'f.created_at',
           't.nom as nom_tiers',
           't.type_tiers'
@@ -40,7 +43,8 @@ export class FactureRepository {
           't.nom as nom_tiers',
           't.adresse',
           't.email',
-          't.telephone'
+          't.telephone',
+          't.devise_preferee'
         )
         .where('f.numero_facture', numero_facture)
         .first();
@@ -89,7 +93,7 @@ export class FactureRepository {
       await db('factures')
         .where('numero_facture', numero_facture)
         .update({
-          statut: 'validee',
+          statut: 'validée',
           updated_at: new Date()
         });
       
@@ -113,6 +117,97 @@ export class FactureRepository {
       throw new Error('Erreur lors de la génération du numéro de facture');
     }
   }
+
+  // NOUVELLES MÉTHODES POUR LES STATUTS DE PAIEMENT
+  async findByStatut(statut) {
+    try {
+      const factures = await db('factures as f')
+        .join('tiers as t', 'f.id_tiers', 't.id_tiers')
+        .select(
+          'f.numero_facture',
+          'f.date',
+          'f.type_facture',
+          'f.total_ttc',
+          'f.statut',
+          'f.devise',
+          't.nom as nom_tiers'
+        )
+        .where('f.statut', statut)
+        .orderBy('f.date', 'asc');
+      
+      return factures;
+    } catch (error) {
+      console.error('Erreur FactureRepository.findByStatut:', error);
+      throw new Error('Erreur lors de la récupération des factures par statut');
+    }
+  }
+
+  // Mettre à jour le statut
+  async updateStatut(numero_facture, statut) {
+    try {
+      await db('factures')
+        .where('numero_facture', numero_facture)
+        .update({
+          statut: statut,
+          updated_at: new Date()
+        });
+      
+      return { message: `Statut de la facture mis à jour: ${statut}` };
+    } catch (error) {
+      console.error('Erreur FactureRepository.updateStatut:', error);
+      throw new Error('Erreur lors de la mise à jour du statut');
+    }
+  }
+
+   // AJOUTER CETTE MÉTHODE
+  query() {
+    return db('factures');
+  }
+
+  // AJOUTER CETTE MÉTHODE MANQUANTE
+  async findByNumero(numero_facture) {
+    try {
+      const facture = await db('factures as f')
+        .join('tiers as t', 'f.id_tiers', 't.id_tiers')
+        .select(
+          'f.*',
+          't.nom as nom_tiers',
+          't.adresse',
+          't.email',
+          't.telephone',
+          't.devise_preferee'
+        )
+        .where('f.numero_facture', numero_facture)
+        .first();
+      
+      return facture;
+    } catch (error) {
+      console.error('Erreur FactureRepository.findByNumero:', error);
+      throw new Error('Erreur lors de la récupération de la facture');
+    }
+  }
+
+  // AJOUTER CETTE MÉTHODE POUR RAPPORT SERVICE
+  async getFacturesByPeriode(date_debut, date_fin) {
+    try {
+      let query = db('factures');
+      
+      if (date_debut) {
+        query = query.where('date', '>=', date_debut);
+      }
+      
+      if (date_fin) {
+        query = query.where('date', '<=', date_fin);
+      }
+      
+      const result = await query.sum('total_ttc as total');
+      return result[0];
+    } catch (error) {
+      console.error('Erreur FactureRepository.getFacturesByPeriode:', error);
+      throw new Error('Erreur lors du calcul des factures par période');
+    }
+  }
+
 }
 
 export default FactureRepository;

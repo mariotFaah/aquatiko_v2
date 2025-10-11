@@ -2,7 +2,6 @@ import { db } from '../../../core/database/connection.js';
 
 export class TiersRepository {
   
-  // Récupérer tous les tiers
   async findAll() {
     try {
       const tiers = await db('tiers')
@@ -16,7 +15,6 @@ export class TiersRepository {
     }
   }
 
-  // Récupérer un tiers par ID
   async findById(id_tiers) {
     try {
       const tiers = await db('tiers')
@@ -30,12 +28,11 @@ export class TiersRepository {
     }
   }
 
-  // Créer un nouveau tiers
   async create(tiersData) {
     try {
-      const [id] = await db('tiers').insert(tiersData);
+      const [id_tiers] = await db('tiers').insert(tiersData);
       
-      const nouveauTiers = await this.findById(id);
+      const nouveauTiers = await this.findById(id_tiers);
       return nouveauTiers;
     } catch (error) {
       console.error('Erreur TiersRepository.create:', error);
@@ -43,7 +40,6 @@ export class TiersRepository {
     }
   }
 
-  // Mettre à jour un tiers
   async update(id_tiers, tiersData) {
     try {
       await db('tiers')
@@ -61,17 +57,13 @@ export class TiersRepository {
     }
   }
 
-  // Supprimer un tiers (soft delete)
   async delete(id_tiers) {
     try {
       await db('tiers')
         .where('id_tiers', id_tiers)
-        .update({
-          actif: false,
-          updated_at: new Date()
-        });
+        .delete();
       
-      return { message: 'Tiers désactivé avec succès' };
+      return { message: 'Tiers supprimé avec succès' };
     } catch (error) {
       console.error('Erreur TiersRepository.delete:', error);
       throw new Error('Erreur lors de la suppression du tiers');
@@ -81,18 +73,32 @@ export class TiersRepository {
   // Vérifier si un numéro existe déjà
   async numeroExists(numero, excludeId = null) {
     try {
-      const query = db('tiers')
-        .where('numero', numero);
+      let query = db('tiers').where('numero', numero);
       
       if (excludeId) {
-        query.whereNot('id_tiers', excludeId);
+        query = query.whereNot('id_tiers', excludeId);
       }
       
       const exists = await query.first();
       return !!exists;
     } catch (error) {
       console.error('Erreur TiersRepository.numeroExists:', error);
-      throw new Error('Erreur lors de la vérification du numéro');
+      throw error;
+    }
+  }
+
+  // AJOUTER LA MÉTHODE POUR RECHERCHER PAR DEVISE PRÉFÉRÉE
+  async findByDevisePreferee(devise) {
+    try {
+      const tiers = await db('tiers')
+        .where('devise_preferee', devise)
+        .andWhere('actif', true)
+        .select('*');
+      
+      return tiers;
+    } catch (error) {
+      console.error('Erreur TiersRepository.findByDevisePreferee:', error);
+      throw new Error('Erreur lors de la récupération des tiers par devise préférée');
     }
   }
 }

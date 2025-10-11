@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './TiersListPage.css';
+import './TiersFormModal.css';
 import { comptabiliteApi } from '../services/api';
 import type { Tiers } from '../types';
 
@@ -9,18 +9,26 @@ interface Props {
   onSave: () => void;
 }
 
+// Type pour les données qu'on envoie à l'API
+type TiersApiData = Omit<Tiers, 'id_tiers' | 'created_at' | 'updated_at'>;
+
 export const TiersFormModal: React.FC<Props> = ({ tiers, onClose, onSave }) => {
-  const [form, setForm] = useState<Tiers>(
-    tiers || {
-      id_tiers: 0,
+  // État pour le formulaire - seulement les champs éditables
+  const [form, setForm] = useState<TiersApiData>(
+    tiers ? {
+      type_tiers: tiers.type_tiers,
+      nom: tiers.nom,
+      numero: tiers.numero,
+      adresse: tiers.adresse,
+      email: tiers.email,
+      telephone: tiers.telephone,
+    } : {
       type_tiers: 'client',
       nom: '',
       numero: '',
       adresse: '',
       email: '',
       telephone: '',
-      created_at: '',
-      updated_at: '',
     }
   );
 
@@ -32,14 +40,19 @@ export const TiersFormModal: React.FC<Props> = ({ tiers, onClose, onSave }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      console.log('📤 Données envoyées:', form);
+      
       if (tiers) {
-        await comptabiliteApi.updateTiers(form.id_tiers, form);
+        // Modification - on envoie seulement les champs éditables
+        await comptabiliteApi.updateTiers(tiers.id_tiers, form);
       } else {
+        // Création - on envoie les mêmes données
         await comptabiliteApi.createTiers(form);
       }
       onSave();
     } catch (err) {
-      console.error('Erreur sauvegarde:', err);
+      console.error('❌ Erreur sauvegarde:', err);
+      alert('Erreur lors de la sauvegarde: ' + (err instanceof Error ? err.message : 'Erreur inconnue'));
     }
   };
 
@@ -49,16 +62,19 @@ export const TiersFormModal: React.FC<Props> = ({ tiers, onClose, onSave }) => {
         <h2>{tiers ? 'Modifier' : 'Ajouter'} un client/fournisseur</h2>
         <form onSubmit={handleSubmit}>
           <label>Type</label>
-          <select name="type_tiers" value={form.type_tiers} onChange={handleChange}>
+          <select name="type_tiers" value={form.type_tiers} onChange={handleChange} required>
             <option value="client">Client</option>
             <option value="fournisseur">Fournisseur</option>
           </select>
 
-          <label>Nom</label>
+          <label>Nom *</label>
           <input name="nom" value={form.nom} onChange={handleChange} required />
 
+          <label>Numéro</label>
+          <input name="numero" value={form.numero} onChange={handleChange} />
+
           <label>Email</label>
-          <input name="email" value={form.email} onChange={handleChange} />
+          <input name="email" type="email" value={form.email} onChange={handleChange} />
 
           <label>Téléphone</label>
           <input name="telephone" value={form.telephone} onChange={handleChange} />
@@ -67,8 +83,12 @@ export const TiersFormModal: React.FC<Props> = ({ tiers, onClose, onSave }) => {
           <input name="adresse" value={form.adresse} onChange={handleChange} />
 
           <div className="tiers-modal-actions">
-            <button type="submit" className="tiers-save-btn">Enregistrer</button>
-            <button type="button" className="tiers-cancel-btn" onClick={onClose}>Annuler</button>
+            <button type="submit" className="tiers-save-btn">
+              {tiers ? 'Modifier' : 'Créer'}
+            </button>
+            <button type="button" className="tiers-cancel-btn" onClick={onClose}>
+              Annuler
+            </button>
           </div>
         </form>
       </div>

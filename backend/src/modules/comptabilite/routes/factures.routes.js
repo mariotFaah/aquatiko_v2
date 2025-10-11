@@ -1,17 +1,15 @@
-import { Router } from 'express';
+// src/modules/comptabilite/routes/factures.routes.js
+import express from 'express';
 import { FactureController } from '../controllers/FactureController.js';
-import { validateRequest } from '../../../core/middleware/validation.js';
-import { createFactureSchema, updateFactureSchema } from '../validators/factures.validator.js';
 
-const router = Router();
+const router = express.Router();
 const factureController = new FactureController();
 
-router.get('/', factureController.getAll);
-router.get('/:id', factureController.getById);
-router.post('/', validateRequest(createFactureSchema), factureController.create);
-router.put('/:id', validateRequest(updateFactureSchema), factureController.update);
-router.delete('/:id', factureController.delete);
-router.post('/:id/valider', factureController.validerFacture);
-router.get('/:id/lignes', factureController.getLignesFacture);
+// Routes pour les factures (déjà correct avec .bind())
+router.get('/', factureController.getAll.bind(factureController));
+router.get('/:id', factureController.getById.bind(factureController));
+router.post('/', factureController.create.bind(factureController));
+router.put('/:id', factureController.update.bind(factureController));
+router.patch('/:id/valider', factureController.valider.bind(factureController));
 
 export default router;

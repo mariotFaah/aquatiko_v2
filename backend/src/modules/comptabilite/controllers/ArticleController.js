@@ -1,79 +1,58 @@
+import { successResponse, errorResponse, createdResponse } from '../../../core/utils/response.js';
 import { ArticleService } from '../services/ArticleService.js';
-import { successResponse, errorResponse } from '../../../core/utils/response.js';
 
 export class ArticleController {
   constructor() {
     this.articleService = new ArticleService();
   }
 
-  // GET /api/comptabilite/articles
-  getAll = async (req, res) => {
+  async getAll(req, res) {
     try {
       const articles = await this.articleService.getArticles();
-      successResponse(res, articles, 'Liste des articles récupérée avec succès');
+      successResponse(res, articles, 'Articles récupérés avec succès');
     } catch (error) {
-      errorResponse(res, error.message, 500);
+      errorResponse(res, error.message);
     }
-  };
+  }
 
-  // GET /api/comptabilite/articles/:code
-  getByCode = async (req, res) => {
+  async create(req, res) {
     try {
-      const { code } = req.params;
-      const article = await this.articleService.getArticleByCode(code);
-      successResponse(res, article, 'Article récupéré avec succès');
+      const nouvelArticle = await this.articleService.createArticle(req.body);
+      createdResponse(res, nouvelArticle, 'Article créé avec succès');
     } catch (error) {
-      if (error.message === 'Article non trouvé') {
-        errorResponse(res, error.message, 404);
-      } else {
-        errorResponse(res, error.message, 500);
-      }
+      errorResponse(res, error.message);
     }
-  };
+  }
 
-  // POST /api/comptabilite/articles
-  create = async (req, res) => {
+  async getByCode(req, res) {
     try {
-      const article = await this.articleService.createArticle(req.body);
-      successResponse(res, article, 'Article créé avec succès', 201);
-    } catch (error) {
-      if (error.message.includes('existe déjà')) {
-        errorResponse(res, error.message, 409);
-      } else {
-        errorResponse(res, error.message, 500);
+      const article = await this.articleService.getArticleByCode(req.params.code);
+      if (!article) {
+        return errorResponse(res, 'Article non trouvé', 404);
       }
+      successResponse(res, article);
+    } catch (error) {
+      errorResponse(res, error.message);
     }
-  };
+  }
 
-  // PUT /api/comptabilite/articles/:code
-  update = async (req, res) => {
+  async update(req, res) {
     try {
-      const { code } = req.params;
-      const article = await this.articleService.updateArticle(code, req.body);
-      successResponse(res, article, 'Article modifié avec succès');
+      const articleMaj = await this.articleService.updateArticle(req.params.code, req.body);
+      successResponse(res, articleMaj, 'Article mis à jour avec succès');
     } catch (error) {
-      if (error.message === 'Article non trouvé') {
-        errorResponse(res, error.message, 404);
-      } else {
-        errorResponse(res, error.message, 500);
-      }
+      errorResponse(res, error.message);
     }
-  };
+  }
 
-  // DELETE /api/comptabilite/articles/:code
-  delete = async (req, res) => {
+  async delete(req, res) {
     try {
-      const { code } = req.params;
-      const result = await this.articleService.deleteArticle(code);
-      successResponse(res, result, 'Article supprimé avec succès');
+      await this.articleService.deleteArticle(req.params.code);
+      successResponse(res, null, 'Article supprimé avec succès');
     } catch (error) {
-      if (error.message === 'Article non trouvé') {
-        errorResponse(res, error.message, 404);
-      } else {
-        errorResponse(res, error.message, 500);
-      }
+      errorResponse(res, error.message);
     }
-  };
+  }
 }
 
 export default ArticleController;

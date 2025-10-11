@@ -13,16 +13,22 @@ export const FacturesListPage: React.FC = () => {
     loadFactures();
   }, []);
 
-  const loadFactures = async () => {
-    try {
-      const data = await comptabiliteApi.getFactures();
-      setFactures(data);
-    } catch (error) {
-      console.error('Erreur chargement factures:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+// Dans FacturesListPage.tsx - améliorer loadFactures
+const loadFactures = async () => {
+  try {
+    setLoading(true);
+    const data = await comptabiliteApi.getFactures();
+    console.log('📋 Factures chargées:', data); // Debug
+    setFactures(data);
+  } catch (error) {
+    console.error('Erreur chargement factures:', error);
+    // En cas d'erreur, définir un tableau vide
+    setFactures([]);
+    alert('Erreur lors du chargement des factures');
+  } finally {
+    setLoading(false);
+  }
+};
 
   const filteredFactures = factures.filter(facture => {
     if (filter === 'all') return true;

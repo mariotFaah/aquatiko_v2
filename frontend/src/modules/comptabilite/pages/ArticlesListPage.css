@@ -1,0 +1,141 @@
+/* ArticlesListPage.css */
+.articles-page {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.articles-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.articles-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #1f2937;
+  margin: 0;
+}
+
+.articles-subtitle {
+  color: #6b7280;
+  margin: 0.5rem 0 0 0;
+}
+
+.articles-add-btn {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.articles-add-btn:hover {
+  background: #059669;
+}
+
+.articles-table-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.articles-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.articles-table th {
+  background: #f9fafb;
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.articles-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.articles-table tr:hover {
+  background: #f9fafb;
+}
+
+.article-code {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.article-description {
+  color: #374151;
+}
+
+.article-price {
+  font-weight: 600;
+  color: #059669;
+}
+
+.article-tva {
+  color: #6b7280;
+}
+
+.article-unit {
+  color: #6b7280;
+  text-transform: capitalize;
+}
+
+.articles-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.articles-edit-btn {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.articles-edit-btn:hover {
+  background: #2563eb;
+}
+
+.articles-delete-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875r em;
+}
+
+.articles-delete-btn:hover {
+  background: #dc2626;
+}
+
+.articles-loading {
+  text-align: center;
+  padding: 3rem;
+  color: #6b7280;
+}
+
+.articles-empty {
+  text-align: center;
+  padding: 3rem;
+  color: #6b7280;
+  font-style: italic;
+}

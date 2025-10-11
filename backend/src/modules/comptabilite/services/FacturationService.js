@@ -174,6 +174,48 @@ export class FacturationService {
   async genererNumeroFacture() {
     return await this.factureRepository.getNextNumero();
   }
+
+    // Récupérer toutes les factures
+  async getFactures() {
+    try {
+      return await this.factureRepository.findAll();
+    } catch (error) {
+      console.error('Erreur FacturationService.getFactures:', error);
+      throw new Error('Erreur lors de la récupération des factures');
+    }
+  }
+
+  // Récupérer une facture par ID
+  async getFactureById(numero_facture) {
+    try {
+      const facture = await this.factureRepository.findById(numero_facture);
+      
+      if (!facture) {
+        throw new Error('Facture non trouvée');
+      }
+
+      return facture;
+    } catch (error) {
+      console.error('Erreur FacturationService.getFactureById:', error);
+      throw new Error(`Erreur lors de la récupération de la facture: ${error.message}`);
+    }
+  }
+
+  // Mettre à jour une facture
+  async updateFacture(numero_facture, factureData) {
+    try {
+      const facture = await this.factureRepository.findById(numero_facture);
+      
+      if (!facture) {
+        throw new Error('Facture non trouvée');
+      }
+
+      return await this.factureRepository.update(numero_facture, factureData);
+    } catch (error) {
+      console.error('Erreur FacturationService.updateFacture:', error);
+      throw new Error(`Erreur lors de la mise à jour de la facture: ${error.message}`);
+    }
+  }
 }
 
 export default FacturationService;        

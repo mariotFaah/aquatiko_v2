@@ -1,3 +1,4 @@
+// src/modules/comptabilite/routes/articles.routes.js
 import { Router } from 'express';
 import { ArticleController } from '../controllers/ArticleController.js';
 import { validateRequest } from '../../../core/middleware/validation.js';
@@ -6,10 +7,11 @@ import { createArticleSchema, updateArticleSchema } from '../validators/articles
 const router = Router();
 const articleController = new ArticleController();
 
-router.get('/', articleController.getAll);
-router.get('/:code', articleController.getByCode);
-router.post('/', validateRequest(createArticleSchema), articleController.create);
-router.put('/:code', validateRequest(updateArticleSchema), articleController.update);
-router.delete('/:code', articleController.delete);
+// AJOUTER .bind() pour toutes les méthodes
+router.get('/', articleController.getAll.bind(articleController));
+router.get('/:code', articleController.getByCode.bind(articleController));
+router.post('/', validateRequest(createArticleSchema), articleController.create.bind(articleController));
+router.put('/:code', validateRequest(updateArticleSchema), articleController.update.bind(articleController));
+router.delete('/:code', articleController.delete.bind(articleController));
 
 export default router;

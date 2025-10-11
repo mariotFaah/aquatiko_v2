@@ -1,81 +1,58 @@
+import { successResponse, errorResponse, createdResponse } from '../../../core/utils/response.js';
 import { TiersService } from '../services/TiersService.js';
-import { successResponse, errorResponse } from '../../../core/utils/response.js';
 
 export class TiersController {
   constructor() {
     this.tiersService = new TiersService();
   }
 
-  // GET /api/comptabilite/tiers
-  getAll = async (req, res) => {
+  async getAll(req, res) {
     try {
       const tiers = await this.tiersService.getTiers();
-      successResponse(res, tiers, 'Liste des tiers récupérée avec succès');
+      successResponse(res, tiers, 'Tiers récupérés avec succès');
     } catch (error) {
-      errorResponse(res, error.message, 500);
+      errorResponse(res, error.message);
     }
-  };
+  }
 
-  // GET /api/comptabilite/tiers/:id
-  getById = async (req, res) => {
+  async create(req, res) {
     try {
-      const { id } = req.params;
-      const tiers = await this.tiersService.getTiersById(parseInt(id));
-      successResponse(res, tiers, 'Tiers récupéré avec succès');
+      const nouveauTiers = await this.tiersService.createTiers(req.body);
+      createdResponse(res, nouveauTiers, 'Tiers créé avec succès');
     } catch (error) {
-      if (error.message === 'Tiers non trouvé') {
-        errorResponse(res, error.message, 404);
-      } else {
-        errorResponse(res, error.message, 500);
-      }
+      errorResponse(res, error.message);
     }
-  };
+  }
 
-  // POST /api/comptabilite/tiers
-  create = async (req, res) => {
+  async getById(req, res) {
     try {
-      const tiers = await this.tiersService.createTiers(req.body);
-      successResponse(res, tiers, 'Tiers créé avec succès', 201);
-    } catch (error) {
-      if (error.message.includes('existe déjà')) {
-        errorResponse(res, error.message, 409);
-      } else {
-        errorResponse(res, error.message, 500);
+      const tiers = await this.tiersService.getTiersById(req.params.id);
+      if (!tiers) {
+        return errorResponse(res, 'Tiers non trouvé', 404);
       }
+      successResponse(res, tiers);
+    } catch (error) {
+      errorResponse(res, error.message);
     }
-  };
+  }
 
-  // PUT /api/comptabilite/tiers/:id
-  update = async (req, res) => {
+  async update(req, res) {
     try {
-      const { id } = req.params;
-      const tiers = await this.tiersService.updateTiers(parseInt(id), req.body);
-      successResponse(res, tiers, 'Tiers modifié avec succès');
+      const tiersMaj = await this.tiersService.updateTiers(req.params.id, req.body);
+      successResponse(res, tiersMaj, 'Tiers mis à jour avec succès');
     } catch (error) {
-      if (error.message === 'Tiers non trouvé') {
-        errorResponse(res, error.message, 404);
-      } else if (error.message.includes('existe déjà')) {
-        errorResponse(res, error.message, 409);
-      } else {
-        errorResponse(res, error.message, 500);
-      }
+      errorResponse(res, error.message);
     }
-  };
+  }
 
-  // DELETE /api/comptabilite/tiers/:id
-  delete = async (req, res) => {
+  async delete(req, res) {
     try {
-      const { id } = req.params;
-      const result = await this.tiersService.deleteTiers(parseInt(id));
-      successResponse(res, result, 'Tiers supprimé avec succès');
+      await this.tiersService.deleteTiers(req.params.id);
+      successResponse(res, null, 'Tiers supprimé avec succès');
     } catch (error) {
-      if (error.message === 'Tiers non trouvé') {
-        errorResponse(res, error.message, 404);
-      } else {
-        errorResponse(res, error.message, 500);
-      }
+      errorResponse(res, error.message);
     }
-  };
+  }
 }
 
 export default TiersController;
