@@ -7,6 +7,8 @@ interface CalculsFactureProps {
   totalTTC: number;
   echeance: string;
   reglement: string;
+  devise?: string;
+  taux_change?: number;
 }
 
 export const CalculsFacture: React.FC<CalculsFactureProps> = ({
@@ -14,13 +16,29 @@ export const CalculsFacture: React.FC<CalculsFactureProps> = ({
   totalTVA,
   totalTTC,
   echeance,
-  reglement
+  reglement,
+  devise = 'MGA',
+  taux_change = 1.0
 }) => {
-  const formatCurrency = (amount: number): string => {
+  // Calculer les équivalents en MGA
+  const totalHT_MGA = totalHT * taux_change;
+  const totalTVA_MGA = totalTVA * taux_change;
+  const totalTTC_MGA = totalTTC * taux_change;
+
+  const getDeviseSymbol = (dev: string) => {
+    const symbols: { [key: string]: string } = {
+      'MGA': 'Ar',
+      'USD': '$',
+      'EUR': '€'
+    };
+    return symbols[dev] || dev;
+  };
+
+  const formatCurrency = (amount: number, devise: string): string => {
     return amount.toLocaleString('fr-FR', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
-    }) + ' Ar';
+    }) + ` ${getDeviseSymbol(devise)}`;
   };
 
   const getReglementLabel = (reglement: string): string => {
@@ -38,22 +56,27 @@ export const CalculsFacture: React.FC<CalculsFactureProps> = ({
       {/* Colonne de gauche - Informations */}
       <div className="calculs-info-column">
         <div className="calculs-field">
-          <label className="calculs-label">
-            Échéance
-          </label>
+          <label className="calculs-label">Échéance</label>
           <div className="calculs-value">
             {new Date(echeance).toLocaleDateString('fr-FR')}
           </div>
         </div>
         
         <div className="calculs-field">
-          <label className="calculs-label">
-            Mode de règlement
-          </label>
+          <label className="calculs-label">Mode de règlement</label>
           <div className="calculs-value">
             {getReglementLabel(reglement)}
           </div>
         </div>
+
+        {devise !== 'MGA' && (
+          <div className="calculs-taux-change">
+            <label className="calculs-label">Taux de change</label>
+            <div className="calculs-value">
+              1 {devise} = {taux_change} MGA
+            </div>
+          </div>
+        )}
         
         <div className="calculs-thank-you">
           <p className="calculs-thank-you-text">
@@ -69,25 +92,44 @@ export const CalculsFacture: React.FC<CalculsFactureProps> = ({
       <div className="calculs-totals-column">
         <div className="calculs-total-row">
           <span className="calculs-total-label">Total HT:</span>
-          <span className="calculs-total-value">{formatCurrency(totalHT)}</span>
+          <span className="calculs-total-value">
+            {formatCurrency(totalHT, devise)}
+            {devise !== 'MGA' && (
+              <small className="calculs-conversion">
+                ({formatCurrency(totalHT_MGA, 'MGA')})
+              </small>
+            )}
+          </span>
         </div>
         
         <div className="calculs-total-row">
           <span className="calculs-total-label">Remise globale:</span>
-          <span className="calculs-total-value">0,00 Ar</span>
+          <span className="calculs-total-value">
+            {formatCurrency(0, devise)}
+          </span>
         </div>
         
         <div className="calculs-total-row">
           <span className="calculs-total-label">Total TVA:</span>
           <span className="calculs-total-value calculs-total-tva">
-            {formatCurrency(totalTVA)}
+            {formatCurrency(totalTVA, devise)}
+            {devise !== 'MGA' && (
+              <small className="calculs-conversion">
+                ({formatCurrency(totalTVA_MGA, 'MGA')})
+              </small>
+            )}
           </span>
         </div>
         
         <div className="calculs-total-ttc">
           <span className="calculs-total-ttc-label">Total TTC:</span>
           <span className="calculs-total-ttc-value">
-            {formatCurrency(totalTTC)}
+            {formatCurrency(totalTTC, devise)}
+            {devise !== 'MGA' && (
+              <small className="calculs-conversion">
+                ({formatCurrency(totalTTC_MGA, 'MGA')})
+              </small>
+            )}
           </span>
         </div>
 
@@ -96,7 +138,12 @@ export const CalculsFacture: React.FC<CalculsFactureProps> = ({
           <div className="calculs-net-row">
             <span className="calculs-net-label">Net à payer:</span>
             <span className="calculs-net-value">
-              {formatCurrency(totalTTC)}
+              {formatCurrency(totalTTC, devise)}
+              {devise !== 'MGA' && (
+                <small className="calculs-conversion">
+                  ({formatCurrency(totalTTC_MGA, 'MGA')})
+                </small>
+              )}
             </span>
           </div>
         </div>

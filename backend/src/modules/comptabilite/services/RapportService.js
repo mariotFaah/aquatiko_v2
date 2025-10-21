@@ -53,7 +53,7 @@ export class RapportService {
     return resultat;
   }
 
-    async genererTresorerie(date_debut = '2024-01-01', date_fin = '2024-12-31') {
+  async genererTresorerie(date_debut = '2024-01-01', date_fin = '2024-12-31') {
     try {
       // Utiliser les méthodes existantes des repositories
       const paiementsData = await this.paiementRepo.getPaiementsByPeriode(date_debut, date_fin);
@@ -96,14 +96,20 @@ export class RapportService {
 
   async genererRapportTVA(date_debut = '2024-01-01', date_fin = '2024-12-31') {
     try {
-      // Récupérer les écritures TVA de la période
+      // CORRECTION: Inclure les deux comptes TVA
       const tva_ecritures = await this.ecritureRepo.query()
-        .where('compte', '445710')
+        .whereIn('compte', ['445710', '445620']) // TVA collectée ET déductible
         .whereBetween('date', [date_debut, date_fin])
         .select('*');
 
-      const tva_collectee = tva_ecritures.reduce((sum, e) => sum + parseFloat(e.credit), 0);
-      const tva_deductable = tva_ecritures.reduce((sum, e) => sum + parseFloat(e.debit), 0);
+      // Séparer les deux types de TVA
+      const tva_collectee = tva_ecritures
+        .filter(e => e.compte === '445710')
+        .reduce((sum, e) => sum + parseFloat(e.credit), 0);
+        
+      const tva_deductable = tva_ecritures
+        .filter(e => e.compte === '445620') 
+        .reduce((sum, e) => sum + parseFloat(e.debit), 0);
 
       return {
         tva_collectee: tva_collectee,
@@ -114,17 +120,22 @@ export class RapportService {
       };
     } catch (error) {
       console.error('Erreur RapportService.genererRapportTVA:', error);
-      // Solution de repli
-      const tva_data = await this.ecritureRepo.getSoldeCompte('445710', date_fin);
-      
-      return {
-        tva_collectee: tva_data.credit,
-        tva_deductable: tva_data.debit,
-        tva_a_payer: tva_data.credit - tva_data.debit,
-        periode: `${date_debut} à ${date_fin}`,
-        note: "Calculé à partir du solde du compte TVA"
-      };
+      // Solution de repli avec les deux comptes
+      try {
+        const tva_collectee_data = await this.ecritureRepo.getSoldeCompte('445710', date_fin);
+        const tva_deductable_data = await this.ecritureRepo.getSoldeCompte('445620', date_fin);
+        
+        return {
+          tva_collectee: tva_collectee_data.credit,
+          tva_deductable: tva_deductable_data.debit,
+          tva_a_payer: tva_collectee_data.credit - tva_deductable_data.debit,
+          periode: `${date_debut} à ${date_fin}`,
+          note: "Calculé à partir des soldes des comptes TVA"
+        };
+      } catch (fallbackError) {
+        console.error('Erreur solution de repli TVA:', fallbackError);
+        throw new Error('Impossible de générer le rapport TVA');
+      }
     }
   }
-
 }

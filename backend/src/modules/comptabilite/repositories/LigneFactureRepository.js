@@ -80,6 +80,26 @@ export class LigneFactureRepository {
       throw new Error('Erreur lors du calcul des totaux de la facture');
     }
   }
+
+  // Dans src/modules/comptabilite/repositories/LigneFactureRepository.js
+// Ajoutez cette méthode après les méthodes existantes :
+
+async deleteByFacture(numero_facture) {
+  try {
+    console.log('🗑️ Suppression des lignes pour facture:', numero_facture);
+    
+    const result = await db('ligne_facture')
+      .where('numero_facture', numero_facture)
+      .delete();
+    
+    console.log(`✅ ${result} lignes supprimées pour la facture ${numero_facture}`);
+    return result;
+    
+  } catch (error) {
+    console.error('❌ Erreur LigneFactureRepository.deleteByFacture:', error);
+    throw new Error('Erreur lors de la suppression des lignes de facture');
+  }
+}
 }
 
 export default LigneFactureRepository;

@@ -1,36 +1,55 @@
 .main-layout {
   display: flex;
   min-height: 100vh;
-  background-color: #f9fafb; /* gris clair pour le fond */
+  background-color: #f9fafb;
+  width: 100%;
 }
 
-/* Contenu principal (décalé quand sidebar ouverte) */
+/* Contenu principal */
 .main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   transition: all 0.3s ease;
+  width: 100%;
+  min-height: 100vh;
 }
-
-.sidebar-closed .main-content {
-  margin-left: 0;
-}
-
 
 /* Quand sidebar est ouverte (desktop) */
 .main-content.sidebar-open {
   margin-left: 16rem; /* largeur de la sidebar */
+  width: calc(100% - 16rem);
 }
 
 /* Zone centrale où s'affichent les pages */
 .main-content-area {
+  flex: 1;
   padding: 1.5rem;
+  background-color: #f9fafb;
+  min-height: calc(100vh - 60px); /* Ajustez selon la hauteur de votre header */
+  width: 100%;
 }
 
 /* Responsive : en mobile, pas de décalage */
 @media (max-width: 768px) {
   .main-content {
     margin-left: 0 !important;
+    width: 100% !important;
   }
 
   .main-content.sidebar-open {
     margin-left: 0 !important;
+    width: 100% !important;
+  }
+  
+  .main-content-area {
+    padding: 1rem;
+  }
+}
+
+/* Pour les très petits écrans */
+@media (max-width: 480px) {
+  .main-content-area {
+    padding: 0.5rem;
   }
 }

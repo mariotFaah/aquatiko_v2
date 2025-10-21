@@ -163,9 +163,7 @@ const loadFactures = async () => {
                     >
                       Modifier
                     </Link>
-                    <button className="factures-action-delete">
-                      Supprimer
-                    </button>
+                    
                   </div>
                 </td>
               </tr>

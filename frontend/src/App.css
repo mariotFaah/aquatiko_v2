@@ -40,3 +40,17 @@
 .read-the-docs {
   color: #888;
 }
+
+.container-fluid {
+  width: 100%;
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+/* Assurez-vous que toutes les pages prennent toute la largeur */
+.page-container {
+  width: 100%;
+  max-width: 100%;
+}

@@ -4,6 +4,7 @@
   "type": "module",
   "main": "src/app.js",
   "scripts": {
+    "corriger-ecritures": "node scripts/corriger-ecritures-factures.js",
     "dev": "nodemon src/app.js",
     "start": "node src/app.js",
     "migrate": "knex migrate:latest",

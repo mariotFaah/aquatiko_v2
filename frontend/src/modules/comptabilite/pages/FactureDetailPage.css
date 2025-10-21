@@ -1,0 +1,398 @@
+.facture-detail-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.facture-detail-loading,
+.facture-detail-error {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 400px;
+  gap: 20px;
+}
+
+.facture-detail-loading-text,
+.facture-detail-error-text {
+  font-size: 18px;
+  color: #666;
+}
+
+/* En-tête de page */
+.facture-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.facture-detail-title {
+  color: #1976d2;
+  margin: 0 0 8px 0;
+  font-size: 32px;
+}
+
+.facture-detail-subtitle {
+  color: #666;
+  margin: 0;
+  font-size: 16px;
+}
+
+.facture-detail-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.facture-detail-back-button {
+  background: #6c757d;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.facture-detail-validate-button {
+  background: #28a745;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.facture-detail-print-button {
+  background: #17a2b8;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.facture-detail-cancel-button {
+  background: #dc3545;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.facture-detail-back-button:hover {
+  background: #5a6268;
+}
+
+.facture-detail-validate-button:hover:not(:disabled) {
+  background: #218838;
+}
+
+.facture-detail-print-button:hover {
+  background: #138496;
+}
+
+.facture-detail-cancel-button:hover:not(:disabled) {
+  background: #c82333;
+}
+
+.facture-detail-validate-button:disabled,
+.facture-detail-cancel-button:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+}
+
+/* Carte principale */
+.facture-detail-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+/* En-tête informations */
+.facture-detail-header-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 30px;
+  padding: 30px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.facture-detail-entreprise h3,
+.facture-detail-client h3 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 18px;
+}
+
+.facture-detail-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.facture-detail-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.facture-detail-meta-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.facture-detail-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  margin-left: 8px;
+}
+
+.facture-detail-badge.statut-validee {
+  background: #d4edda;
+  color: #155724;
+}
+
+.facture-detail-badge.statut-brouillon {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.facture-detail-badge.statut-annulee {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.facture-detail-badge.type-facture {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+.facture-detail-badge.type-proforma {
+  background: #e2e3e5;
+  color: #383d41;
+}
+
+.facture-detail-badge.type-avoir {
+  background: #d4edda;
+  color: #155724;
+}
+
+/* Lignes de facture */
+.facture-detail-lignes {
+  padding: 30px;
+}
+
+.facture-detail-lignes h3 {
+  margin: 0 0 20px 0;
+  color: #333;
+  font-size: 20px;
+}
+
+.facture-detail-table-container {
+  overflow-x: auto;
+}
+
+.facture-detail-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.facture-detail-table th {
+  background: #f8f9fa;
+  padding: 12px 8px;
+  text-align: left;
+  font-weight: 600;
+  color: #555;
+  border-bottom: 2px solid #dee2e6;
+  font-size: 13px;
+}
+
+.facture-detail-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #dee2e6;
+  font-size: 13px;
+}
+
+.facture-detail-ligne:hover {
+  background-color: #f8f9fa;
+}
+
+.facture-detail-ligne-description {
+  max-width: 200px;
+  word-wrap: break-word;
+}
+
+.facture-detail-ligne-quantite,
+.facture-detail-ligne-prix,
+.facture-detail-ligne-remise,
+.facture-detail-ligne-tva,
+.facture-detail-ligne-montant {
+  text-align: right;
+  font-family: 'Courier New', monospace;
+}
+
+/* Totaux */
+.facture-detail-totals {
+  padding: 20px 30px;
+  background: #f8f9fa;
+  border-top: 2px solid #dee2e6;
+}
+
+.facture-detail-totals-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+}
+
+.facture-detail-total-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.facture-detail-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.facture-detail-total-ttc {
+  border-top: 2px solid #333;
+  border-bottom: none;
+  padding-top: 12px;
+  margin-top: 5px;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.facture-detail-total-value {
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+}
+
+.facture-detail-paiement-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.facture-detail-paiement-item {
+  padding: 6px 0;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.facture-detail-merci {
+  margin-top: 20px;
+  padding: 15px;
+  background: white;
+  border-radius: 6px;
+  text-align: center;
+  font-style: italic;
+  color: #666;
+}
+
+.facture-detail-merci p {
+  margin: 5px 0;
+}
+
+/* Footer */
+.facture-detail-footer {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 30px;
+  padding: 20px 30px;
+  background: white;
+  border-top: 1px solid #dee2e6;
+}
+
+.facture-detail-notes h4 {
+  margin: 0 0 10px 0;
+  color: #333;
+}
+
+.facture-detail-notes p {
+  margin: 0;
+  color: #666;
+  line-height: 1.5;
+}
+
+.facture-detail-timestamps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12px;
+  color: #999;
+}
+
+/* Impression */
+@media print {
+  .facture-detail-actions {
+    display: none;
+  }
+  
+  .facture-detail-card {
+    box-shadow: none;
+  }
+  
+  .facture-detail-page {
+    padding: 0;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .facture-detail-header {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .facture-detail-header-info {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .facture-detail-totals-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .facture-detail-footer {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .facture-detail-actions {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .facture-detail-table {
+    font-size: 12px;
+  }
+  
+  .facture-detail-table th,
+  .facture-detail-table td {
+    padding: 6px 4px;
+  }
+}

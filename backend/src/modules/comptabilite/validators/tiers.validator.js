@@ -16,9 +16,17 @@ export const createTiersSchema = Joi.object({
   adresse: Joi.string().max(500).allow('').optional().messages({
     'string.max': 'L\'adresse ne peut pas dépasser 500 caractères'
   }),
-  email: Joi.string().email().allow('').optional().messages({
-    'string.email': 'L\'email doit être une adresse email valide'
-  }),
+  email: Joi.string()
+    .email({ 
+      tlds: { 
+        allow: false // 🔥 CORRECTION : Désactive la validation stricte des TLD
+      } 
+    })
+    .allow('')
+    .optional()
+    .messages({
+      'string.email': 'L\'email doit être une adresse email valide'
+    }),
   telephone: Joi.string().max(20).allow('').optional().messages({
     'string.max': 'Le téléphone ne peut pas dépasser 20 caractères'
   })
@@ -29,6 +37,13 @@ export const updateTiersSchema = Joi.object({
   type_tiers: Joi.string().valid('client', 'fournisseur').optional(),
   numero: Joi.string().max(50).allow('').optional(),
   adresse: Joi.string().max(500).allow('').optional(),
-  email: Joi.string().email().allow('').optional(),
+  email: Joi.string()
+    .email({ 
+      tlds: { 
+        allow: false // 🔥 CORRECTION : Désactive la validation stricte des TLD
+      } 
+    })
+    .allow('')
+    .optional(),
   telephone: Joi.string().max(20).allow('').optional()
-}).min(1); // 👈 Ajoutez cette ligne pour s'assurer qu'au moins un champ est fourni
+}).min(1);

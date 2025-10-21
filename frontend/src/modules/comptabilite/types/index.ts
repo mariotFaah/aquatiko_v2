@@ -10,9 +10,9 @@ export interface LigneFacture {
   prix_unitaire: number;
   taux_tva: number;
   remise: number;
-  montant_ht: number;
-  montant_tva: number;
-  montant_ttc: number;
+  montant_ht?: number; // Rendre optionnel
+  montant_tva?: number; // Rendre optionnel
+  montant_ttc?: number; // Rendre optionnel
   article_description?: string;
   article_unite?: string;
 }
@@ -57,7 +57,8 @@ export interface Facture {
   adresse?: string;
   email?: string;
   telephone?: string;
-  // NOUVEAUX CHAMPS
+  // NOUVEAUX CHAMPS POUR ÉCHÉANCES
+  type_tiers?: 'client' | 'fournisseur';  // ← AJOUTÉ
   devise?: string;
   taux_change?: number;
   notes?: string;
@@ -65,6 +66,7 @@ export interface Facture {
   created_at?: string;
   updated_at?: string;
 }
+
 
 export interface FactureFormData {
   facture: Omit<Facture, 'numero_facture' | 'lignes' | 'created_at' | 'updated_at'>;

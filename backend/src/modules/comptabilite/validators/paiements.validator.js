@@ -1,9 +1,12 @@
-// src/modules/comptabilite/validators/paiements.validator.js
+import { ReferentielService } from '../services/ReferentielService.js';
+
+const referentielService = new ReferentielService();
+
 export const createPaiementValidator = {
   numero_facture: {
     in: ['body'],
-    notEmpty: true,
-    errorMessage: 'Le numéro de facture est requis'
+    isInt: { min: 1 },
+    errorMessage: 'Le numéro de facture doit être un entier positif'
   },
   montant: {
     in: ['body'],
@@ -12,12 +15,19 @@ export const createPaiementValidator = {
   },
   mode_paiement: {
     in: ['body'],
-    isIn: [['espèce', 'virement', 'chèque', 'carte']],
-    errorMessage: 'Mode de paiement invalide'
+    custom: {
+      options: async (value) => {
+        const modes = await referentielService.getModesPaiement();
+        const codes = modes.map(m => m.code);
+        return codes.includes(value);
+      },
+      errorMessage: 'Mode de paiement invalide'
+    }
   },
   date_paiement: {
     in: ['body'],
     isDate: true,
-    errorMessage: 'Date de paiement invalide'
+    errorMessage: 'Date de paiement invalide',
+    optional: true
   }
 };

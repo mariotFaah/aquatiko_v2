@@ -1,4 +1,4 @@
-// src/modules/comptabilite/pages/PaiementsListPage.tsx - VERSION CORRIGÉE
+// src/modules/comptabilite/pages/PaiementsListPage.tsx - VERSION 100% API
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import type { Paiement, Facture } from '../types';
@@ -20,72 +20,37 @@ export const PaiementsListPage: React.FC = () => {
     try {
       const [facturesData, paiementsData] = await Promise.all([
         comptabiliteApi.getFactures(),
-        paiementApi.getPaiements() // ✅ UTILISER L'API RÉELLE
+        paiementApi.getPaiements()
       ]);
       
       setFactures(facturesData);
       setPaiements(paiementsData);
     } catch (error) {
       console.error('Erreur chargement données:', error);
-      // En cas d'erreur API, utiliser les données simulées
-      const facturesData = await comptabiliteApi.getFactures();
-      setFactures(facturesData);
-      setPaiements(await simulerPaiements());
+      alert('Erreur lors du chargement des paiements. Vérifiez que le backend est démarré.');
     } finally {
       setLoading(false);
     }
   };
 
-  // Fonction de simulation SECOURS seulement
-  const simulerPaiements = async (): Promise<Paiement[]> => {
-    return [
-      {
-        id_paiement: 1,
-        numero_facture: 1,
-        date_paiement: '2025-10-09',
-        montant: 50000,
-        mode_paiement: 'virement',
-        reference: 'VIR-001',
-        statut: 'validé',
-        devise: 'MGA',
-        taux_change: 1,
-        created_at: '2025-10-09T10:00:00Z'
-      },
-      {
-        id_paiement: 2,
-        numero_facture: 2,
-        date_paiement: '2025-10-08',
-        montant: 75000,
-        mode_paiement: 'chèque',
-        reference: 'CHQ-001',
-        statut: 'en_attente',
-        devise: 'MGA',
-        taux_change: 1,
-        created_at: '2025-10-08T14:30:00Z'
-      }
-    ];
-  };
+  // SUPPRIMER complètement la fonction simulerPaiements()
 
-  // Fonction pour valider un paiement
   const handleValiderPaiement = async (idPaiement: number) => {
     try {
-      const paiementValide = await paiementApi.validerPaiement(idPaiement);
-      setPaiements(prev => prev.map(p => 
-        p.id_paiement === idPaiement ? { ...p, ...paiementValide } : p
-      ));
+      await paiementApi.validerPaiement(idPaiement);
+      // Recharger les données après validation
+      await loadData();
     } catch (error) {
       console.error('Erreur validation paiement:', error);
       alert('Erreur lors de la validation du paiement');
     }
   };
 
-  // Fonction pour annuler un paiement
   const handleAnnulerPaiement = async (idPaiement: number) => {
     try {
-      const paiementAnnule = await paiementApi.annulerPaiement(idPaiement);
-      setPaiements(prev => prev.map(p => 
-        p.id_paiement === idPaiement ? { ...p, ...paiementAnnule } : p
-      ));
+      await paiementApi.annulerPaiement(idPaiement);
+      // Recharger les données après annulation
+      await loadData();
     } catch (error) {
       console.error('Erreur annulation paiement:', error);
       alert('Erreur lors de l\'annulation du paiement');
@@ -116,7 +81,6 @@ export const PaiementsListPage: React.FC = () => {
     return `${classes[mode as keyof typeof classes] || 'paiements-badge-default'} paiements-badge`;
   };
 
-  // CORRECTION: Ajouter la fonction pour obtenir le nom du client depuis la facture
   const getNomClient = (numeroFacture: number): string => {
     const facture = factures.find(f => f.numero_facture === numeroFacture);
     return facture?.nom_tiers || `Facture #${numeroFacture}`;

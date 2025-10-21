@@ -31,7 +31,7 @@ const loadTiers = async () => {
   }
 };
 
-  const handleDelete = async (id: number) => {
+ {/* const handleDelete = async (id: number) => {
     if (!window.confirm('Supprimer ce client/fournisseur ?')) return;
     try {
       await comptabiliteApi.deleteTiers(id);
@@ -39,7 +39,7 @@ const loadTiers = async () => {
     } catch (err) {
       console.error('Erreur suppression:', err);
     }
-  };
+  };*/}
 
   const handleEdit = (tiers: Tiers) => {
     setSelectedTiers(tiers);
@@ -87,7 +87,7 @@ const loadTiers = async () => {
                 <td>{t.adresse}</td>
                 <td className="tiers-actions">
                   <button className="tiers-edit-btn" onClick={() => handleEdit(t)}>Modifier</button>
-                  <button className="tiers-delete-btn" onClick={() => handleDelete(t.id_tiers)}>Supprimer</button>
+                  {/*<button className="tiers-delete-btn" onClick={() => handleDelete(t.id_tiers)}>Supprimer</button>*/}
                 </td>
               </tr>
             ))}

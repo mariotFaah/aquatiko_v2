@@ -9,7 +9,7 @@ export default {
       port: process.env.DB_PORT || 3306,
       database: process.env.DB_NAME || 'gestion_entreprise',
       user: process.env.DB_USER || 'admin',
-      password: process.env.DB_PASSWORD || 'mot_de_passe', // A changer en production
+      password: process.env.DB_PASSWORD || 'mot_de_passe',
       charset: 'utf8mb4'
     },
     migrations: {

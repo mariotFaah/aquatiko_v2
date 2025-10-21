@@ -1,4 +1,4 @@
-// src/modules/comptabilite/pages/BilanComptablePage.tsx
+// src/modules/comptabilite/pages/BilanComptablePage.tsx - VERSION FINALE
 import React, { useState, useEffect } from 'react';
 import { rapportApi } from '../services/rapportApi';
 import type { RapportBilan } from '../types';
@@ -17,17 +17,6 @@ export const BilanComptablePage: React.FC = () => {
       setBilan(data);
     } catch (error) {
       console.error('Erreur chargement bilan:', error);
-      // Données de démo
-      setBilan({
-        '101000': { debit: 0, credit: 5000000, solde: -5000000 }, // Capital
-        '211000': { debit: 2000000, credit: 0, solde: 2000000 }, // Immobilisations
-        '311000': { debit: 1000000, credit: 0, solde: 1000000 }, // Stocks
-        '411000': { debit: 1500000, credit: 0, solde: 1500000 }, // Clients
-        '512000': { debit: 800000, credit: 0, solde: 800000 },   // Banque
-        '401000': { debit: 0, credit: 1200000, solde: -1200000 }, // Fournisseurs
-        '421000': { debit: 0, credit: 500000, solde: -500000 },  // Personnel
-        '445710': { debit: 0, credit: 300000, solde: -300000 },  // TVA collectée
-      });
     } finally {
       setLoading(false);
     }
@@ -46,16 +35,44 @@ export const BilanComptablePage: React.FC = () => {
     loadBilan();
   };
 
+  const getLibelleCompte = (compte: string): string => {
+    const libelles: { [key: string]: string } = {
+      '101000': 'Capital social',
+      '102000': 'Réserves',
+      '103000': 'Report à nouveau',
+      '211000': 'Immobilisations corporelles',
+      '213000': 'Immobilisations incorporelles',
+      '215000': 'Immobilisations financières',
+      '311000': 'Stocks de marchandises',
+      '312000': 'Stocks de matières premières',
+      '313000': 'Stocks de produits finis',
+      '401000': 'Fournisseurs',
+      '411000': 'Clients',
+      '412000': 'Clients douteux',
+      '445620': 'TVA déductible',
+      '445710': 'TVA collectée',
+      '511000': 'Banque principale',
+      '512000': 'Banque secondaire',
+      '513000': 'Autres comptes bancaires'
+    };
+    return libelles[compte] || `Compte ${compte}`;
+  };
+
+  // LOGIQUE COMPTABLE CORRECTE - PLUS D'INVERSION
   const classerComptes = () => {
-    const actif: { [key: string]: any } = {};
-    const passif: { [key: string]: any } = {};
+    const actif: Array<{compte: string, libelle: string, solde: number}> = [];
+    const passif: Array<{compte: string, libelle: string, solde: number}> = [];
 
     Object.entries(bilan).forEach(([compte, details]) => {
-      const numCompte = parseInt(compte);
-      if (numCompte >= 1 && numCompte <= 5) {
-        actif[compte] = details;
-      } else {
-        passif[compte] = details;
+      const libelle = getLibelleCompte(compte);
+      
+      // ACTIF = soldes DÉBITEURS (positifs)
+      if (details.solde > 0) {
+        actif.push({ compte, libelle, solde: details.solde });
+      }
+      // PASSIF = soldes CRÉDITEURS (négatifs)
+      else if (details.solde < 0) {
+        passif.push({ compte, libelle, solde: Math.abs(details.solde) });
       }
     });
 
@@ -64,38 +81,17 @@ export const BilanComptablePage: React.FC = () => {
 
   const { actif, passif } = classerComptes();
 
-  const calculerTotalActif = () => {
-    return Object.values(actif).reduce((total, compte) => total + Math.max(0, compte.solde), 0);
-  };
-
-  const calculerTotalPassif = () => {
-    return Object.values(passif).reduce((total, compte) => total + Math.abs(Math.min(0, compte.solde)), 0);
-  };
-
-  const totalActif = calculerTotalActif();
-  const totalPassif = calculerTotalPassif();
-
-  const getLibelleCompte = (compte: string): string => {
-    const libelles: { [key: string]: string } = {
-      '101000': 'Capital social',
-      '211000': 'Immobilisations corporelles',
-      '311000': 'Stocks de marchandises',
-      '411000': 'Clients',
-      '512000': 'Compte bancaire',
-      '401000': 'Fournisseurs',
-      '421000': 'Personnel - Rémunérations dues',
-      '445710': 'TVA collectée',
-      '106000': 'Réserves',
-      '120000': 'Résultat de l\'exercice'
-    };
-    return libelles[compte] || `Compte ${compte}`;
-  };
+  const totalActif = actif.reduce((total, compte) => total + compte.solde, 0);
+  const totalPassif = passif.reduce((total, compte) => total + compte.solde, 0);
 
   return (
     <div className="bilan-comptable-page">
       <div className="page-header">
         <h1>Bilan Comptable</h1>
-        <p>Actif et passif à la date du bilan</p>
+        <p>Actif et passif à la date du bilan - Données réelles du backend</p>
+        <div className="success-alert">
+          ✅ Écritures comptables corrigées - Affichage normal
+        </div>
       </div>
 
       <div className="filters-section">
@@ -119,44 +115,56 @@ export const BilanComptablePage: React.FC = () => {
       ) : (
         <div className="bilan-container">
           <div className="bilan-section">
-            <h2>ACTIF</h2>
+            <h2>ACTIF (Ce que l'entreprise possède)</h2>
             <div className="comptes-list">
-              {Object.entries(actif).map(([compte, details]) => (
-                <div key={compte} className="compte-line">
-                  <span className="compte-number">{compte}</span>
-                  <span className="compte-libelle">{getLibelleCompte(compte)}</span>
-                  <span className="compte-solde actif">
-                    <MontantDevise montant={Math.max(0, details.solde)} devise="MGA" />
-                  </span>
-                </div>
-              ))}
-              <div className="compte-total">
-                <span className="total-label">TOTAL ACTIF</span>
-                <span className="total-amount">
-                  <MontantDevise montant={totalActif} devise="MGA" />
-                </span>
-              </div>
+              {actif.length > 0 ? (
+                <>
+                  {actif.map(({ compte, libelle, solde }) => (
+                    <div key={compte} className="compte-line">
+                      <span className="compte-number">{compte}</span>
+                      <span className="compte-libelle">{libelle}</span>
+                      <span className="compte-solde actif">
+                        <MontantDevise montant={solde} devise="MGA" />
+                      </span>
+                    </div>
+                  ))}
+                  <div className="compte-total">
+                    <span className="total-label">TOTAL ACTIF</span>
+                    <span className="total-amount">
+                      <MontantDevise montant={totalActif} devise="MGA" />
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <div className="no-data">Aucun compte actif</div>
+              )}
             </div>
           </div>
 
           <div className="bilan-section">
-            <h2>PASSIF</h2>
+            <h2>PASSIF (Ce que l'entreprise doit)</h2>
             <div className="comptes-list">
-              {Object.entries(passif).map(([compte, details]) => (
-                <div key={compte} className="compte-line">
-                  <span className="compte-number">{compte}</span>
-                  <span className="compte-libelle">{getLibelleCompte(compte)}</span>
-                  <span className="compte-solde passif">
-                    <MontantDevise montant={Math.abs(Math.min(0, details.solde))} devise="MGA" />
-                  </span>
-                </div>
-              ))}
-              <div className="compte-total">
-                <span className="total-label">TOTAL PASSIF</span>
-                <span className="total-amount">
-                  <MontantDevise montant={totalPassif} devise="MGA" />
-                </span>
-              </div>
+              {passif.length > 0 ? (
+                <>
+                  {passif.map(({ compte, libelle, solde }) => (
+                    <div key={compte} className="compte-line">
+                      <span className="compte-number">{compte}</span>
+                      <span className="compte-libelle">{libelle}</span>
+                      <span className="compte-solde passif">
+                        <MontantDevise montant={solde} devise="MGA" />
+                      </span>
+                    </div>
+                  ))}
+                  <div className="compte-total">
+                    <span className="total-label">TOTAL PASSIF</span>
+                    <span className="total-amount">
+                      <MontantDevise montant={totalPassif} devise="MGA" />
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <div className="no-data">Aucun compte passif</div>
+              )}
             </div>
           </div>
         </div>

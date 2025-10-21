@@ -7,12 +7,14 @@ interface DeviseSelectorProps {
   value: string;
   onChange: (devise: string) => void;
   className?: string;
+  disabled?: boolean; // AJOUTER CETTE PROP
 }
 
 export const DeviseSelector: React.FC<DeviseSelectorProps> = ({ 
   value, 
   onChange, 
-  className = '' 
+  className = '',
+  disabled = false // VALEUR PAR DÉFAUT
 }) => {
   const [devises, setDevises] = React.useState<string[]>(['MGA', 'USD', 'EUR']);
   const [loading, setLoading] = React.useState(false);
@@ -51,6 +53,7 @@ export const DeviseSelector: React.FC<DeviseSelectorProps> = ({
       value={value} 
       onChange={(e) => onChange(e.target.value)}
       className={`devise-selector ${className}`}
+      disabled={disabled} // AJOUTER L'ATTRIBUT DISABLED
     >
       {devises.map(devise => (
         <option key={devise} value={devise}>

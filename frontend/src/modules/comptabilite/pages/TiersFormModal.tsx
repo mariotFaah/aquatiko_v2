@@ -37,22 +37,27 @@ export const TiersFormModal: React.FC<Props> = ({ tiers, onClose, onSave }) => {
     setForm(prev => ({ ...prev, [name]: value }));
   };
 
+  // Dans TiersFormModal.tsx - amélioration optionnelle
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       console.log('📤 Données envoyées:', form);
       
       if (tiers) {
-        // Modification - on envoie seulement les champs éditables
         await comptabiliteApi.updateTiers(tiers.id_tiers, form);
       } else {
-        // Création - on envoie les mêmes données
         await comptabiliteApi.createTiers(form);
       }
       onSave();
     } catch (err) {
       console.error('❌ Erreur sauvegarde:', err);
-      alert('Erreur lors de la sauvegarde: ' + (err instanceof Error ? err.message : 'Erreur inconnue'));
+      
+      // Message d'erreur plus spécifique
+      const errorMessage = err instanceof Error 
+        ? err.message 
+        : 'Erreur inconnue lors de la sauvegarde';
+      
+      alert(`Erreur: ${errorMessage}`);
     }
   };
 

@@ -1,128 +1,65 @@
 .ligne-facture-row {
-  background-color: white;
-}
-
-.ligne-facture-row:hover {
-  background-color: #f9fafb;
-}
-
-.ligne-facture-cell {
-  border: 1px solid #d1d5db;
-  padding: 0.5rem 1rem;
-  vertical-align: middle;
-}
-
-/* Sélecteur d'article */
-.ligne-article-select {
-  width: 100%;
-  padding: 0.25rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.25rem;
-  font-size: 0.875rem;
-  box-sizing: border-box;
-}
-
-.ligne-article-select:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-/* Champs de saisie */
-.ligne-input {
-  width: 100%;
-  padding: 0.25rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.25rem;
-  font-size: 0.875rem;
-  box-sizing: border-box;
-}
-
-.ligne-input:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.ligne-input[type="number"] {
-  text-align: right;
-}
-
-/* Champ montant HT (lecture seule) */
-.ligne-montant-ht {
-  text-align: right;
-  font-family: 'Courier New', monospace;
-  font-size: 0.875rem;
-  color: #374151;
-  padding: 0.25rem 0;
-}
-
-/* Sélecteur TVA */
-.ligne-tva-select {
-  width: 100%;
-  padding: 0.25rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.25rem;
-  font-size: 0.875rem;
-  box-sizing: border-box;
-}
-
-.ligne-tva-select:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-/* Bouton supprimer */
-.ligne-remove-button {
-  width: 100%;
-  background-color: #fef2f2;
-  color: #dc2626;
-  padding: 0.25rem 0.5rem;
-  border: none;
-  border-radius: 0.25rem;
-  font-size: 0.875rem;
-  cursor: pointer;
-  font-weight: 500;
   transition: background-color 0.2s;
 }
 
+.ligne-facture-row:hover {
+  background-color: #f8f9fa;
+}
+
+.ligne-facture-cell {
+  padding: 8px 12px;
+}
+
+.ligne-article-select,
+.ligne-input,
+.ligne-tva-select {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.ligne-article-select:disabled,
+.ligne-input:disabled,
+.ligne-tva-select:disabled {
+  background-color: #f5f5f5;
+  color: #666;
+  cursor: not-allowed;
+}
+
+.ligne-montant-ht {
+  font-weight: 600;
+  color: #333;
+  text-align: right;
+  padding: 6px 0;
+}
+
+.ligne-remove-button {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
 .ligne-remove-button:hover {
-  background-color: #fee2e2;
+  background: #c82333;
 }
 
-.ligne-remove-button:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
-}
-
-/* États de validation */
-.ligne-input:invalid,
-.ligne-article-select:invalid,
-.ligne-tva-select:invalid {
-  border-color: #dc2626;
-}
-
-.ligne-input:valid,
-.ligne-article-select:valid,
-.ligne-tva-select:valid {
-  border-color: #10b981;
-}
-
-/* Responsive */
+/* Responsive table */
 @media (max-width: 768px) {
   .ligne-facture-cell {
-    padding: 0.25rem 0.5rem;
+    padding: 6px 8px;
+    font-size: 12px;
   }
   
   .ligne-article-select,
   .ligne-input,
   .ligne-tva-select {
-    font-size: 0.75rem;
-  }
-  
-  .ligne-remove-button {
-    font-size: 0.75rem;
-    padding: 0.125rem 0.25rem;
+    font-size: 12px;
+    padding: 4px 6px;
   }
 }

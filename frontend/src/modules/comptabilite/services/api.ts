@@ -1,5 +1,5 @@
-// src/modules/comptabilite/services/api.ts - VERSION CORRIGÉE
-import type { Tiers, Article, Facture, FactureFormData } from '../types';
+// src/modules/comptabilite/services/api.ts - VERSION CORRIGÉE COMPLÈTE
+import type { Tiers, Article, Facture, Paiement, TauxChange } from '../types';
 
 const API_BASE_URL = 'http://localhost:3001/api/comptabilite';
 
@@ -8,17 +8,24 @@ export const comptabiliteApi = {
   getTiers: async (): Promise<Tiers[]> => {
     const res = await fetch(`${API_BASE_URL}/tiers`);
     const data = await res.json();
-    // CORRECTION: Toujours retourner un tableau
     return Array.isArray(data.data) ? data.data : [];
   },
 
+  // src/modules/comptabilite/services/api.ts - CORRECTION
   createTiers: async (tiersData: Partial<Tiers>): Promise<Tiers> => {
     const res = await fetch(`${API_BASE_URL}/tiers`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(tiersData),
     });
+    
     const data = await res.json();
+    
+    // VÉRIFICATION CORRIGÉE
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || 'Erreur lors de la création du tiers');
+    }
+    
     return data.data;
   },
 
@@ -41,7 +48,6 @@ export const comptabiliteApi = {
     const res = await fetch(`${API_BASE_URL}/articles`);
     if (!res.ok) throw new Error('Erreur lors du chargement des articles');
     const data = await res.json();
-    // CORRECTION: Toujours retourner un tableau
     return Array.isArray(data.data) ? data.data : [];
   },
 
@@ -99,7 +105,6 @@ export const comptabiliteApi = {
   getFactures: async (): Promise<Facture[]> => {
     const res = await fetch(`${API_BASE_URL}/factures`);
     const data = await res.json();
-    // CORRECTION: Toujours retourner un tableau
     return Array.isArray(data.data) ? data.data : [];
   },
 
@@ -109,7 +114,7 @@ export const comptabiliteApi = {
     return data.data;
   },
 
-  createFacture: async (factureData: FactureFormData): Promise<Facture> => {
+  createFacture: async (factureData: any): Promise<Facture> => {
     const res = await fetch(`${API_BASE_URL}/factures`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -130,12 +135,47 @@ export const comptabiliteApi = {
     return data.data;
   },
 
+  // NOUVELLE FONCTION POUR VALIDER LES FACTURES
+  validerFacture: async (numero: number): Promise<Facture> => {
+    const res = await fetch(`${API_BASE_URL}/factures/${numero}/valider`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) throw new Error(data.message || 'Erreur validation facture');
+    return data.data;
+  },
+
   deleteFacture: async (numero: number): Promise<void> => {
     await fetch(`${API_BASE_URL}/factures/${numero}`, { method: 'DELETE' });
   },
+
+  // ---- Paiements API ----
+  getPaiements: async (): Promise<Paiement[]> => {
+    const res = await fetch(`${API_BASE_URL}/paiements`);
+    const data = await res.json();
+    return Array.isArray(data.data) ? data.data : [];
+  },
+
+  createPaiement: async (paiementData: Partial<Paiement>): Promise<Paiement> => {
+    const res = await fetch(`${API_BASE_URL}/paiements`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(paiementData),
+    });
+    const data = await res.json();
+    return data.data;
+  },
+
+  // ---- Devises API ----
+  getTauxChange: async (): Promise<TauxChange[]> => {
+    const res = await fetch(`${API_BASE_URL}/devises/taux`);
+    const data = await res.json();
+    return Array.isArray(data.data) ? data.data : [];
+  },
 };
 
-// AJOUTER les exports des nouveaux services à la fin
+// Export des services supplémentaires
 export { paiementApi } from './paiementApi';
 export { deviseApi } from './deviseApi';
 export { default as rapportApi } from './rapportApi';

@@ -2,53 +2,100 @@
 import { PaiementRepository } from '../repositories/PaiementRepository.js';
 import { FactureRepository } from '../repositories/FactureRepository.js';
 import { DeviseService } from './DeviseService.js';
+import { JournalService } from './JournalService.js';
 
 export class PaiementService {
   constructor() {
     this.paiementRepo = new PaiementRepository();
     this.factureRepo = new FactureRepository();
     this.deviseService = new DeviseService();
+    this.journalService = new JournalService();
   }
 
-   async enregistrerPaiement(paiementData) {
-  const facture = await this.factureRepo.findByNumero(paiementData.numero_facture);
-  
-  if (!facture) {
-    throw new Error('Facture non trouvée');
-  }
+  async enregistrerPaiement(paiementData) {
+    try {
+      console.log('💰 Données paiement reçues:', paiementData);
+      
+      const numeroFacture = paiementData.numero_facture;
+      
+      if (!numeroFacture) {
+        throw new Error('Numéro de facture requis');
+      }
 
-  // AJOUTER la date de paiement
-  const paiementComplet = {
-    ...paiementData,
-    date_paiement: paiementData.date_paiement || new Date(), // ← CORRECTION ICI
-    devise: facture.devise,
-    taux_change: 1
-  };
+      const facture = await this.factureRepo.findByNumero(numeroFacture);
 
-  const paiement = await this.paiementRepo.create(paiementComplet);
+      if (!facture) {
+        throw new Error(`Facture ${numeroFacture} non trouvée`);
+      }
 
-  await this.mettreAJourStatutFacture(paiementData.numero_facture);
-  return paiement;
-}
+      console.log('📋 Facture trouvée:', facture.numero_facture, '- Total TTC:', facture.total_ttc);
 
-    async mettreAJourStatutFacture(numero_facture) {
-    const totalPaiements = await this.paiementRepo.getTotalPaiementsFacture(numero_facture);
-    const facture = await this.factureRepo.findByNumero(numero_facture);
+      // CORRECTION: Supprimer les champs qui n'existent pas dans la table
+      const { id_facture, mode_reglement, ...paiementCorrige } = paiementData;
 
-    // Pour l'instant, on garde le statut 'validee' même si payée
-    // On pourrait ajouter un champ 'payee' séparé si nécessaire
-    let nouveauStatut = facture.statut;
-    
-    if (totalPaiements >= facture.total_ttc && facture.statut !== 'validee') {
-      nouveauStatut = 'validee'; // La facture reste 'validee' même quand payée
+      const paiementComplet = {
+        ...paiementCorrige,
+        numero_facture: numeroFacture,
+        date_paiement: paiementData.date_paiement || new Date(),
+        devise: facture.devise,
+        taux_change: 1,
+        statut: paiementData.statut || 'validé',
+        // CORRECTION: Utiliser mode_paiement (nom correct de la colonne)
+        mode_paiement: paiementData.mode_reglement || paiementData.mode_paiement
+      };
+
+      console.log('💾 Données paiement corrigées:', paiementComplet);
+
+      const paiement = await this.paiementRepo.create(paiementComplet);
+      console.log('✅ Paiement créé avec ID:', paiement.id_paiement);
+
+      // GÉNÉRER L'ÉCRITURE COMPTABLE DU PAIEMENT
+      await this.journalService.genererEcriturePaiement(paiement);
+      console.log('📝 Écriture comptable générée pour le paiement');
+
+      await this.mettreAJourStatutFacture(numeroFacture);
+      console.log('🔄 Statut facture mis à jour');
+
+      return paiement;
+    } catch (error) {
+      console.error('❌ Erreur PaiementService.enregistrerPaiement:', error);
+      throw new Error(`Erreur lors de la création du paiement: ${error.message}`);
     }
+  }
 
-    if (nouveauStatut !== facture.statut) {
-      await this.factureRepo.update(numero_facture, { statut: nouveauStatut });
+  async mettreAJourStatutFacture(numero_facture) {
+    try {
+      const totalPaiements = await this.paiementRepo.getTotalPaiementsFacture(numero_facture);
+      const facture = await this.factureRepo.findByNumero(numero_facture);
+
+      let nouveauStatut = facture.statut;
+      
+      if (totalPaiements >= facture.total_ttc && facture.statut !== 'validee') {
+        nouveauStatut = 'validee';
+      }
+
+      if (nouveauStatut !== facture.statut) {
+        await this.factureRepo.update(numero_facture, { statut: nouveauStatut });
+        console.log(`🔄 Statut facture ${numero_facture} mis à jour: ${facture.statut} -> ${nouveauStatut}`);
+      }
+    } catch (error) {
+      console.error('❌ Erreur mise à jour statut facture:', error);
     }
   }
   
   async getPaiementsFacture(numero_facture) {
     return this.paiementRepo.findByFacture(numero_facture);
+  }
+
+  async getPaiements() {
+    return this.paiementRepo.getPaiements();
+  }
+
+  async getPaiementById(id_paiement) {
+    return this.paiementRepo.findById(id_paiement);
+  }
+
+  async updatePaiement(id_paiement, data) {
+    return this.paiementRepo.update(id_paiement, data);
   }
 }

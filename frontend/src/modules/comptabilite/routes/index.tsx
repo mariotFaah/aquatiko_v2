@@ -1,4 +1,3 @@
-// src/modules/comptabilite/routes/index.tsx
 import type { RouteObject } from 'react-router-dom';
 
 // Pages existantes
@@ -9,35 +8,20 @@ import { TiersListPage } from '../pages/TiersListPage';
 import { ArticlesListPage } from '../pages/ArticlesListPage';
 import { PaiementsListPage } from '../pages/PaiementsListPage';
 
-// Nouvelles pages
+// TOUTES les pages réelles
 import RapportsPage from '../pages/RapportsPage';
 import JournalComptablePage from '../pages/JournalComptablePage';
 import BalanceComptablePage from '../pages/BalanceComptablePage';
 import BilanComptablePage from '../pages/BilanComptablePage';
 import TauxChangePage from '../pages/TauxChangePage';
+import FactureDetailPage from '../pages/FactureDetailPage';
+import FactureEditPage from '../pages/FactureEditPage';
+import EcheancesPage from '../pages/EcheancesPage';
+import CompteResultatPage from '../pages/CompteResultatPage';
+import TresoreriePage from '../pages/TresoreriePage';
+import DeclarationTVAPage from '../pages/DeclarationTVAPage';
 
-// Pages à créer (placeholders)
-const CompteResultatPage = () => (
-  <div className="p-6">
-    <h2 className="text-xl font-semibold mb-4">Compte de Résultat</h2>
-    <p>Page en cours de développement...</p>
-  </div>
-);
-
-const TresoreriePage = () => (
-  <div className="p-6">
-    <h2 className="text-xl font-semibold mb-4">Trésorerie</h2>
-    <p>Page en cours de développement...</p>
-  </div>
-);
-
-const TVAPage = () => (
-  <div className="p-6">
-    <h2 className="text-xl font-semibold mb-4">Déclaration TVA</h2>
-    <p>Page en cours de développement...</p>
-  </div>
-);
-
+// Page placeholder restante
 const GrandLivrePage = () => (
   <div className="p-6">
     <h2 className="text-xl font-semibold mb-4">Grand Livre</h2>
@@ -72,6 +56,29 @@ export const comptabiliteRoutes: RouteObject[] = [
                 <p className="text-purple-700 text-sm">États financiers intégrés</p>
               </div>
             </div>
+
+            {/* Section États Financiers */}
+            <div className="mt-8">
+              <h3 className="text-lg font-semibold mb-4">États Financiers Disponibles</h3>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <a href="/comptabilite/bilan" className="bg-white p-4 rounded-lg border border-gray-200 hover:border-blue-500 transition-colors">
+                  <h4 className="font-semibold text-gray-900">📊 Bilan</h4>
+                  <p className="text-gray-600 text-sm">Actif et passif</p>
+                </a>
+                <a href="/comptabilite/compte-resultat" className="bg-white p-4 rounded-lg border border-gray-200 hover:border-green-500 transition-colors">
+                  <h4 className="font-semibold text-gray-900">📈 Compte de Résultat</h4>
+                  <p className="text-gray-600 text-sm">Produits et charges</p>
+                </a>
+                <a href="/comptabilite/tva" className="bg-white p-4 rounded-lg border border-gray-200 hover:border-purple-500 transition-colors">
+                  <h4 className="font-semibold text-gray-900">🧾 Déclaration TVA</h4>
+                  <p className="text-gray-600 text-sm">Calcul TVA</p>
+                </a>
+                <a href="/comptabilite/tresorerie" className="bg-white p-4 rounded-lg border border-gray-200 hover:border-orange-500 transition-colors">
+                  <h4 className="font-semibold text-gray-900">💰 Trésorerie</h4>
+                  <p className="text-gray-600 text-sm">Situation financière</p>
+                </a>
+              </div>
+            </div>
           </div>
         ),
       },
@@ -98,7 +105,13 @@ export const comptabiliteRoutes: RouteObject[] = [
         element: <PaiementsListPage />,
       },
       
-      // Rapports financiers
+      // SECTION C: SUIVI DES PAIEMENTS
+      {
+        path: 'echeances',
+        element: <EcheancesPage />,
+      },
+      
+      // Rapports financiers - MAINTENANT AVEC LES VRAIES PAGES
       {
         path: 'rapports',
         element: <RapportsPage />,
@@ -125,7 +138,7 @@ export const comptabiliteRoutes: RouteObject[] = [
       },
       {
         path: 'tva',
-        element: <TVAPage />,
+        element: <DeclarationTVAPage />,
       },
       {
         path: 'grand-livre',
@@ -137,6 +150,14 @@ export const comptabiliteRoutes: RouteObject[] = [
         path: 'taux-change',
         element: <TauxChangePage />,
       },
+      {
+        path:'factures/:numero',
+        element: <FactureDetailPage />,
+      },
+      {
+        path:'factures/:numero/edit',
+        element: <FactureEditPage />,
+      }
     ],
   },
 ];

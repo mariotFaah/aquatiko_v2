@@ -1,7 +1,14 @@
-// src/modules/comptabilite/services/paiementApi.ts
+// src/modules/comptabilite/services/paiementApi.ts - VERSION 100% API
 import type { Paiement } from '../types';
 
 const API_BASE_URL = 'http://localhost:3001/api/comptabilite';
+
+// Fonction utilitaire pour parser les montants
+const parsePaiement = (paiement: any): Paiement => ({
+  ...paiement,
+  montant: parseFloat(paiement.montant) || 0,
+  taux_change: parseFloat(paiement.taux_change) || 1
+});
 
 export const paiementApi = {
   // Récupérer tous les paiements
@@ -9,15 +16,15 @@ export const paiementApi = {
     const res = await fetch(`${API_BASE_URL}/paiements`);
     if (!res.ok) throw new Error('Erreur lors du chargement des paiements');
     const data = await res.json();
-    return Array.isArray(data.data) ? data.data : [];
+    return Array.isArray(data.data) ? data.data.map(parsePaiement) : [];
   },
 
   // Récupérer les paiements d'une facture
   getPaiementsByFacture: async (numero_facture: number): Promise<Paiement[]> => {
     const res = await fetch(`${API_BASE_URL}/paiements/facture/${numero_facture}`);
-    if (!res.ok) throw new Error('Erreur lors du chargement des paiements');
+    if (!res.ok) throw new Error('Erreur lors du chargement des paiements de la facture');
     const data = await res.json();
-    return Array.isArray(data.data) ? data.data : [];
+    return Array.isArray(data.data) ? data.data.map(parsePaiement) : [];
   },
 
   // Créer un paiement
@@ -34,7 +41,7 @@ export const paiementApi = {
     }
     
     const data = await res.json();
-    return data.data;
+    return parsePaiement(data.data);
   },
 
   // Valider un paiement
@@ -49,7 +56,7 @@ export const paiementApi = {
     }
     
     const data = await res.json();
-    return data.data;
+    return parsePaiement(data.data);
   },
 
   // Annuler un paiement
@@ -64,7 +71,7 @@ export const paiementApi = {
     }
     
     const data = await res.json();
-    return data.data;
+    return parsePaiement(data.data);
   },
 
   // Supprimer un paiement
