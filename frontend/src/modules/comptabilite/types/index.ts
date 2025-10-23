@@ -1,6 +1,7 @@
-// src/modules/comptabilite/types/index.ts - VERSION COMPLÈTE CORRIGÉE
+// src/modules/comptabilite/types/index.ts
+import type { Tiers } from '../../../types/shared';
+export type { Tiers }; // ✅ on garde seulement le Tiers partagé
 
-// Types existants - AJOUTER LigneFacture manquant
 export interface LigneFacture {
   id_ligne?: number;
   numero_facture?: number;
@@ -10,25 +11,11 @@ export interface LigneFacture {
   prix_unitaire: number;
   taux_tva: number;
   remise: number;
-  montant_ht?: number; // Rendre optionnel
-  montant_tva?: number; // Rendre optionnel
-  montant_ttc?: number; // Rendre optionnel
+  montant_ht?: number;
+  montant_tva?: number;
+  montant_ttc?: number;
   article_description?: string;
   article_unite?: string;
-}
-
-export interface Tiers {
-  id_tiers: number;
-  type_tiers: 'client' | 'fournisseur';
-  nom: string;
-  numero: string;
-  adresse: string;
-  email: string;
-  telephone: string;
-  // NOUVEAUX CHAMPS
-  devise_preferee?: string;
-  created_at: string;
-  updated_at: string;
 }
 
 export interface Article {
@@ -37,7 +24,6 @@ export interface Article {
   prix_unitaire: number;
   taux_tva: number;
   unite: string;
-  // NOUVEAUX CHAMPS
   devise?: string;
   actif?: boolean;
 }
@@ -57,8 +43,7 @@ export interface Facture {
   adresse?: string;
   email?: string;
   telephone?: string;
-  // NOUVEAUX CHAMPS POUR ÉCHÉANCES
-  type_tiers?: 'client' | 'fournisseur';  // ← AJOUTÉ
+  type_tiers?: 'client' | 'fournisseur';
   devise?: string;
   taux_change?: number;
   notes?: string;
@@ -67,13 +52,10 @@ export interface Facture {
   updated_at?: string;
 }
 
-
 export interface FactureFormData {
   facture: Omit<Facture, 'numero_facture' | 'lignes' | 'created_at' | 'updated_at'>;
   lignes: Omit<LigneFacture, 'id_ligne' | 'numero_facture' | 'montant_ht' | 'montant_tva' | 'montant_ttc'>[];
 }
-
-// NOUVEAUX TYPES POUR LES FONCTIONNALITÉS AJOUTÉES
 
 export interface Paiement {
   id_paiement?: number;

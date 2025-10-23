@@ -1,5 +1,5 @@
 import { DeviseService } from '../services/DeviseService.js';
-import { Response } from '../../../core/utils/response.js';
+import { sendSuccess, sendError } from '../../../core/utils/response.js';
 
 export class DeviseController {
   constructor() {
@@ -15,9 +15,9 @@ export class DeviseController {
         devise_cible, 
         date
       );
-      Response.success(res, { montant_converti: resultat });
+      sendSuccess(res, { montant_converti: resultat }, 'Conversion effectuée avec succès');
     } catch (error) {
-      Response.error(res, error.message);
+      sendError(res, 500, error.message);
     }
   }
 
@@ -30,9 +30,9 @@ export class DeviseController {
         taux,
         date_effet
       );
-      Response.success(res, nouveauTaux, 'Taux de change mis à jour');
+      sendSuccess(res, nouveauTaux, 'Taux de change mis à jour');
     } catch (error) {
-      Response.error(res, error.message);
+      sendError(res, 500, error.message);
     }
   }
 
@@ -40,9 +40,9 @@ export class DeviseController {
   async getTauxActifs(req, res) {
     try {
       const tauxActifs = await this.deviseService.tauxChangeRepo.findAllActifs();
-      Response.success(res, tauxActifs, 'Taux de change actifs récupérés');
+      sendSuccess(res, tauxActifs, 'Taux de change actifs récupérés');
     } catch (error) {
-      Response.error(res, error.message);
+      sendError(res, 500, error.message);
     }
   }
 }

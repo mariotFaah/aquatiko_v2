@@ -8,6 +8,8 @@ import { testConnection } from './core/database/connection.js';
 
 // Routes des modules
 import comptabiliteRoutes from './modules/comptabilite/routes/index.js';
+import importExportRoutes from './modules/import-export/routes/index.js';
+import initCRMModule from './modules/crm/index.js'; 
 
 dotenv.config();
 
@@ -31,12 +33,16 @@ app.get('/api/health', async (req, res) => {
     status: 'OK', 
     timestamp: new Date().toISOString(),
     database: dbStatus ? 'Connected' : 'Disconnected',
-    modules: ['comptabilite'] 
+    modules: ['comptabilite', 'import-export', 'crm']  // ✅ AJOUT CRM
   });
 });
 
 // Routes des modules
 app.use('/api/comptabilite', comptabiliteRoutes);
+app.use('/api/import-export', importExportRoutes);
+
+// ✅ INITIALISATION DU MODULE CRM
+initCRMModule(app);
 
 // ✅ CORRECTION EXPRESS 5 : Route 404 avec un chemin explicite
 app.use('/:any*', (req, res) => {
@@ -64,6 +70,7 @@ app.listen(PORT, async () => {
   console.log(`🚀 Serveur backend démarré sur le port ${PORT}`);
   console.log(`📊 URL: http://localhost:${PORT}`);
   console.log(`🔍 Health check: http://localhost:${PORT}/api/health`);
+  console.log(`📦 Modules activés: Comptabilité, Import/Export, CRM`); // ✅ AJOUT CRM
   
   // Tester la connexion DB
   await testConnection();

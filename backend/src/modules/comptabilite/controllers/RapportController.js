@@ -1,8 +1,8 @@
 // src/modules/comptabilite/controllers/RapportController.js
 import { RapportService } from '../services/RapportService.js';
-import { Response } from '../../../core/utils/response.js';
+import { sendSuccess, sendError } from '../../../core/utils/response.js';
 
-export class RapportController {  // <-- Doit avoir 'export'
+export class RapportController {
   constructor() {
     this.rapportService = new RapportService();
   }
@@ -11,9 +11,9 @@ export class RapportController {  // <-- Doit avoir 'export'
     try {
       const { date_fin } = req.query;
       const bilan = await this.rapportService.genererBilan(date_fin);
-      Response.success(res, bilan);
+      sendSuccess(res, bilan, 'Bilan généré avec succès');
     } catch (error) {
-      Response.error(res, error.message);
+      sendError(res, 500, error.message);
     }
   }
 
@@ -21,9 +21,9 @@ export class RapportController {  // <-- Doit avoir 'export'
     try {
       const { date_debut, date_fin } = req.query;
       const resultat = await this.rapportService.genererCompteResultat(date_debut, date_fin);
-      Response.success(res, resultat);
+      sendSuccess(res, resultat, 'Compte de résultat généré avec succès');
     } catch (error) {
-      Response.error(res, error.message);
+      sendError(res, 500, error.message);
     }
   }
 
@@ -31,9 +31,9 @@ export class RapportController {  // <-- Doit avoir 'export'
     try {
       const { date_debut, date_fin } = req.query;
       const tresorerie = await this.rapportService.genererTresorerie(date_debut, date_fin);
-      Response.success(res, tresorerie);
+      sendSuccess(res, tresorerie, 'Rapport de trésorerie généré avec succès');
     } catch (error) {
-      Response.error(res, error.message);
+      sendError(res, 500, error.message);
     }
   }
 
@@ -41,9 +41,9 @@ export class RapportController {  // <-- Doit avoir 'export'
     try {
       const { date_debut, date_fin } = req.query;
       const tva = await this.rapportService.genererRapportTVA(date_debut, date_fin);
-      Response.success(res, tva);
+      sendSuccess(res, tva, 'Déclaration TVA générée avec succès');
     } catch (error) {
-      Response.error(res, error.message);
+      sendError(res, 500, error.message);
     }
   }
 }

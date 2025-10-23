@@ -1,5 +1,6 @@
 // src/modules/import-export/pages/ImportExportPage.tsx
 import React from 'react';
+import { Outlet } from 'react-router-dom';
 
 const ImportExportPage: React.FC = () => {
   return (
@@ -10,6 +11,9 @@ const ImportExportPage: React.FC = () => {
           Gestion des opérations internationales
         </p>
       </div>
+      
+      {/* ✅ IMPORTANT: Outlet pour afficher les sous-routes */}
+      <Outlet />
     </div>
   );
 };

@@ -16,9 +16,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
       path: '/comptabilite',
       icon: '€',
       children: [
-        { name: 'Transactions', path: '/comptabilite/transactions' },
-        { name: 'Comptes', path: '/comptabilite/comptes' },
-        { name: 'Rapports', path: '/comptabilite/rapports' },
+        { name: 'Tableau de Bord', path: '/comptabilite' },
+        { name: 'Factures', path: '/comptabilite/factures' },
+        { name: 'Tiers', path: '/comptabilite/tiers' },
+        { name: 'Articles', path: '/comptabilite/articles' },
+        { name: 'Paiements', path: '/comptabilite/paiements' },
+        { name: 'Échéances', path: '/comptabilite/echeances' },
+        { name: 'Journal', path: '/comptabilite/journal' },
+        { name: 'Balance', path: '/comptabilite/balance' },
+        { name: 'Bilan', path: '/comptabilite/bilan' },
+        { name: 'Taux Change', path: '/comptabilite/taux-change' },
       ],
     },
     {
@@ -26,9 +33,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
       path: '/import-export',
       icon: '↔',
       children: [
+        { name: 'Tableau de Bord', path: '/import-export' },
         { name: 'Commandes', path: '/import-export/commandes' },
         { name: 'Expéditions', path: '/import-export/expeditions' },
-        { name: 'Douanes', path: '/import-export/douanes' },
+        { name: 'Analyses', path: '/import-export/analyses' },
       ],
     },
     {

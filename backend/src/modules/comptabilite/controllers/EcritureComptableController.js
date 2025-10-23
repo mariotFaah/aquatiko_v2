@@ -1,6 +1,6 @@
 // src/modules/comptabilite/controllers/EcritureComptableController.js
 import { EcritureComptableRepository } from '../repositories/EcritureComptableRepository.js';
-import { Response } from '../../../core/utils/response.js';
+import { sendSuccess, sendError } from '../../../core/utils/response.js';
 
 export class EcritureComptableController {
   constructor() {
@@ -27,9 +27,9 @@ export class EcritureComptableController {
           .limit(parseInt(limit));
       }
       
-      Response.success(res, ecritures, 'Écritures récupérées avec succès');
+      sendSuccess(res, ecritures, 'Écritures récupérées avec succès');
     } catch (error) {
-      Response.error(res, error.message);
+      sendError(res, 500, error.message);
     }
   }
 
@@ -42,12 +42,12 @@ export class EcritureComptableController {
         .first();
       
       if (!ecriture) {
-        return Response.error(res, 'Écriture non trouvée', 404);
+        return sendError(res, 404, 'Écriture non trouvée');
       }
       
-      Response.success(res, ecriture);
+      sendSuccess(res, ecriture, 'Écriture récupérée avec succès');
     } catch (error) {
-      Response.error(res, error.message);
+      sendError(res, 500, error.message);
     }
   }
 
@@ -66,9 +66,9 @@ export class EcritureComptableController {
       };
       
       const nouvelleEcriture = await this.ecritureRepo.create(ecritureComplete);
-      Response.success(res, nouvelleEcriture, 'Écriture créée avec succès', 201);
+      sendSuccess(res, nouvelleEcriture, 'Écriture créée avec succès', 201);
     } catch (error) {
-      Response.error(res, error.message);
+      sendError(res, 500, error.message);
     }
   }
 
@@ -79,9 +79,9 @@ export class EcritureComptableController {
       const { date_debut, date_fin } = req.query;
       
       const ecritures = await this.ecritureRepo.findByJournal(type, date_debut, date_fin);
-      Response.success(res, ecritures, `Écritures du journal ${type} récupérées`);
+      sendSuccess(res, ecritures, `Écritures du journal ${type} récupérées`);
     } catch (error) {
-      Response.error(res, error.message);
+      sendError(res, 500, error.message);
     }
   }
 }

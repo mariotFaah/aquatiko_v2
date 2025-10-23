@@ -1,0 +1,432 @@
+.expeditions-container {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.header-left h1 {
+  margin: 0 0 8px 0;
+  font-size: 28px;
+  color: #2d3748;
+}
+
+.header-left p {
+  margin: 0;
+  color: #718096;
+}
+
+/* Filtres */
+.filters-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filter-group label {
+  font-weight: 600;
+  color: #4a5568;
+  font-size: 14px;
+}
+
+.filter-group select,
+.filter-group input {
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.filter-group select:focus,
+.filter-group input:focus {
+  outline: none;
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+/* Statistiques */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-left: 4px solid #4299e1;
+}
+
+.stat-icon {
+  font-size: 32px;
+  margin-right: 16px;
+}
+
+.stat-number {
+  font-size: 24px;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: #718096;
+}
+
+/* Liste des expéditions */
+.expeditions-list {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.table-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1.5fr 120px 100px;
+  gap: 16px;
+  padding: 16px 20px;
+  background: #f7fafc;
+  border-bottom: 1px solid #e2e8f0;
+  font-weight: 600;
+  color: #4a5568;
+  font-size: 14px;
+}
+
+.expedition-item {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1.5fr 120px 100px;
+  gap: 16px;
+  padding: 20px;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background-color 0.2s;
+}
+
+.expedition-item:hover {
+  background: #f8fafc;
+}
+
+.expedition-item:last-child {
+  border-bottom: none;
+}
+
+/* Colonnes */
+.col-commande .commande-ref {
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 4px;
+}
+
+.col-commande .commande-type {
+  font-size: 12px;
+  color: #718096;
+}
+
+.col-client .client-name {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.col-client .client-email {
+  font-size: 12px;
+  color: #718096;
+}
+
+.col-transport .transporteur {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.col-transport .mode-transport {
+  font-size: 12px;
+  color: #718096;
+  text-transform: capitalize;
+}
+
+.col-dates {
+  font-size: 13px;
+}
+
+.col-dates strong {
+  color: #4a5568;
+}
+
+/* Statuts */
+.statut-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  display: inline-block;
+}
+
+.statut-warning {
+  background: #feebc8;
+  color: #d69e2e;
+}
+
+.statut-info {
+  background: #bee3f8;
+  color: #3182ce;
+}
+
+.statut-primary {
+  background: #c6f6d5;
+  color: #38a169;
+}
+
+.statut-success {
+  background: #c6f6d5;
+  color: #276749;
+}
+
+.statut-completed {
+  background: #e6fffa;
+  color: #234e52;
+}
+
+.statut-default {
+  background: #e2e8f0;
+  color: #4a5568;
+}
+
+/* Actions */
+.col-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-action {
+  padding: 6px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-action:hover {
+  background: #f7fafc;
+  border-color: #cbd5e0;
+  transform: translateY(-1px);
+}
+
+/* États vides */
+.empty-state {
+  padding: 60px 20px;
+  text-align: center;
+  color: #718096;
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.empty-state h3 {
+  margin: 0 0 8px 0;
+  color: #4a5568;
+}
+
+.empty-state p {
+  margin: 0;
+}
+
+/* Boutons */
+.btn-secondary {
+  padding: 10px 20px;
+  background: #e2e8f0;
+  color: #4a5568;
+  border: none;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-secondary:hover {
+  background: #cbd5e0;
+}
+
+/* Loading */
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e2e8f0;
+  border-top: 4px solid #4299e1;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 100px auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .table-header,
+  .expedition-item {
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+  }
+  
+  .col-dates,
+  .col-statut,
+  .col-actions {
+    grid-column: span 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .filters-section {
+    grid-template-columns: 1fr;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .table-header {
+    display: none;
+  }
+  
+  .expedition-item {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin-bottom: 12px;
+  }
+  
+  .col-actions {
+    justify-content: flex-start;
+    margin-top: 12px;
+  }
+}
+
+/* Alert */
+.alert-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: #dbeafe;
+  border: 1px solid #93c5fd;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.alert-icon {
+  font-size: 24px;
+}
+
+.alert-content {
+  flex: 1;
+}
+
+.alert-content strong {
+  color: #1e40af;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.alert-content p {
+  margin: 0;
+  color: #374151;
+  font-size: 14px;
+}
+
+.btn-alert {
+  padding: 8px 16px;
+  background: #1e40af;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-alert:hover {
+  background: #1e3a8a;
+}
+
+/* Bouton primaire dans empty state */
+.empty-state .btn-primary {
+  background: #4299e1;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-block;
+  margin-top: 16px;
+}
+
+.empty-state .btn-primary:hover {
+  background: #3182ce;
+}
+
+
+.btn-reset {
+  padding: 8px 12px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-reset:hover {
+  background: #dc2626;
+}
+

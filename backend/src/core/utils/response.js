@@ -1,76 +1,91 @@
-// src/core/utils/response.js
+/**
+ * Utilitaires de réponse standardisés
+ */
 
-// Export nommés pour les anciens contrôleurs
-export function successResponse(res, data = null, message = 'Succès', statusCode = 200) {
-  return res.status(statusCode).json({
+// Nouvelles fonctions (pour Import/Export)
+export const sendSuccess = (res, data, message = 'Succès', statusCode = 200) => {
+  res.status(statusCode).json({
     success: true,
     message,
-    data
+    data,
+    timestamp: new Date().toISOString()
   });
-}
+};
 
-export function errorResponse(res, message = 'Erreur interne du serveur', statusCode = 500) {
-  return res.status(statusCode).json({
+export const sendError = (res, statusCode, message = 'Erreur', error = null) => {
+  const response = {
     success: false,
     message,
-    data: null
-  });
-}
+    timestamp: new Date().toISOString()
+  };
 
-export function createdResponse(res, data = null, message = 'Créé avec succès') {
-  return res.status(201).json({
+  if (process.env.NODE_ENV === 'development' && error) {
+    response.error = error;
+  }
+
+  res.status(statusCode).json(response);
+};
+
+// Anciennes fonctions (pour Comptabilité)
+export const successResponse = (res, data, message = 'Succès') => {
+  res.status(200).json({
     success: true,
     message,
-    data
+    data,
+    timestamp: new Date().toISOString()
   });
-}
+};
 
-export function notFoundResponse(res, message = 'Ressource non trouvée') {
-  return res.status(404).json({
+export const createdResponse = (res, data, message = 'Créé avec succès') => {
+  res.status(201).json({
+    success: true,
+    message,
+    data,
+    timestamp: new Date().toISOString()
+  });
+};
+
+export const errorResponse = (res, message = 'Erreur', statusCode = 500, error = null) => {
+  const response = {
     success: false,
     message,
-    data: null
-  });
-}
+    timestamp: new Date().toISOString()
+  };
 
-export function validationErrorResponse(res, errors, message = 'Erreur de validation') {
-  return res.status(422).json({
-    success: false,
-    message,
-    errors
-  });
-}
-
-// Classe Response pour les nouveaux contrôleurs
-export class Response {
-  static success(res, data = null, message = 'Succès') {
-    return successResponse(res, data, message, 200);
+  if (process.env.NODE_ENV === 'development' && error) {
+    response.error = error;
   }
 
-  static created(res, data = null, message = 'Créé avec succès') {
-    return createdResponse(res, data, message);
-  }
+  res.status(statusCode).json(response);
+};
 
-  static error(res, message = 'Erreur interne du serveur', statusCode = 500) {
-    return errorResponse(res, message, statusCode);
-  }
+// Alias pour compatibilité
+export const notFoundResponse = (res, message = 'Non trouvé') => {
+  errorResponse(res, message, 404);
+};
 
-  static notFound(res, message = 'Ressource non trouvée') {
-    return notFoundResponse(res, message);
-  }
+export const badRequestResponse = (res, message = 'Requête invalide') => {
+  errorResponse(res, message, 400);
+};
 
-  static validationError(res, errors, message = 'Erreur de validation') {
-    return validationErrorResponse(res, errors, message);
-  }
+// Export pour DeviseController
+export const Response = {
+  sendSuccess,
+  sendError,
+  successResponse,
+  createdResponse,
+  errorResponse,
+  notFoundResponse,
+  badRequestResponse
+};
 
-  static unauthorized(res, message = 'Non autorisé') {
-    return errorResponse(res, message, 401);
-  }
-
-  static forbidden(res, message = 'Accès refusé') {
-    return errorResponse(res, message, 403);
-  }
-}
-
-// Export par défaut
-export default Response;
+export default {
+  sendSuccess,
+  sendError,
+  successResponse,
+  createdResponse,
+  errorResponse,
+  notFoundResponse,
+  badRequestResponse,
+  Response
+};

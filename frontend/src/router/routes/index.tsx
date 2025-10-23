@@ -3,7 +3,8 @@ import type { RouteObject } from 'react-router-dom';
 import { MainLayout } from '../../core/layouts/MainLayout';
 import DashboardPage from '../../core/pages/DashboardPage';
 import LoginPage from '../../core/pages/LoginPage';
-import { comptabiliteRoutes } from '../../modules/comptabilite/routes';import ImportExportPage from '../../modules/import-export/pages/ImportExportPage';
+import { comptabiliteRoutes } from '../../modules/comptabilite/routes';
+import { importExportRoutes } from '../../modules/import-export/routes';
 import CRMPage from '../../modules/crm/pages/CRMPage';
 
 export const routes: RouteObject[] = [
@@ -19,12 +20,9 @@ export const routes: RouteObject[] = [
         index: true,
         element: <DashboardPage />,
       },
-      // 👇 REMPLACE cette route simple par les routes complètes du module
-      ...comptabiliteRoutes, // 👈 Au lieu de la route simple
-      {
-        path: 'import-export',
-        element: <ImportExportPage />,
-      },
+      // Modules
+      ...comptabiliteRoutes,
+      ...importExportRoutes,
       {
         path: 'crm',
         element: <CRMPage />,

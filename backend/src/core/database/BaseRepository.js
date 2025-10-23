@@ -1,37 +1,41 @@
-// src/core/database/BaseRepository.js
-import { connection } from './connection.js'; // À ajouter
-export class BaseRepository {
-  constructor(tableName, entityClass) {
+import { db } from './connection.js';
+
+class BaseRepository {
+  constructor(tableName) {
     this.tableName = tableName;
-    this.entityClass = entityClass;
-    this.knex = connection; // Supposant que connection.js exporte knex
+    this.db = db;
   }
 
   query() {
-    return this.knex(this.tableName);
+    return this.db(this.tableName);
   }
 
   async findAll() {
-    const results = await this.query();
-    return results.map(data => new this.entityClass(data));
+    return await this.query().select('*');
   }
 
   async findById(id) {
-    const result = await this.query().where('id', id).first();
-    return result ? new this.entityClass(result) : null;
+    return await this.query().where('id', id).first();
   }
 
   async create(data) {
-    const [result] = await this.query().insert(data).returning('*');
-    return new this.entityClass(result);
+    const [id] = await this.query().insert(data);
+    return await this.findById(id);
   }
 
   async update(id, data) {
-    const [result] = await this.query().where('id', id).update(data).returning('*');
-    return new this.entityClass(result);
+    await this.query()
+      .where('id', id)
+      .update({
+        ...data,
+        updated_at: this.db.fn.now()
+      });
+    return await this.findById(id);
   }
 
   async delete(id) {
-    return this.query().where('id', id).del();
+    return await this.query().where('id', id).del();
   }
 }
+
+export default BaseRepository;
