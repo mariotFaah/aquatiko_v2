@@ -396,3 +396,80 @@
     padding: 6px 4px;
   }
 }
+
+.facture-detail-loading-spinner,
+.facture-detail-action-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 8px;
+}
+
+.facture-detail-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+}
+
+.facture-detail-loading-spinner {
+  width: 32px;
+  height: 32px;
+  border-width: 3px;
+  margin-bottom: 16px;
+}
+
+.facture-detail-error {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.facture-detail-error-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.7;
+}
+
+.facture-detail-error-text {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #dc3545;
+}
+
+.facture-detail-error-description {
+  color: #666;
+  margin-bottom: 24px;
+}
+
+.facture-detail-numero {
+  font-family: monospace;
+  font-weight: bold;
+  background: #f8f9fa;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 4px;
+}
+
+.facture-detail-ligne-reference code {
+  background: #f8f9fa;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+.facture-detail-no-lignes {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-style: italic;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

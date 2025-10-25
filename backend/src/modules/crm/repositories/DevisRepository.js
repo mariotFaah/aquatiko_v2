@@ -1,4 +1,5 @@
 import { db } from '../../../core/database/connection.js';
+import { Devis } from '../entities/Devis.js';
 
 export class DevisRepository {
   
@@ -13,7 +14,8 @@ export class DevisRepository {
         )
         .orderBy('devis.date_devis', 'desc');
       
-      return devis;
+      // MAPPER vers l'entité Devis
+      return devis.map(devis => new Devis(devis));
     } catch (error) {
       console.error('Erreur DevisRepository.findAll:', error);
       throw new Error('Erreur lors de la récupération des devis');
@@ -26,7 +28,7 @@ export class DevisRepository {
         .where('tiers_id', tiers_id)
         .orderBy('date_devis', 'desc');
       
-      return devis;
+      return devis.map(devis => new Devis(devis));
     } catch (error) {
       console.error('Erreur DevisRepository.findByClient:', error);
       throw new Error('Erreur lors de la récupération des devis du client');
@@ -48,7 +50,7 @@ export class DevisRepository {
         )
         .first();
       
-      return devis;
+      return devis ? new Devis(devis) : null;
     } catch (error) {
       console.error('Erreur DevisRepository.findById:', error);
       throw new Error('Erreur lors de la récupération du devis');

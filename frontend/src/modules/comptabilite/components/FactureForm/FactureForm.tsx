@@ -4,6 +4,8 @@ import { comptabiliteApi } from '../../services/api';
 import { LigneFactureRow } from './LigneFactureRow';
 import { CalculsFacture } from './CalculsFacture';
 import { DeviseSelector } from '../DeviseSelector/DeviseSelector';
+import { useAlertDialog } from '../../../../core/hooks/useAlertDialog';
+import AlertDialog from '../../../../core/components/AlertDialog/AlertDialog';
 import './FactureForm.css';
 
 const ENTREPRISE_INFO = {
@@ -33,6 +35,9 @@ export const FactureForm: React.FC = () => {
   const [showValidation, setShowValidation] = useState(false);
   const [factureCreee, setFactureCreee] = useState<Facture | null>(null);
   
+  // Utilisation du hook AlertDialog
+  const { isOpen, message, title, type, alert, close } = useAlertDialog();
+
   const [formData, setFormData] = useState<FactureFormData>({
     facture: {
       date: new Date().toISOString().split('T')[0],
@@ -89,7 +94,10 @@ export const FactureForm: React.FC = () => {
       setTauxChange(tauxChangeData);
     } catch (error) {
       console.error('Erreur chargement données:', error);
-      alert('Erreur lors du chargement des données initiales');
+      alert('Erreur lors du chargement des données initiales', {
+        type: 'error',
+        title: 'Erreur de chargement'
+      });
     } finally {
       setLoading(false);
     }
@@ -145,7 +153,10 @@ export const FactureForm: React.FC = () => {
       );
       
       if (!taux && nouvelleDevise !== 'MGA') {
-        alert(`Taux de change non trouvé pour ${nouvelleDevise} -> MGA`);
+        alert(`Taux de change non trouvé pour ${nouvelleDevise} -> MGA`, {
+          type: 'warning',
+          title: 'Taux de change manquant'
+        });
         return;
       }
 
@@ -178,7 +189,10 @@ export const FactureForm: React.FC = () => {
 
     } catch (error) {
       console.error('Erreur changement devise:', error);
-      alert('Erreur lors du changement de devise');
+      alert('Erreur lors du changement de devise', {
+        type: 'error',
+        title: 'Erreur'
+      });
     }
   };
 
@@ -295,7 +309,10 @@ export const FactureForm: React.FC = () => {
     e.preventDefault();
     
     if (!formData.facture.id_tiers || formData.facture.id_tiers === 0) {
-      alert('Veuillez sélectionner un client ou fournisseur');
+      alert('Veuillez sélectionner un client ou fournisseur', {
+        type: 'warning',
+        title: 'Sélection requise'
+      });
       return;
     }
 
@@ -304,12 +321,18 @@ export const FactureForm: React.FC = () => {
     );
     
     if (lignesValides.length === 0) {
-      alert('Veuillez ajouter au moins un article avec une quantité valide');
+      alert('Veuillez ajouter au moins un article avec une quantité valide', {
+        type: 'warning',
+        title: 'Articles manquants'
+      });
       return;
     }
 
     if (formData.facture.total_ttc === 0) {
-      alert('Erreur: Le total TTC est à 0. Vérifiez les articles saisis.');
+      alert('Erreur: Le total TTC est à 0. Vérifiez les articles saisis.', {
+        type: 'error',
+        title: 'Total invalide'
+      });
       return;
     }
 
@@ -356,10 +379,13 @@ export const FactureForm: React.FC = () => {
       const nouvelleFacture = await comptabiliteApi.createFacture(payload);
       
       const message = statut === 'validee' 
-        ? `✅ Facture ${nouvelleFacture.numero_facture} créée et validée avec succès!`
-        : `✅ Facture ${nouvelleFacture.numero_facture} créée en brouillon!`;
+        ? `Facture ${nouvelleFacture.numero_facture} créée et validée avec succès!`
+        : `Facture ${nouvelleFacture.numero_facture} créée en brouillon!`;
       
-      alert(message);
+      alert(message, {
+        type: 'success',
+        title: 'Succès'
+      });
       
       if (statut === 'brouillon') {
         setFactureCreee(nouvelleFacture);
@@ -369,7 +395,10 @@ export const FactureForm: React.FC = () => {
       }
     } catch (error: any) {
       console.error('❌ Erreur création facture:', error);
-      alert(`❌ Erreur: ${error.message}`);
+      alert(`Erreur: ${error.message}`, {
+        type: 'error',
+        title: 'Erreur'
+      });
     } finally {
       setSubmitting(false);
     }
@@ -379,13 +408,19 @@ export const FactureForm: React.FC = () => {
     try {
       setSubmitting(true);
       await comptabiliteApi.validerFacture(numeroFacture);
-      alert(`✅ Facture ${numeroFacture} validée avec succès!`);
+      alert(`Facture ${numeroFacture} validée avec succès!`, {
+        type: 'success',
+        title: 'Succès'
+      });
       setShowValidation(false);
       setFactureCreee(null);
       resetForm();
     } catch (error: any) {
       console.error('Erreur validation facture:', error);
-      alert(`❌ Erreur validation: ${error.message}`);
+      alert(`Erreur validation: ${error.message}`, {
+        type: 'error',
+        title: 'Erreur'
+      });
     } finally {
       setSubmitting(false);
     }
@@ -677,6 +712,15 @@ export const FactureForm: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Composant AlertDialog */}
+      <AlertDialog
+        isOpen={isOpen}
+        title={title}
+        message={message}
+        type={type}
+        onClose={close}
+      />
     </div>
   );
 };

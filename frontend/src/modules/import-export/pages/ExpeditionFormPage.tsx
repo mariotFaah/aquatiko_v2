@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { importExportApi } from '../services/api';
 import type { Commande, ExpeditionFormData } from '../types';
+import { useAlertDialog } from '../../../core/hooks/useAlertDialog';
+import AlertDialog from '../../../core/components/AlertDialog/AlertDialog';
 import './ExpeditionFormPage.css';
 
 const ExpeditionFormPage: React.FC = () => {
@@ -22,6 +24,9 @@ const ExpeditionFormPage: React.FC = () => {
     instructions_speciales: '',
     statut: 'preparation'
   });
+
+  // Utilisation du hook AlertDialog
+  const { isOpen, message, title, type, alert, close } = useAlertDialog();
 
   useEffect(() => {
     loadCommande();
@@ -49,6 +54,10 @@ const ExpeditionFormPage: React.FC = () => {
       }
     } catch (error) {
       console.error('Erreur chargement commande:', error);
+      alert('Erreur lors du chargement de la commande', {
+        type: 'error',
+        title: 'Erreur'
+      });
     } finally {
       setLoading(false);
     }
@@ -65,11 +74,26 @@ const ExpeditionFormPage: React.FC = () => {
     try {
       setSaving(true);
       await importExportApi.updateExpedition(formData);
-      alert('Expédition enregistrée avec succès!');
-      navigate(`/import-export/commandes/${id}`);
+      
+      // Remplacé l'alert natif
+      alert('Expédition enregistrée avec succès!', {
+        type: 'success',
+        title: 'Succès'
+      });
+      
+      // Navigation après un délai pour laisser voir le message de succès
+      setTimeout(() => {
+        navigate(`/import-export/commandes/${id}`);
+      }, 1500);
+      
     } catch (error) {
       console.error('Erreur sauvegarde expédition:', error);
-      alert('Erreur lors de la sauvegarde de l\'expédition');
+      
+      // Remplacé l'alert natif
+      alert('Erreur lors de la sauvegarde de l\'expédition', {
+        type: 'error',
+        title: 'Erreur'
+      });
     } finally {
       setSaving(false);
     }
@@ -260,6 +284,15 @@ const ExpeditionFormPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Composant AlertDialog */}
+      <AlertDialog
+        isOpen={isOpen}
+        title={title}
+        message={message}
+        type={type}
+        onClose={close}
+      />
     </div>
   );
 };

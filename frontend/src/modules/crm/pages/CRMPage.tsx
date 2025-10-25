@@ -1,12 +1,13 @@
 // src/modules/crm/pages/CRMPage.tsx
 import React from 'react';
+import './CRMPage.css';
 
 const CRMPage: React.FC = () => {
   return (
-    <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow p-6">
-        <h1 className="text-2xl font-bold text-gray-900">Module CRM</h1>
-        <p className="text-gray-600 mt-2">
+    <div className="crm-container">
+      <div className="crm-header">
+        <h1 className="crm-title">Module CRM</h1>
+        <p className="crm-subtitle">
           Gestion de la relation client
         </p>
       </div>

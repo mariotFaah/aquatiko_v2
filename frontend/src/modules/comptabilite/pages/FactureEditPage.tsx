@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import type { Facture, Tiers, Article, LigneFacture } from '../types';
 import { comptabiliteApi } from '../services/api';
+import { useAlertDialog } from '../../../core/hooks/useAlertDialog';
+import AlertDialog from '../../../core/components/AlertDialog/AlertDialog';
 import './FactureEditPage.css';
 
 const ENTREPRISE_INFO = {
@@ -55,6 +57,9 @@ export const FactureEditPage: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState<FormDataState | null>(null);
 
+  // Utilisation du hook AlertDialog
+  const { isOpen, message, title, type, alert, close } = useAlertDialog();
+
   useEffect(() => {
     if (numero) {
       loadData();
@@ -102,7 +107,10 @@ export const FactureEditPage: React.FC = () => {
       });
     } catch (error) {
       console.error('Erreur chargement données:', error);
-      alert('Erreur lors du chargement des données');
+      alert('Erreur lors du chargement des données', {
+        type: 'error',
+        title: 'Erreur de chargement'
+      });
     } finally {
       setLoading(false);
     }
@@ -233,24 +241,36 @@ export const FactureEditPage: React.FC = () => {
 
     // Validation du numéro de facture
     if (!facture.numero_facture) {
-      alert('Erreur: Numéro de facture manquant');
+      alert('Erreur: Numéro de facture manquant', {
+        type: 'error',
+        title: 'Erreur'
+      });
       return;
     }
 
     // Validation du tiers
     if (!formData.facture.id_tiers || formData.facture.id_tiers === 0) {
-      alert('Veuillez sélectionner un client ou fournisseur');
+      alert('Veuillez sélectionner un client ou fournisseur', {
+        type: 'warning',
+        title: 'Sélection requise'
+      });
       return;
     }
 
     // Validation des dates
     if (!formData.facture.date) {
-      alert('Veuillez saisir une date de facturation');
+      alert('Veuillez saisir une date de facturation', {
+        type: 'warning',
+        title: 'Date manquante'
+      });
       return;
     }
 
     if (!formData.facture.echeance) {
-      alert('Veuillez saisir une date d\'échéance');
+      alert('Veuillez saisir une date d\'échéance', {
+        type: 'warning',
+        title: 'Date manquante'
+      });
       return;
     }
 
@@ -260,14 +280,20 @@ export const FactureEditPage: React.FC = () => {
     );
     
     if (lignesValides.length === 0) {
-      alert('Veuillez ajouter au moins un article avec une quantité valide');
+      alert('Veuillez ajouter au moins un article avec une quantité valide', {
+        type: 'warning',
+        title: 'Articles manquants'
+      });
       return;
     }
 
     // Validation améliorée
     const validationErrors = validateLignes(lignesValides);
     if (validationErrors.length > 0) {
-      alert(`Erreurs de validation:\n${validationErrors.join('\n')}`);
+      alert(`Erreurs de validation:\n${validationErrors.join('\n')}`, {
+        type: 'error',
+        title: 'Erreurs de validation'
+      });
       return;
     }
 
@@ -284,14 +310,20 @@ export const FactureEditPage: React.FC = () => {
       // 🔥 CORRECTION : Appel API pour mettre à jour la facture
       await comptabiliteApi.updateFacture(facture.numero_facture, payload);
       
-      alert('✅ Facture modifiée avec succès!');
+      alert('Facture modifiée avec succès!', {
+        type: 'success',
+        title: 'Succès'
+      });
       
       // 🔥 CORRECTION : Navigation vers la page de détail pour voir les données fraîches
       navigate(`/comptabilite/factures/${facture.numero_facture}`);
       
     } catch (error: any) {
       console.error('Erreur modification facture:', error);
-      alert(`❌ Erreur: ${error.message || 'Erreur lors de la modification'}`);
+      alert(`Erreur: ${error.message || 'Erreur lors de la modification'}`, {
+        type: 'error',
+        title: 'Erreur'
+      });
     } finally {
       setSaving(false);
     }
@@ -300,6 +332,7 @@ export const FactureEditPage: React.FC = () => {
   const annulerModification = () => {
     if (!facture) return;
     
+    // Utilisation de confirm natif pour la confirmation d'annulation
     if (window.confirm('Voulez-vous vraiment annuler les modifications ?')) {
       navigate(`/comptabilite/factures/${facture.numero_facture}`);
     }
@@ -706,6 +739,15 @@ export const FactureEditPage: React.FC = () => {
           </button>
         </div>
       </form>
+
+      {/* Composant AlertDialog */}
+      <AlertDialog
+        isOpen={isOpen}
+        title={title}
+        message={message}
+        type={type}
+        onClose={close}
+      />
     </div>
   );
 };

@@ -1,0 +1,357 @@
+/* src/modules/crm/pages/DevisDetailPage.css */
+.devis-detail-container {
+  padding: 1.5rem;
+  max-width: 100%;
+}
+
+/* Header Card */
+.devis-header-card {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.devis-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.devis-title-section {
+  flex: 1;
+}
+
+.devis-title-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.devis-title {
+  font-size: 1.875rem;
+  font-weight: bold;
+  color: #1f2937;
+  margin: 0;
+}
+
+.devis-objet {
+  font-size: 1.125rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.devis-montant-section {
+  text-align: right;
+}
+
+.devis-montant-ht {
+  font-size: 1.875rem;
+  font-weight: bold;
+  color: #1f2937;
+}
+
+.devis-montant-label {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+/* Main Grid */
+.devis-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .devis-detail-grid {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+.devis-main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.devis-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Info Cards */
+.devis-info-card {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  padding: 1.5rem;
+}
+
+.devis-info-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 1rem 0;
+}
+
+.devis-info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.info-row {
+  color: #374151;
+}
+
+.info-label {
+  font-weight: 500;
+  color: #1f2937;
+}
+
+/* Details Grid */
+.devis-details-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 640px) {
+  .devis-details-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.detail-label {
+  font-weight: 500;
+  color: #1f2937;
+  font-size: 0.875rem;
+}
+
+.detail-value {
+  color: #374151;
+}
+
+/* Notes Sections */
+.devis-notes-section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.notes-label {
+  font-weight: 500;
+  color: #1f2937;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.notes-content {
+  color: #374151;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Financial Summary */
+.financial-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.financial-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+
+.financial-row.total-row {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.financial-label {
+  color: #6b7280;
+}
+
+.financial-value {
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.total-label {
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.total-value {
+  color: #1f2937;
+  font-weight: 700;
+  font-size: 1.125rem;
+}
+
+/* Actions */
+.actions-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.actions-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Buttons */
+.btn {
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-primary {
+  background-color: #4f46e5;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #4338ca;
+}
+
+.btn-success {
+  background-color: #059669;
+  color: white;
+}
+
+.btn-success:hover {
+  background-color: #047857;
+}
+
+.btn-danger {
+  background-color: #dc2626;
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #b91c1c;
+}
+
+.btn-secondary {
+  background-color: #6b7280;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #374151;
+}
+
+.btn-outline-danger {
+  background-color: transparent;
+  color: #dc2626;
+  border: 1px solid #dc2626;
+}
+
+.btn-outline-danger:hover {
+  background-color: #fef2f2;
+}
+
+/* Status Badges */
+.statut-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.375rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.statut-accepte {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.statut-envoye {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.statut-brouillon {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.statut-refuse {
+  background-color: #fecaca;
+  color: #dc2626;
+}
+
+.statut-expire {
+  background-color: #fed7aa;
+  color: #ea580c;
+}
+
+/* States */
+.loading-state {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+  color: #6b7280;
+}
+
+.error-state {
+  color: #dc2626;
+  padding: 1rem;
+  background-color: #fef2f2;
+  border-radius: 0.375rem;
+  margin: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .devis-header-content {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .devis-montant-section {
+    text-align: left;
+  }
+
+  .devis-title-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .devis-details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .financial-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+}

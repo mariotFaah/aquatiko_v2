@@ -1,4 +1,5 @@
 import { db } from '../../../core/database/connection.js';
+import { Client } from '../entities/Client.js';
 
 export class ClientRepository {
   
@@ -8,7 +9,8 @@ export class ClientRepository {
         .select('*')
         .orderBy('nom', 'asc');
       
-      return clients;
+      // MAPPER vers l'entité Client
+      return clients.map(client => new Client(client));
     } catch (error) {
       console.error('Erreur ClientRepository.findAllWithCRM:', error);
       throw new Error('Erreur lors de la récupération des clients');
@@ -47,13 +49,14 @@ export class ClientRepository {
         .orderBy('date_activite', 'desc')
         .limit(10);
 
-      return {
+      // RETOURNER UNE INSTANCE DE CLIENT
+      return new Client({
         ...client,
         contacts,
         devis,
         contrats,
         activites
-      };
+      });
     } catch (error) {
       console.error('Erreur ClientRepository.findByIdWithDetails:', error);
       throw new Error('Erreur lors de la récupération du client');
@@ -88,7 +91,7 @@ export class ClientRepository {
           db.raw('COUNT(DISTINCT devis.id_devis) as total_devis'),
           db.raw('COUNT(DISTINCT contrats.id_contrat) as total_contrats'),
           db.raw('COUNT(DISTINCT activites.id_activite) as total_activites'),
-          db.raw('SUM(CASE WHEN devis.statut = \"accepte\" THEN devis.montant_ttc ELSE 0 END) as ca_devis'),
+          db.raw('SUM(CASE WHEN devis.statut = "accepte" THEN devis.montant_ttc ELSE 0 END) as ca_devis'),
           db.raw('SUM(contrats.montant_ht) as ca_contrats')
         )
         .first();

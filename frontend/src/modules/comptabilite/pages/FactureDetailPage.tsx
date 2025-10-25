@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import type { Facture } from '../types';
 import { comptabiliteApi } from '../services/api';
+import { useAlertDialog } from '../../../core/hooks/useAlertDialog';
+import AlertDialog from '../../../core/components/AlertDialog/AlertDialog';
 import './FactureDetailPage.css';
 
 export const FactureDetailPage: React.FC = () => {
@@ -9,6 +11,10 @@ export const FactureDetailPage: React.FC = () => {
   const [facture, setFacture] = useState<Facture | null>(null);
   const [loading, setLoading] = useState(true);
   const [validating, setValidating] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+
+  // Utilisation du hook AlertDialog
+  const { isOpen, message, title, type, alert, close } = useAlertDialog();
 
   useEffect(() => {
     if (numero) {
@@ -23,7 +29,10 @@ export const FactureDetailPage: React.FC = () => {
       setFacture(data);
     } catch (error) {
       console.error('Erreur chargement facture:', error);
-      alert('Erreur lors du chargement de la facture');
+      alert('Erreur lors du chargement de la facture', {
+        type: 'error',
+        title: 'Erreur de chargement'
+      });
     } finally {
       setLoading(false);
     }
@@ -35,12 +44,20 @@ export const FactureDetailPage: React.FC = () => {
     try {
       setValidating(true);
       await comptabiliteApi.validerFacture(facture.numero_facture);
-      alert('✅ Facture validée avec succès!');
+      
+      alert('Facture validée avec succès!', {
+        type: 'success',
+        title: 'Succès'
+      });
+      
       // Recharger les données
       await loadFacture();
     } catch (error: any) {
       console.error('Erreur validation:', error);
-      alert(`❌ Erreur: ${error.message}`);
+      alert(`Erreur lors de la validation: ${error.message}`, {
+        type: 'error',
+        title: 'Erreur'
+      });
     } finally {
       setValidating(false);
     }
@@ -49,23 +66,34 @@ export const FactureDetailPage: React.FC = () => {
   const annulerFacture = async () => {
     if (!facture || !facture.numero_facture) return;
 
-    if (window.confirm('Êtes-vous sûr de vouloir annuler cette facture ?')) {
-      try {
-        setValidating(true);
-        // Ici vous devriez avoir une fonction annulerFacture dans votre API
-        // Pour l'instant, on va simuler avec updateFacture
-        await comptabiliteApi.updateFacture(facture.numero_facture, {
-          ...facture,
-          statut: 'annulee'
-        });
-        alert('✅ Facture annulée avec succès!');
-        await loadFacture();
-      } catch (error: any) {
-        console.error('Erreur annulation:', error);
-        alert(`❌ Erreur: ${error.message}`);
-      } finally {
-        setValidating(false);
-      }
+    // Utilisation de confirm natif pour la confirmation d'annulation
+    if (!window.confirm('Êtes-vous sûr de vouloir annuler cette facture ? Cette action est irréversible.')) {
+      return;
+    }
+
+    try {
+      setCancelling(true);
+      // Ici vous devriez avoir une fonction annulerFacture dans votre API
+      // Pour l'instant, on va simuler avec updateFacture
+      await comptabiliteApi.updateFacture(facture.numero_facture, {
+        ...facture,
+        statut: 'annulee'
+      });
+      
+      alert('Facture annulée avec succès!', {
+        type: 'success',
+        title: 'Succès'
+      });
+      
+      await loadFacture();
+    } catch (error: any) {
+      console.error('Erreur annulation:', error);
+      alert(`Erreur lors de l'annulation: ${error.message}`, {
+        type: 'error',
+        title: 'Erreur'
+      });
+    } finally {
+      setCancelling(false);
     }
   };
 
@@ -76,6 +104,7 @@ export const FactureDetailPage: React.FC = () => {
   if (loading) {
     return (
       <div className="facture-detail-loading">
+        <div className="facture-detail-loading-spinner"></div>
         <div className="facture-detail-loading-text">Chargement de la facture...</div>
       </div>
     );
@@ -84,9 +113,13 @@ export const FactureDetailPage: React.FC = () => {
   if (!facture) {
     return (
       <div className="facture-detail-error">
+        <div className="facture-detail-error-icon">❌</div>
         <div className="facture-detail-error-text">Facture non trouvée</div>
+        <p className="facture-detail-error-description">
+          La facture que vous recherchez n'existe pas ou a été supprimée.
+        </p>
         <Link to="/comptabilite/factures" className="facture-detail-back-button">
-          ← Retour à la liste
+          ← Retour à la liste des factures
         </Link>
       </div>
     );
@@ -118,15 +151,24 @@ export const FactureDetailPage: React.FC = () => {
           >
             ← Retour
           </Link>
+          
           {facture.statut === 'brouillon' && (
             <button
               onClick={validerFacture}
               disabled={validating}
               className="facture-detail-validate-button"
             >
-              {validating ? 'Validation...' : '✅ Valider'}
+              {validating ? (
+                <>
+                  <div className="facture-detail-action-spinner"></div>
+                  Validation...
+                </>
+              ) : (
+                '✅ Valider'
+              )}
             </button>
           )}
+          
           {facture.statut === 'validee' && (
             <button
               onClick={imprimerFacture}
@@ -135,15 +177,30 @@ export const FactureDetailPage: React.FC = () => {
               🖨️ Imprimer
             </button>
           )}
+          
           {facture.statut !== 'annulee' && (
             <button
               onClick={annulerFacture}
-              disabled={validating}
+              disabled={cancelling}
               className="facture-detail-cancel-button"
             >
-              {validating ? 'Annulation...' : '❌ Annuler'}
+              {cancelling ? (
+                <>
+                  <div className="facture-detail-action-spinner"></div>
+                  Annulation...
+                </>
+              ) : (
+                '❌ Annuler'
+              )}
             </button>
           )}
+          
+          <Link
+            to={`/comptabilite/factures/${facture.numero_facture}/edit`}
+            className="facture-detail-edit-button"
+          >
+            ✏️ Modifier
+          </Link>
         </div>
       </div>
 
@@ -172,7 +229,8 @@ export const FactureDetailPage: React.FC = () => {
 
           <div className="facture-detail-meta">
             <div className="facture-detail-meta-item">
-              <strong>N° Facture:</strong> {facture.numero_facture}
+              <strong>N° Facture:</strong> 
+              <span className="facture-detail-numero">{facture.numero_facture}</span>
             </div>
             <div className="facture-detail-meta-item">
               <strong>Date:</strong> {new Date(facture.date).toLocaleDateString('fr-FR')}
@@ -193,7 +251,8 @@ export const FactureDetailPage: React.FC = () => {
               </span>
             </div>
             <div className="facture-detail-meta-item">
-              <strong>Règlement:</strong> {facture.reglement}
+              <strong>Règlement:</strong> 
+              <span className="facture-detail-reglement">{facture.reglement}</span>
             </div>
           </div>
         </div>
@@ -217,47 +276,57 @@ export const FactureDetailPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {facture.lignes && facture.lignes.map((ligne, index) => (
-                  <tr key={index} className="facture-detail-ligne">
-                    <td>{ligne.code_article}</td>
-                    <td className="facture-detail-ligne-description">
-                      {ligne.description}
-                    </td>
-                    <td className="facture-detail-ligne-quantite">
-                      {ligne.quantite}
-                    </td>
-                    <td className="facture-detail-ligne-prix">
-                      {ligne.prix_unitaire.toLocaleString('fr-FR', {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
-                      })} Ar
-                    </td>
-                    <td className="facture-detail-ligne-remise">
-                      {ligne.remise}%
-                    </td>
-                    <td className="facture-detail-ligne-tva">
-                      {ligne.taux_tva}%
-                    </td>
-                    <td className="facture-detail-ligne-montant">
-                      {ligne.montant_ht?.toLocaleString('fr-FR', {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
-                      })} Ar
-                    </td>
-                    <td className="facture-detail-ligne-montant">
-                      {ligne.montant_tva?.toLocaleString('fr-FR', {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
-                      })} Ar
-                    </td>
-                    <td className="facture-detail-ligne-montant">
-                      {ligne.montant_ttc?.toLocaleString('fr-FR', {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
-                      })} Ar
+                {facture.lignes && facture.lignes.length > 0 ? (
+                  facture.lignes.map((ligne, index) => (
+                    <tr key={index} className="facture-detail-ligne">
+                      <td className="facture-detail-ligne-reference">
+                        <code>{ligne.code_article}</code>
+                      </td>
+                      <td className="facture-detail-ligne-description">
+                        {ligne.description}
+                      </td>
+                      <td className="facture-detail-ligne-quantite">
+                        {ligne.quantite}
+                      </td>
+                      <td className="facture-detail-ligne-prix">
+                        {ligne.prix_unitaire.toLocaleString('fr-FR', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                        })} Ar
+                      </td>
+                      <td className="facture-detail-ligne-remise">
+                        {ligne.remise > 0 ? `${ligne.remise}%` : '-'}
+                      </td>
+                      <td className="facture-detail-ligne-tva">
+                        {ligne.taux_tva}%
+                      </td>
+                      <td className="facture-detail-ligne-montant">
+                        {ligne.montant_ht?.toLocaleString('fr-FR', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                        })} Ar
+                      </td>
+                      <td className="facture-detail-ligne-montant">
+                        {ligne.montant_tva?.toLocaleString('fr-FR', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                        })} Ar
+                      </td>
+                      <td className="facture-detail-ligne-montant">
+                        {ligne.montant_ttc?.toLocaleString('fr-FR', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                        })} Ar
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={9} className="facture-detail-no-lignes">
+                      Aucun article dans cette facture
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
@@ -329,6 +398,15 @@ export const FactureDetailPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Composant AlertDialog */}
+      <AlertDialog
+        isOpen={isOpen}
+        title={title}
+        message={message}
+        type={type}
+        onClose={close}
+      />
     </div>
   );
 };

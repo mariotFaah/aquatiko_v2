@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 import type { Paiement, Facture } from '../types';
 import { paiementApi } from '../services/paiementApi';
 import { comptabiliteApi } from '../services/api';
+import { useAlertDialog } from '../../../core/hooks/useAlertDialog';
+import AlertDialog from '../../../core/components/AlertDialog/AlertDialog';
 import './PaiementsListPage.css';
 
 export const PaiementsListPage: React.FC = () => {
@@ -12,12 +14,16 @@ export const PaiementsListPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'validé' | 'en_attente' | 'annulé'>('all');
 
+  // Utilisation du hook AlertDialog
+  const { isOpen, message, title, type, alert, close } = useAlertDialog();
+
   useEffect(() => {
     loadData();
   }, []);
 
   const loadData = async () => {
     try {
+      setLoading(true);
       const [facturesData, paiementsData] = await Promise.all([
         comptabiliteApi.getFactures(),
         paiementApi.getPaiements()
@@ -27,34 +33,83 @@ export const PaiementsListPage: React.FC = () => {
       setPaiements(paiementsData);
     } catch (error) {
       console.error('Erreur chargement données:', error);
-      alert('Erreur lors du chargement des paiements. Vérifiez que le backend est démarré.');
+      
+      // Utilisation de l'AlertDialog au lieu de alert()
+      alert('Erreur lors du chargement des paiements. Vérifiez que le backend est démarré.', {
+        type: 'error',
+        title: 'Erreur de connexion'
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  // SUPPRIMER complètement la fonction simulerPaiements()
-
   const handleValiderPaiement = async (idPaiement: number) => {
-    try {
-      await paiementApi.validerPaiement(idPaiement);
-      // Recharger les données après validation
-      await loadData();
-    } catch (error) {
-      console.error('Erreur validation paiement:', error);
-      alert('Erreur lors de la validation du paiement');
-    }
+    // Confirmation avec AlertDialog
+    alert('Êtes-vous sûr de vouloir valider ce paiement ?', {
+      type: 'warning',
+      title: 'Confirmation de validation',
+      confirmText: 'Valider',
+      cancelText: 'Annuler',
+      onConfirm: async () => {
+        try {
+          await paiementApi.validerPaiement(idPaiement);
+          // Recharger les données après validation
+          await loadData();
+          
+          // Message de succès
+          alert('Paiement validé avec succès', {
+            type: 'success',
+            title: 'Validé'
+          });
+        } catch (error) {
+          console.error('Erreur validation paiement:', error);
+          
+          const errorMessage = error instanceof Error 
+            ? error.message 
+            : 'Erreur inconnue lors de la validation';
+          
+          alert(`Erreur lors de la validation du paiement: ${errorMessage}`, {
+            type: 'error',
+            title: 'Erreur'
+          });
+        }
+      }
+    });
   };
 
   const handleAnnulerPaiement = async (idPaiement: number) => {
-    try {
-      await paiementApi.annulerPaiement(idPaiement);
-      // Recharger les données après annulation
-      await loadData();
-    } catch (error) {
-      console.error('Erreur annulation paiement:', error);
-      alert('Erreur lors de l\'annulation du paiement');
-    }
+    // Confirmation avec AlertDialog
+    alert('Êtes-vous sûr de vouloir annuler ce paiement ?', {
+      type: 'warning',
+      title: 'Confirmation d\'annulation',
+      confirmText: 'Annuler',
+      cancelText: 'Retour',
+      onConfirm: async () => {
+        try {
+          await paiementApi.annulerPaiement(idPaiement);
+          // Recharger les données après annulation
+          await loadData();
+          
+          // Message de succès
+          alert('Paiement annulé avec succès', {
+            type: 'success',
+            title: 'Annulé'
+          });
+        } catch (error) {
+          console.error('Erreur annulation paiement:', error);
+          
+          const errorMessage = error instanceof Error 
+            ? error.message 
+            : 'Erreur inconnue lors de l\'annulation';
+          
+          alert(`Erreur lors de l'annulation du paiement: ${errorMessage}`, {
+            type: 'error',
+            title: 'Erreur'
+          });
+        }
+      }
+    });
   };
 
   const filteredPaiements = paiements.filter(paiement => {
@@ -215,14 +270,16 @@ export const PaiementsListPage: React.FC = () => {
                         <button 
                           className="paiements-action-valider"
                           onClick={() => handleValiderPaiement(paiement.id_paiement!)}
+                          title="Valider le paiement"
                         >
-                          Valider
+                          ✅ Valider
                         </button>
                         <button 
                           className="paiements-action-annuler"
                           onClick={() => handleAnnulerPaiement(paiement.id_paiement!)}
+                          title="Annuler le paiement"
                         >
-                          Annuler
+                          ❌ Annuler
                         </button>
                       </>
                     )}
@@ -254,6 +311,15 @@ export const PaiementsListPage: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Composant AlertDialog */}
+      <AlertDialog
+        isOpen={isOpen}
+        title={title}
+        message={message}
+        type={type}
+        onClose={close}
+      />
     </div>
   );
 };

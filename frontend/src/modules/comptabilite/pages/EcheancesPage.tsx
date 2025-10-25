@@ -3,15 +3,20 @@ import { Link } from 'react-router-dom';
 import type { Facture, Tiers } from '../types';
 import { comptabiliteApi } from '../services/api';
 import { emailApi } from '../services/emailApi';
+import { useAlertDialog } from '../../../core/hooks/useAlertDialog';
+import AlertDialog from '../../../core/components/AlertDialog/AlertDialog';
 import './EcheancesPage.css';
 
 export const EcheancesPage: React.FC = () => {
   const [echeances, setEcheances] = useState<Facture[]>([]);
-  const [tiers, setTiers] = useState<Tiers[]>([]);
+  const [, setTiers] = useState<Tiers[]>([]);
   const [loading, setLoading] = useState(true);
   const [envoiEnCours, setEnvoiEnCours] = useState<number | null>(null);
   const [envoiGroupeEnCours, setEnvoiGroupeEnCours] = useState(false);
   const [messageConfirmation, setMessageConfirmation] = useState<string>('');
+
+  // Utilisation du hook AlertDialog
+  const { isOpen, message, title, type, alert, close } = useAlertDialog();
 
   useEffect(() => {
     loadData();
@@ -44,7 +49,10 @@ export const EcheancesPage: React.FC = () => {
       setTiers(tiersData);
     } catch (error) {
       console.error('Erreur chargement données:', error);
-      alert('Erreur lors du chargement des échéances');
+      alert('Erreur lors du chargement des échéances', {
+        type: 'error',
+        title: 'Erreur de chargement'
+      });
     } finally {
       setLoading(false);
     }
@@ -66,7 +74,10 @@ export const EcheancesPage: React.FC = () => {
   // FONCTION RELANCE INDIVIDUELLE
   const handleRelanceClient = async (facture: Facture) => {
     if (!facture.email) {
-      alert(`Aucun email trouvé pour ${facture.nom_tiers}. Veuillez mettre à jour les contacts.`);
+      alert(`Aucun email trouvé pour ${facture.nom_tiers}. Veuillez mettre à jour les contacts.`, {
+        type: 'warning',
+        title: 'Email manquant'
+      });
       return;
     }
 
@@ -77,16 +88,22 @@ export const EcheancesPage: React.FC = () => {
       const result = await emailApi.envoyerRelance(facture);
       
       if (result.success) {
-        setMessageConfirmation(`✅ Relance envoyée à ${facture.nom_tiers} (${facture.email})`);
+        setMessageConfirmation(`Relance envoyée à ${facture.nom_tiers} (${facture.email})`);
         
         setTimeout(() => {
           setMessageConfirmation('');
         }, 3000);
       } else {
-        alert(`Erreur: ${result.message}`);
+        alert(`Erreur lors de l'envoi: ${result.message}`, {
+          type: 'error',
+          title: 'Erreur d\'envoi'
+        });
       }
     } catch (error: any) {
-      alert(`Erreur envoi relance: ${error.message}`);
+      alert(`Erreur lors de l'envoi de la relance: ${error.message}`, {
+        type: 'error',
+        title: 'Erreur'
+      });
     } finally {
       setEnvoiEnCours(null);
     }
@@ -98,11 +115,15 @@ export const EcheancesPage: React.FC = () => {
     const facturesSansEmail = echeances.filter(f => !f.email);
 
     if (facturesAvecEmail.length === 0) {
-      alert('Aucun client avec email trouvé. Impossible d\'envoyer des relances.');
+      alert('Aucun client avec email trouvé. Impossible d\'envoyer des relances.', {
+        type: 'warning',
+        title: 'Aucun email disponible'
+      });
       return;
     }
 
-    if (!confirm(`Envoyer des relances à ${facturesAvecEmail.length} client(s) ?`)) {
+    // Utilisation de confirm natif pour la confirmation groupée
+    if (!window.confirm(`Envoyer des relances à ${facturesAvecEmail.length} client(s) ?`)) {
       return;
     }
 
@@ -113,16 +134,22 @@ export const EcheancesPage: React.FC = () => {
       const result = await emailApi.envoyerRelancesGroupées(facturesAvecEmail);
       
       if (result.success) {
-        setMessageConfirmation(`✅ ${facturesAvecEmail.length} relance(s) envoyée(s) avec succès !`);
+        setMessageConfirmation(`${facturesAvecEmail.length} relance(s) envoyée(s) avec succès !`);
         
         setTimeout(() => {
           setMessageConfirmation('');
         }, 5000);
       } else {
-        alert(`Erreur: ${result.message}`);
+        alert(`Erreur lors de l'envoi groupé: ${result.message}`, {
+          type: 'error',
+          title: 'Erreur d\'envoi'
+        });
       }
     } catch (error: any) {
-      alert(`Erreur envoi relances groupées: ${error.message}`);
+      alert(`Erreur lors de l'envoi des relances groupées: ${error.message}`, {
+        type: 'error',
+        title: 'Erreur'
+      });
     } finally {
       setEnvoiGroupeEnCours(false);
     }
@@ -135,7 +162,8 @@ export const EcheancesPage: React.FC = () => {
   if (loading) {
     return (
       <div className="echeances-loading">
-        <div className="loading-text">Chargement des échéances...</div>
+        <div className="echeances-loading-spinner"></div>
+        <div className="echeances-loading-text">Chargement des échéances...</div>
       </div>
     );
   }
@@ -150,7 +178,8 @@ export const EcheancesPage: React.FC = () => {
       {/* Message de confirmation */}
       {messageConfirmation && (
         <div className="confirmation-message">
-          {messageConfirmation}
+          <div className="confirmation-icon">✅</div>
+          <div className="confirmation-text">{messageConfirmation}</div>
         </div>
       )}
 
@@ -265,7 +294,14 @@ export const EcheancesPage: React.FC = () => {
                         disabled={!aUnEmail || envoiEnCours === facture.numero_facture}
                         title={aUnEmail ? "Envoyer une relance par email" : "Client sans email"}
                       >
-                        {envoiEnCours === facture.numero_facture ? '⏳...' : '📧 Relancer'}
+                        {envoiEnCours === facture.numero_facture ? (
+                          <>
+                            <div className="relance-spinner"></div>
+                            Envoi...
+                          </>
+                        ) : (
+                          '📧 Relancer'
+                        )}
                       </button>
                       <button className="btn-details" title="Voir les paiements">
                         <Link to={`/comptabilite/paiements/facture/${facture.numero_facture}`}>
@@ -283,8 +319,8 @@ export const EcheancesPage: React.FC = () => {
         {echeances.length === 0 && (
           <div className="no-echeances">
             <div className="success-icon">✅</div>
-            <p>Aucune facture client en retard de paiement</p>
-            <small>Toutes les échéances sont respectées</small>
+            <h3>Aucune facture client en retard de paiement</h3>
+            <p>Toutes les échéances sont respectées</p>
           </div>
         )}
       </div>
@@ -298,7 +334,14 @@ export const EcheancesPage: React.FC = () => {
             onClick={handleRelanceGroupee}
             disabled={echeances.length === 0 || clientsAvecEmail === 0 || envoiGroupeEnCours}
           >
-            {envoiGroupeEnCours ? '⏳ Envoi en cours...' : `📧 Relancer Tous les Clients (${clientsAvecEmail})`}
+            {envoiGroupeEnCours ? (
+              <>
+                <div className="groupe-spinner"></div>
+                Envoi en cours...
+              </>
+            ) : (
+              `📧 Relancer Tous les Clients (${clientsAvecEmail})`
+            )}
           </button>
           <button className="btn-action-secondaire">
             📊 Exporter Rapport Échéances
@@ -310,11 +353,23 @@ export const EcheancesPage: React.FC = () => {
         
         {echeances.length > 0 && clientsAvecEmail === 0 && (
           <div className="alerte-aucun-email">
-            ⚠️ Aucun des clients en retard n'a d'email enregistré. 
-            <Link to="/comptabilite/tiers" className="lien-tiers"> Mettre à jour les contacts clients</Link>
+            <div className="alerte-icon">⚠️</div>
+            <div className="alerte-text">
+              Aucun des clients en retard n'a d'email enregistré. 
+              <Link to="/comptabilite/tiers" className="lien-tiers"> Mettre à jour les contacts clients</Link>
+            </div>
           </div>
         )}
       </div>
+
+      {/* Composant AlertDialog */}
+      <AlertDialog
+        isOpen={isOpen}
+        title={title}
+        message={message}
+        type={type}
+        onClose={close}
+      />
     </div>
   );
 };

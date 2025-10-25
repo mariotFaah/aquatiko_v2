@@ -3,6 +3,8 @@ import './TiersListPage.css';
 import { comptabiliteApi } from '../services/api';
 import type { Tiers } from '../types';
 import { TiersFormModal } from './TiersFormModal';
+import { useAlertDialog } from '../../../core/hooks/useAlertDialog';
+import AlertDialog from '../../../core/components/AlertDialog/AlertDialog';
 
 export const TiersListPage: React.FC = () => {
   const [tiers, setTiers] = useState<Tiers[]>([]);
@@ -10,36 +12,31 @@ export const TiersListPage: React.FC = () => {
   const [selectedTiers, setSelectedTiers] = useState<Tiers | null>(null);
   const [showModal, setShowModal] = useState(false);
 
+  // Utilisation du hook AlertDialog
+  const { isOpen, message, title, type, alert, close } = useAlertDialog();
+
   useEffect(() => {
     loadTiers();
   }, []);
 
-// Dans TiersListPage.tsx - améliorer loadTiers
-const loadTiers = async () => {
-  try {
-    setLoading(true);
-    const data = await comptabiliteApi.getTiers();
-    console.log('📋 Tiers chargés:', data); // Debug
-    setTiers(data);
-  } catch (err) {
-    console.error('Erreur lors du chargement des tiers:', err);
-    // En cas d'erreur, définir un tableau vide pour éviter les crashs
-    setTiers([]);
-    alert('Erreur lors du chargement des clients/fournisseurs');
-  } finally {
-    setLoading(false);
-  }
-};
-
- {/* const handleDelete = async (id: number) => {
-    if (!window.confirm('Supprimer ce client/fournisseur ?')) return;
+  const loadTiers = async () => {
     try {
-      await comptabiliteApi.deleteTiers(id);
-      loadTiers();
+      setLoading(true);
+      const data = await comptabiliteApi.getTiers();
+      console.log('📋 Tiers chargés:', data);
+      setTiers(data);
     } catch (err) {
-      console.error('Erreur suppression:', err);
+      console.error('Erreur lors du chargement des tiers:', err);
+      setTiers([]);
+      // Remplacement de l'alerte
+      alert('Erreur lors du chargement des clients/fournisseurs', {
+        type: 'error',
+        title: 'Erreur'
+      });
+    } finally {
+      setLoading(false);
     }
-  };*/}
+  };
 
   const handleEdit = (tiers: Tiers) => {
     setSelectedTiers(tiers);
@@ -87,7 +84,6 @@ const loadTiers = async () => {
                 <td>{t.adresse}</td>
                 <td className="tiers-actions">
                   <button className="tiers-edit-btn" onClick={() => handleEdit(t)}>Modifier</button>
-                  {/*<button className="tiers-delete-btn" onClick={() => handleDelete(t.id_tiers)}>Supprimer</button>*/}
                 </td>
               </tr>
             ))}
@@ -107,6 +103,15 @@ const loadTiers = async () => {
           }}
         />
       )}
+
+      {/* Composant AlertDialog */}
+      <AlertDialog
+        isOpen={isOpen}
+        title={title}
+        message={message}
+        type={type}
+        onClose={close}
+      />
     </div>
   );
 };

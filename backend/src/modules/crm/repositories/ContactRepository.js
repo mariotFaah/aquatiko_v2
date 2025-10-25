@@ -1,4 +1,5 @@
 import { db } from '../../../core/database/connection.js';
+import { Contact } from '../entities/Contact.js';
 
 export class ContactRepository {
   
@@ -9,7 +10,7 @@ export class ContactRepository {
         .orderBy('principal', 'desc')
         .orderBy('nom', 'asc');
       
-      return contacts;
+      return contacts.map(contact => new Contact(contact));
     } catch (error) {
       console.error('Erreur ContactRepository.findByClient:', error);
       throw new Error('Erreur lors de la récupération des contacts');
@@ -22,7 +23,7 @@ export class ContactRepository {
         .where('id_contact', id_contact)
         .first();
       
-      return contact;
+      return contact ? new Contact(contact) : null;
     } catch (error) {
       console.error('Erreur ContactRepository.findById:', error);
       throw new Error('Erreur lors de la récupération du contact');

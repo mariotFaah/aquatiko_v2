@@ -1,10 +1,11 @@
-// Dans CommandeFormPage.tsx - VERSION CORRIGÉE
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { importExportApi } from '../services/api';
 import { comptabiliteApi } from '../../comptabilite/services/api';
 import type { CommandeFormData, LigneCommandeFormData, Article } from '../types';
 import type { Tiers as ComptabiliteTiers } from '../../comptabilite/types';
+import { useAlertDialog } from '../../../core/hooks/useAlertDialog';
+import AlertDialog from '../../../core/components/AlertDialog/AlertDialog';
 import './CommandeFormPage.css';
 
 // Interface unifiée pour résoudre le conflit
@@ -22,6 +23,9 @@ const CommandeFormPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [tiers, setTiers] = useState<UnifiedTiers[]>([]);
   const [articles, setArticles] = useState<Article[]>([]);
+  
+  // Utilisation du hook AlertDialog
+  const { isOpen, message, title, type, alert, close } = useAlertDialog();
   
   // CORRECTION : Retirer 'statut' car il n'existe pas dans CommandeFormData
   const [formData, setFormData] = useState<CommandeFormData>({
@@ -70,6 +74,10 @@ const CommandeFormPage: React.FC = () => {
       setArticles(articlesData);
     } catch (error) {
       console.error('Erreur chargement données:', error);
+      alert('Erreur lors du chargement des données', {
+        type: 'error',
+        title: 'Erreur'
+      });
     }
   };
 
@@ -145,12 +153,18 @@ const CommandeFormPage: React.FC = () => {
     e.preventDefault();
     
     if (!formData.client_id || !formData.fournisseur_id) {
-      alert('Veuillez sélectionner un client et un fournisseur');
+      alert('Veuillez sélectionner un client et un fournisseur', {
+        type: 'warning',
+        title: 'Champs manquants'
+      });
       return;
     }
 
     if (lignes.length === 0 || lignes.some(l => !l.article_id || l.quantite <= 0)) {
-      alert('Veuillez ajouter au moins une ligne de commande valide');
+      alert('Veuillez ajouter au moins une ligne de commande valide', {
+        type: 'warning',
+        title: 'Lignes invalides'
+      });
       return;
     }
 
@@ -163,10 +177,23 @@ const CommandeFormPage: React.FC = () => {
       };
 
       await importExportApi.createCommande(commandeData);
-      navigate('/import-export/commandes');
+      
+      alert('Commande créée avec succès!', {
+        type: 'success',
+        title: 'Succès'
+      });
+      
+      // Navigation après un délai pour laisser voir le message de succès
+      setTimeout(() => {
+        navigate('/import-export/commandes');
+      }, 1500);
+      
     } catch (error) {
       console.error('Erreur création commande:', error);
-      alert('Erreur lors de la création de la commande');
+      alert('Erreur lors de la création de la commande', {
+        type: 'error',
+        title: 'Erreur'
+      });
     } finally {
       setLoading(false);
     }
@@ -269,22 +296,23 @@ const CommandeFormPage: React.FC = () => {
                   <option value="MGA">MGA - Ariary Malgache</option>
                 </select>
               </div>
+
+              {/* Champ Statut */}
+              <div className="form-group">
+                <label className="form-label required">Statut</label>
+                <select
+                  value={formData.statut || 'brouillon'}
+                  onChange={(e) => handleInputChange('statut', e.target.value)}
+                  className="form-select"
+                  required
+                >
+                  <option value="brouillon">Brouillon</option>
+                  <option value="confirmée">Confirmée</option>
+                  <option value="expédiée">Expédiée</option>
+                  <option value="livrée">Livrée</option>
+                </select>
+              </div>
             </div>
-          </div>
-          {/* Dans la section "Informations Générales", ajoutez ce champ : */}
-          <div className="form-group">
-            <label className="form-label required">Statut</label>
-            <select
-              value={formData.statut || 'brouillon'}
-              onChange={(e) => handleInputChange('statut', e.target.value)}
-              className="form-select"
-              required
-            >
-              <option value="brouillon">Brouillon</option>
-              <option value="confirmée">Confirmée</option>
-              <option value="expédiée">Expédiée</option>
-              <option value="livrée">Livrée</option>
-            </select>
           </div>
 
           {/* Lignes de commande */}
@@ -431,12 +459,25 @@ const CommandeFormPage: React.FC = () => {
             <Link to="/import-export/commandes" className="btn-secondary">
               Annuler
             </Link>
-            <button type="submit" className="btn-primary">
-              Créer la Commande
+            <button 
+              type="submit" 
+              className="btn-primary"
+              disabled={loading}
+            >
+              {loading ? 'Création en cours...' : 'Créer la Commande'}
             </button>
           </div>
         </form>
       </div>
+
+      {/* Composant AlertDialog */}
+      <AlertDialog
+        isOpen={isOpen}
+        title={title}
+        message={message}
+        type={type}
+        onClose={close}
+      />
     </div>
   );
 };

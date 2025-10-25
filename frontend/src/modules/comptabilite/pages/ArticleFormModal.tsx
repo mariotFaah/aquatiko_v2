@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import './ArticleFormModal.css';
 import { comptabiliteApi } from '../services/api';
 import type { Article } from '../types';
+import { useAlertDialog } from '../../../core/hooks/useAlertDialog';
+import AlertDialog from '../../../core/components/AlertDialog/AlertDialog';
 
 interface Props {
   article: Article | null;
@@ -32,6 +34,11 @@ export const ArticleFormModal: React.FC<Props> = ({ article, nextArticleCode, on
     }
   );
 
+  const [saving, setSaving] = useState(false);
+
+  // Utilisation du hook AlertDialog
+  const { isOpen, message, title, type, alert, close } = useAlertDialog();
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setForm(prev => ({ 
@@ -42,6 +49,34 @@ export const ArticleFormModal: React.FC<Props> = ({ article, nextArticleCode, on
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validation des champs
+    if (!form.description.trim()) {
+      alert('La description est obligatoire', {
+        type: 'warning',
+        title: 'Champ manquant'
+      });
+      return;
+    }
+
+    if (form.prix_unitaire < 0) {
+      alert('Le prix unitaire ne peut pas être négatif', {
+        type: 'warning',
+        title: 'Prix invalide'
+      });
+      return;
+    }
+
+    if (form.taux_tva < 0 || form.taux_tva > 100) {
+      alert('Le taux de TVA doit être compris entre 0 et 100%', {
+        type: 'warning',
+        title: 'TVA invalide'
+      });
+      return;
+    }
+
+    setSaving(true);
+    
     try {
       console.log('📤 Données envoyées:', form);
       
@@ -50,25 +85,61 @@ export const ArticleFormModal: React.FC<Props> = ({ article, nextArticleCode, on
         const { code_article, ...updateData } = form;
         console.log('🔄 Données de modification:', updateData);
         await comptabiliteApi.updateArticle(article.code_article, updateData);
+        
+        alert('Article modifié avec succès', {
+          type: 'success',
+          title: 'Succès'
+        });
       } else {
         // Création
         await comptabiliteApi.createArticle(form);
+        
+        alert('Article créé avec succès', {
+          type: 'success',
+          title: 'Succès'
+        });
       }
-      onSave();
+      
+      // Appeler onSave après un court délai pour laisser voir le message de succès
+      setTimeout(() => {
+        onSave();
+      }, 1000);
+      
     } catch (err) {
       console.error('❌ Erreur sauvegarde:', err);
-      alert('Erreur lors de la sauvegarde: ' + (err instanceof Error ? err.message : 'Erreur inconnue'));
+      
+      const errorMessage = err instanceof Error 
+        ? err.message 
+        : 'Erreur inconnue lors de la sauvegarde';
+      
+      alert(`Erreur lors de la sauvegarde: ${errorMessage}`, {
+        type: 'error',
+        title: 'Erreur'
+      });
+    } finally {
+      setSaving(false);
     }
   };
 
   return (
     <div className="article-modal-overlay">
       <div className="article-modal">
-        <h2>{article ? 'Modifier' : 'Ajouter'} un article</h2>
+        <div className="article-modal-header">
+          <h2>{article ? 'Modifier' : 'Ajouter'} un article</h2>
+          <button 
+            type="button" 
+            className="article-modal-close" 
+            onClick={onClose}
+            disabled={saving}
+          >
+            ✕
+          </button>
+        </div>
+        
         <form onSubmit={handleSubmit}>
           {!article && (
-            <>
-              <label>Code Article *</label>
+            <div className="article-form-group">
+              <label className="article-form-label">Code Article *</label>
               <div className="article-code-display">
                 <span className="code-prefix">ART</span>
                 <span className="code-number">
@@ -81,61 +152,106 @@ export const ArticleFormModal: React.FC<Props> = ({ article, nextArticleCode, on
                 name="code_article" 
                 value={form.code_article} 
               />
-            </>
+            </div>
           )}
 
-          <label>Description *</label>
-          <input 
-            name="description" 
-            value={form.description} 
-            onChange={handleChange} 
-            required 
-            placeholder="Description de l'article"
-          />
+          <div className="article-form-group">
+            <label className="article-form-label">Description *</label>
+            <input 
+              name="description" 
+              value={form.description} 
+              onChange={handleChange} 
+              className="article-form-input"
+              required 
+              placeholder="Description de l'article"
+              disabled={saving}
+            />
+          </div>
 
-          <label>Prix Unitaire (Ar) *</label>
-          <input 
-            name="prix_unitaire" 
-            type="number" 
-            step="0.01"
-            min="0"
-            value={form.prix_unitaire} 
-            onChange={handleChange} 
-            required 
-          />
+          <div className="article-form-group">
+            <label className="article-form-label">Prix Unitaire (Ar) *</label>
+            <input 
+              name="prix_unitaire" 
+              type="number" 
+              step="0.01"
+              min="0"
+              value={form.prix_unitaire} 
+              onChange={handleChange} 
+              className="article-form-input"
+              required 
+              disabled={saving}
+            />
+          </div>
 
-          <label>Taux TVA (%)</label>
-          <input 
-            name="taux_tva" 
-            type="number" 
-            step="0.01"
-            min="0"
-            max="100"
-            value={form.taux_tva} 
-            onChange={handleChange} 
-          />
+          <div className="article-form-group">
+            <label className="article-form-label">Taux TVA (%)</label>
+            <input 
+              name="taux_tva" 
+              type="number" 
+              step="0.01"
+              min="0"
+              max="100"
+              value={form.taux_tva} 
+              onChange={handleChange} 
+              className="article-form-input"
+              disabled={saving}
+            />
+          </div>
 
-          <label>Unité</label>
-          <select name="unite" value={form.unite} onChange={handleChange}>
-            <option value="unite">Unité</option>
-            <option value="heure">Heure</option>
-            <option value="jour">Jour</option>
-            <option value="kg">Kilogramme</option>
-            <option value="litre">Litre</option>
-            <option value="mètre">Mètre</option>
-            <option value="mois">Mois</option>
-          </select>
+          <div className="article-form-group">
+            <label className="article-form-label">Unité</label>
+            <select 
+              name="unite" 
+              value={form.unite} 
+              onChange={handleChange} 
+              className="article-form-select"
+              disabled={saving}
+            >
+              <option value="unite">Unité</option>
+              <option value="heure">Heure</option>
+              <option value="jour">Jour</option>
+              <option value="kg">Kilogramme</option>
+              <option value="litre">Litre</option>
+              <option value="mètre">Mètre</option>
+              <option value="mois">Mois</option>
+            </select>
+          </div>
 
           <div className="article-modal-actions">
-            <button type="submit" className="article-save-btn">
-              {article ? 'Modifier' : 'Créer'}
-            </button>
-            <button type="button" className="article-cancel-btn" onClick={onClose}>
+            <button 
+              type="button" 
+              className="article-cancel-btn" 
+              onClick={onClose}
+              disabled={saving}
+            >
               Annuler
+            </button>
+            <button 
+              type="submit" 
+              className="article-save-btn"
+              disabled={saving}
+            >
+              {saving ? (
+                <>
+                  <div className="article-saving-spinner"></div>
+                  {article ? 'Modification...' : 'Création...'}
+                </>
+              ) : (
+                article ? '💾 Modifier' : '➕ Créer'
+              )}
             </button>
           </div>
         </form>
       </div>
+
+      {/* Composant AlertDialog */}
+      <AlertDialog
+        isOpen={isOpen}
+        title={title}
+        message={message}
+        type={type}
+        onClose={close}
+      />
     </div>
   );
 };

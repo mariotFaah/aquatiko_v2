@@ -5,7 +5,7 @@ import DashboardPage from '../../core/pages/DashboardPage';
 import LoginPage from '../../core/pages/LoginPage';
 import { comptabiliteRoutes } from '../../modules/comptabilite/routes';
 import { importExportRoutes } from '../../modules/import-export/routes';
-import CRMPage from '../../modules/crm/pages/CRMPage';
+import { crmRoutes } from '../../modules/crm/routes';
 
 export const routes: RouteObject[] = [
   {
@@ -23,10 +23,7 @@ export const routes: RouteObject[] = [
       // Modules
       ...comptabiliteRoutes,
       ...importExportRoutes,
-      {
-        path: 'crm',
-        element: <CRMPage />,
-      },
+      ...crmRoutes,
     ],
   },
 ];

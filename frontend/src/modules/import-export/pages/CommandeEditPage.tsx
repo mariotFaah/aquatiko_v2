@@ -3,6 +3,8 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import { importExportApi } from '../services/api';
 import { comptabiliteApi } from '../../comptabilite/services/api';
 import type { Commande, CommandeFormData, LigneCommandeFormData, Tiers, Article } from '../types';
+import { useAlertDialog } from '../../../core/hooks/useAlertDialog';
+import AlertDialog from '../../../core/components/AlertDialog/AlertDialog';
 import './CommandeFormPage.css';
 
 const CommandeEditPage: React.FC = () => {
@@ -14,6 +16,9 @@ const CommandeEditPage: React.FC = () => {
   const [articles, setArticles] = useState<Article[]>([]);
   const [commande, setCommande] = useState<Commande | null>(null);
   
+  // Utilisation du hook AlertDialog
+  const { isOpen, message, title, type, alert, close } = useAlertDialog();
+
   const [formData, setFormData] = useState<CommandeFormData>({
     type: 'import',
     client_id: 0,
@@ -70,7 +75,10 @@ const CommandeEditPage: React.FC = () => {
       }
     } catch (error) {
       console.error('Erreur chargement données:', error);
-      alert('Erreur lors du chargement de la commande');
+      alert('Erreur lors du chargement de la commande', {
+        type: 'error',
+        title: 'Erreur de chargement'
+      });
     } finally {
       setLoading(false);
     }
@@ -88,7 +96,10 @@ const CommandeEditPage: React.FC = () => {
   // Gestion des changements du formulaire principal
   const handleInputChange = (field: keyof CommandeFormData, value: any) => {
     if (!canEdit() && field !== 'notes') {
-      alert('Seules les notes peuvent être modifiées pour une commande confirmée');
+      alert('Seules les notes peuvent être modifiées pour une commande confirmée', {
+        type: 'warning',
+        title: 'Modification limitée'
+      });
       return;
     }
     
@@ -101,7 +112,10 @@ const CommandeEditPage: React.FC = () => {
   // Gestion des lignes de commande
   const handleLigneChange = (index: number, field: keyof LigneCommandeFormData, value: any) => {
     if (!canEdit()) {
-      alert('Les lignes de commande ne peuvent être modifiées que pour les commandes en brouillon');
+      alert('Les lignes de commande ne peuvent être modifiées que pour les commandes en brouillon', {
+        type: 'warning',
+        title: 'Modification non autorisée'
+      });
       return;
     }
 
@@ -126,7 +140,10 @@ const CommandeEditPage: React.FC = () => {
 
   const ajouterLigne = () => {
     if (!canEdit()) {
-      alert('Impossible d\'ajouter des lignes à une commande confirmée');
+      alert('Impossible d\'ajouter des lignes à une commande confirmée', {
+        type: 'warning',
+        title: 'Action non autorisée'
+      });
       return;
     }
 
@@ -144,7 +161,10 @@ const CommandeEditPage: React.FC = () => {
 
   const supprimerLigne = (index: number) => {
     if (!canEdit()) {
-      alert('Impossible de supprimer des lignes d\'une commande confirmée');
+      alert('Impossible de supprimer des lignes d\'une commande confirmée', {
+        type: 'warning',
+        title: 'Action non autorisée'
+      });
       return;
     }
 
@@ -177,17 +197,26 @@ const CommandeEditPage: React.FC = () => {
     e.preventDefault();
     
     if (!canEdit()) {
-      alert('Cette commande ne peut plus être modifiée');
+      alert('Cette commande ne peut plus être modifiée', {
+        type: 'warning',
+        title: 'Modification impossible'
+      });
       return;
     }
 
     if (!formData.client_id || !formData.fournisseur_id) {
-      alert('Veuillez sélectionner un client et un fournisseur');
+      alert('Veuillez sélectionner un client et un fournisseur', {
+        type: 'warning',
+        title: 'Champs manquants'
+      });
       return;
     }
 
     if (lignes.length === 0 || lignes.some(l => !l.article_id || l.quantite <= 0)) {
-      alert('Veuillez ajouter au moins une ligne de commande valide');
+      alert('Veuillez ajouter au moins une ligne de commande valide', {
+        type: 'warning',
+        title: 'Lignes invalides'
+      });
       return;
     }
 
@@ -204,11 +233,22 @@ const CommandeEditPage: React.FC = () => {
       // Pour l'instant, on utilise la création
       await importExportApi.createCommande(commandeData);
       
-      alert('Commande modifiée avec succès');
-      navigate('/import-export/commandes');
+      alert('Commande modifiée avec succès', {
+        type: 'success',
+        title: 'Succès'
+      });
+      
+      // Navigation après un délai pour laisser voir le message de succès
+      setTimeout(() => {
+        navigate('/import-export/commandes');
+      }, 1500);
+      
     } catch (error) {
       console.error('Erreur modification commande:', error);
-      alert('Erreur lors de la modification de la commande');
+      alert('Erreur lors de la modification de la commande', {
+        type: 'error',
+        title: 'Erreur'
+      });
     } finally {
       setSaving(false);
     }
@@ -527,6 +567,15 @@ const CommandeEditPage: React.FC = () => {
           </div>
         </form>
       </div>
+
+      {/* Composant AlertDialog */}
+      <AlertDialog
+        isOpen={isOpen}
+        title={title}
+        message={message}
+        type={type}
+        onClose={close}
+      />
     </div>
   );
 };

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { importExportApi } from '../services/api';
 import type { Commande, CalculMarge, ExpeditionFormData } from '../types';
+import { useAlertDialog } from '../../../core/hooks/useAlertDialog';
+import AlertDialog from '../../../core/components/AlertDialog/AlertDialog';
 import './CommandeDetailPage.css';
 
 const CommandeDetailPage: React.FC = () => {
@@ -12,6 +14,9 @@ const CommandeDetailPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('articles');
   const [showExpeditionForm, setShowExpeditionForm] = useState(false);
   const [savingExpedition, setSavingExpedition] = useState(false);
+
+  // Utilisation du hook AlertDialog
+  const { isOpen, message, title, type, alert, close } = useAlertDialog();
 
   const [expeditionForm, setExpeditionForm] = useState<ExpeditionFormData>({
     commande_id: parseInt(id!),
@@ -62,6 +67,10 @@ const CommandeDetailPage: React.FC = () => {
       }
     } catch (error) {
       console.error('Erreur chargement commande:', error);
+      alert('Erreur lors du chargement de la commande', {
+        type: 'error',
+        title: 'Erreur'
+      });
     } finally {
       setLoading(false);
     }
@@ -78,13 +87,24 @@ const CommandeDetailPage: React.FC = () => {
     try {
       setSavingExpedition(true);
       await importExportApi.updateExpedition(expeditionForm);
-      alert('Expédition enregistrée avec succès!');
+      
+      // Remplacé l'alert natif
+      alert('Expédition enregistrée avec succès!', {
+        type: 'success',
+        title: 'Succès'
+      });
+      
       setShowExpeditionForm(false);
       // Recharger les données de la commande
       await loadCommande();
     } catch (error) {
       console.error('Erreur sauvegarde expédition:', error);
-      alert("Erreur lors de la sauvegarde de lc'expédition");
+      
+      // Remplacé l'alert natif
+      alert("Erreur lors de la sauvegarde de l'expédition", {
+        type: 'error',
+        title: 'Erreur'
+      });
     } finally {
       setSavingExpedition(false);
     }
@@ -101,10 +121,9 @@ const CommandeDetailPage: React.FC = () => {
     return colors[statut as keyof typeof colors] || 'statut-brouillon';
   };
 
- const getTypeText = (type: string) => {
-  return type === "import" ? "Commande d'Import" : "Commande d'Export";
-};
-
+  const getTypeText = (type: string) => {
+    return type === "import" ? "Commande d'Import" : "Commande d'Export";
+  };
 
   const calculerTotauxLignes = () => {
     if (!commande?.lignes) return { totalHT: 0, totalTVA: 0, totalTTC: 0 };
@@ -335,8 +354,7 @@ const CommandeDetailPage: React.FC = () => {
                   disabled={savingExpedition}
                   className="btn btn-primary"
                 >
-                {savingExpedition ? "💾 Enregistrement..." : "💾 Enregistrer l'expédition"}
-
+                  {savingExpedition ? "💾 Enregistrement..." : "💾 Enregistrer l'expédition"}
                 </button>
                 <button 
                   onClick={() => setShowExpeditionForm(false)}
@@ -431,7 +449,6 @@ const CommandeDetailPage: React.FC = () => {
           {/* Onglet Articles et Services */}
           {activeTab === 'articles' && (
             <div className="tab-panel">
-              {/* ... (le reste du code pour l'onglet articles reste identique) */}
               <div className="section-card">
                 <div className="section-header">
                   <h3>Articles Commandés</h3>
@@ -603,7 +620,6 @@ const CommandeDetailPage: React.FC = () => {
                       className="btn btn-primary"
                     >
                       🚚 {commande.expedition ? "Modifier l'expédition" : "Créer une expédition"}
-
                     </button>
                   </div>
                 </div>
@@ -696,6 +712,15 @@ const CommandeDetailPage: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Composant AlertDialog */}
+      <AlertDialog
+        isOpen={isOpen}
+        title={title}
+        message={message}
+        type={type}
+        onClose={close}
+      />
     </div>
   );
 };

@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { deviseApi } from '../services/deviseApi';
 import type { TauxChange } from '../types';
 import TauxChangeCalculator from '../components/TauxChangeCalculator/TauxChangeCalculator';
+import { useAlertDialog } from '../../../core/hooks/useAlertDialog';
+import AlertDialog from '../../../core/components/AlertDialog/AlertDialog';
 import './TauxChangePage.css';
 
 export const TauxChangePage: React.FC = () => {
@@ -15,6 +17,9 @@ export const TauxChangePage: React.FC = () => {
     taux: 0,
     date_effet: new Date().toISOString().split('T')[0]
   });
+
+  // Utilisation du hook AlertDialog
+  const { isOpen, message, title, type, alert, close } = useAlertDialog();
 
   const loadTauxChanges = async () => {
     setLoading(true);
@@ -50,6 +55,12 @@ export const TauxChangePage: React.FC = () => {
           actif: true
         }
       ]);
+
+      // Afficher un avertissement avec AlertDialog
+      alert('Chargement des taux échoué, affichage des données de démo', {
+        type: 'warning',
+        title: 'Avertissement'
+      });
     } finally {
       setLoading(false);
     }
@@ -61,6 +72,25 @@ export const TauxChangePage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validation du taux
+    if (formData.taux <= 0) {
+      alert('Le taux de change doit être supérieur à 0', {
+        type: 'warning',
+        title: 'Taux invalide'
+      });
+      return;
+    }
+
+    // Validation des devises différentes
+    if (formData.devise_source === formData.devise_cible) {
+      alert('Les devises source et cible doivent être différentes', {
+        type: 'warning',
+        title: 'Devises identiques'
+      });
+      return;
+    }
+
     try {
       await deviseApi.createTauxChange({
         ...formData,
@@ -74,10 +104,23 @@ export const TauxChangePage: React.FC = () => {
         date_effet: new Date().toISOString().split('T')[0]
       });
       loadTauxChanges();
-      alert('Taux de change ajouté avec succès');
+      
+      // Message de succès avec AlertDialog
+      alert('Taux de change ajouté avec succès', {
+        type: 'success',
+        title: 'Succès'
+      });
     } catch (error) {
       console.error('Erreur création taux change:', error);
-      alert('Erreur lors de l\'ajout du taux de change');
+      
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : 'Erreur inconnue lors de l\'ajout';
+      
+      alert(`Erreur lors de l'ajout du taux de change: ${errorMessage}`, {
+        type: 'error',
+        title: 'Erreur'
+      });
     }
   };
 
@@ -206,10 +249,14 @@ export const TauxChangePage: React.FC = () => {
               </div>
 
               <div className="form-actions">
-                <button type="button" onClick={() => setShowForm(false)}>
+                <button 
+                  type="button" 
+                  onClick={() => setShowForm(false)}
+                  className="cancel-button"
+                >
                   Annuler
                 </button>
-                <button type="submit" className="primary">
+                <button type="submit" className="primary save-button">
                   Enregistrer
                 </button>
               </div>
@@ -217,6 +264,15 @@ export const TauxChangePage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Composant AlertDialog */}
+      <AlertDialog
+        isOpen={isOpen}
+        title={title}
+        message={message}
+        type={type}
+        onClose={close}
+      />
     </div>
   );
 };

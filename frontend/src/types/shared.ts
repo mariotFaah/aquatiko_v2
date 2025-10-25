@@ -6,5 +6,7 @@ export interface Tiers {
   type_tiers?: string;
   email: string;
   telephone: string;
+  devise_preferee?: string;
+  numero: string;
   adresse: string;
 }

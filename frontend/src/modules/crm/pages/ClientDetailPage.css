@@ -1,0 +1,552 @@
+/* src/modules/crm/pages/ClientDetailPage.css */
+.client-detail-container {
+  padding: 1.5rem;
+  max-width: 100%;
+}
+
+.client-header {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.client-header-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.client-title {
+  font-size: 1.875rem;
+  font-weight: bold;
+  color: #1f2937;
+  margin: 0;
+}
+
+.client-contact-info {
+  color: #6b7280;
+  margin: 0.25rem 0;
+}
+
+.client-address {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.client-responsable {
+  text-align: right;
+}
+
+.responsable-label {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.responsable-name {
+  font-weight: 500;
+  color: #1f2937;
+}
+
+/* Tabs Navigation */
+.client-tabs {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  margin-bottom: 1.5rem;
+}
+
+.tabs-header {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.tabs-nav {
+  display: flex;
+  margin-bottom: -1px;
+}
+
+.tab-button {
+  padding: 1rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  color: #6b7280;
+  transition: all 0.2s;
+}
+
+.tab-button:hover {
+  color: #374151;
+}
+
+.tab-button.active {
+  color: #4f46e5;
+  border-bottom-color: #4f46e5;
+}
+
+.tabs-content {
+  padding: 1.5rem;
+}
+
+/* Informations Tab */
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.info-section h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+.info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.info-item dt {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  margin-bottom: 0.25rem;
+}
+
+.info-item dd {
+  font-size: 0.875rem;
+  color: #1f2937;
+  margin: 0;
+}
+
+/* Contacts Tab */
+.contacts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.contacts-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.add-contact-btn {
+  background-color: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.add-contact-btn:hover {
+  background-color: #4338ca;
+}
+
+.contacts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.contact-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.contact-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.contact-name {
+  font-weight: 500;
+  color: #1f2937;
+  margin: 0;
+}
+
+.contact-badges {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.principal-badge {
+  background-color: #d1fae5;
+  color: #065f46;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.contact-function {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin: 0.25rem 0;
+}
+
+.contact-details {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.contact-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.contact-action {
+  font-size: 0.875rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.contact-edit {
+  color: #4f46e5;
+}
+
+.contact-edit:hover {
+  color: #3730a3;
+}
+
+.contact-delete {
+  color: #dc2626;
+}
+
+.contact-delete:hover {
+  color: #b91c1c;
+}
+
+/* Devis Tab */
+.devis-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.devis-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.add-devis-btn {
+  background-color: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.add-devis-btn:hover {
+  background-color: #4338ca;
+}
+
+.devis-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.devis-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.devis-header-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.devis-number {
+  font-weight: 500;
+  color: #1f2937;
+  margin: 0;
+}
+
+.devis-badges {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.devis-statut {
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.statut-accepte {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.statut-envoye {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.statut-brouillon {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.statut-refuse {
+  background-color: #fecaca;
+  color: #dc2626;
+}
+
+.statut-expire {
+  background-color: #fed7aa;
+  color: #ea580c;
+}
+
+.devis-description {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin: 0.25rem 0;
+}
+
+.devis-details {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.devis-link {
+  color: #4f46e5;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.devis-link:hover {
+  color: #3730a3;
+}
+
+/* Activites Tab */
+.activites-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.activites-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.add-activite-btn {
+  background-color: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.add-activite-btn:hover {
+  background-color: #4338ca;
+}
+
+.activites-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.activite-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.activite-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.activite-sujet {
+  font-weight: 500;
+  color: #1f2937;
+  margin: 0;
+}
+
+.activite-badges {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.activite-priorite {
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.priorite-urgent {
+  background-color: #fecaca;
+  color: #dc2626;
+}
+
+.priorite-haut {
+  background-color: #fed7aa;
+  color: #ea580c;
+}
+
+.priorite-normal {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.priorite-bas {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.activite-statut {
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.statut-realise {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.statut-planifie {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.statut-annule {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.activite-type {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin: 0.25rem 0;
+  text-transform: capitalize;
+}
+
+.activite-date {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.activite-description {
+  color: #374151;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: #6b7280;
+}
+
+.loading-state {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.error-state {
+  color: #dc2626;
+  padding: 1rem;
+  background-color: #fef2f2;
+  border-radius: 0.375rem;
+  margin: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .client-header-main {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .client-responsable {
+    text-align: left;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .tabs-nav {
+    flex-wrap: wrap;
+  }
+
+  .tab-button {
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .contacts-header,
+  .devis-header,
+  .activites-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .contact-header,
+  .devis-header-info,
+  .activite-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .contact-badges,
+  .devis-badges,
+  .activite-badges {
+    align-self: flex-start;
+  }
+}

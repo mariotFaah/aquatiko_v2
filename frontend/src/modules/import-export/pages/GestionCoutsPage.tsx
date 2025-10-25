@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { importExportApi } from '../services/api';
 import type { Commande, CoutLogistiqueFormData } from '../types';
+import { useAlertDialog } from '../../../core/hooks/useAlertDialog';
+import AlertDialog from '../../../core/components/AlertDialog/AlertDialog';
 import './GestionCoutsPage.css';
 
 const GestionCoutsPage: React.FC = () => {
@@ -21,6 +23,9 @@ const GestionCoutsPage: React.FC = () => {
     description_autres_frais: '',
     devise_couts: 'EUR'
   });
+
+  // Utilisation du hook AlertDialog
+  const { isOpen, message, title, type, alert, close } = useAlertDialog();
 
   useEffect(() => {
     loadCommande();
@@ -48,6 +53,10 @@ const GestionCoutsPage: React.FC = () => {
       }
     } catch (error) {
       console.error('Erreur chargement commande:', error);
+      alert('Erreur lors du chargement de la commande', { 
+        type: 'error',
+        title: 'Erreur de chargement'
+      });
     } finally {
       setLoading(false);
     }
@@ -65,10 +74,22 @@ const GestionCoutsPage: React.FC = () => {
       setSaving(true);
       await importExportApi.updateCoutsLogistiques(formData);
       await loadCommande(); // Recharger pour avoir les données fraîches
-      alert('Coûts logistiques enregistrés avec succès!');
+      
+      // Remplacé l'alert natif par notre AlertDialog personnalisé
+      alert('Coûts logistiques enregistrés avec succès!', {
+        type: 'success',
+        title: 'Sauvegarde réussie'
+      });
+      
     } catch (error) {
       console.error('Erreur sauvegarde coûts:', error);
-      alert('Erreur lors de la sauvegarde des coûts');
+      
+      // Remplacé l'alert natif par notre AlertDialog personnalisé
+      alert('Erreur lors de la sauvegarde des coûts logistiques. Veuillez réessayer.', {
+        type: 'error',
+        title: 'Erreur de sauvegarde'
+      });
+      
     } finally {
       setSaving(false);
     }
@@ -413,6 +434,15 @@ const GestionCoutsPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Composant AlertDialog */}
+      <AlertDialog
+        isOpen={isOpen}
+        title={title}
+        message={message}
+        type={type}
+        onClose={close}
+      />
     </div>
   );
 };

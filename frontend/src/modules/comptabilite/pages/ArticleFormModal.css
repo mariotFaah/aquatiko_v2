@@ -89,3 +89,145 @@
 .article-cancel-btn:hover {
   background: #4b5563;
 }
+
+.article-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.article-modal-close {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 5px;
+  color: #666;
+}
+
+.article-modal-close:hover {
+  color: #333;
+}
+
+.article-modal-close:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.article-form-group {
+  margin-bottom: 16px;
+}
+
+.article-form-label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #333;
+}
+
+.article-form-input,
+.article-form-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.article-form-input:focus,
+.article-form-select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.article-form-input:disabled,
+.article-form-select:disabled {
+  background-color: #f8f9fa;
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.article-code-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.code-prefix {
+  font-weight: bold;
+  color: #007bff;
+}
+
+.code-number {
+  font-family: monospace;
+  font-weight: bold;
+}
+
+.code-info {
+  margin-left: auto;
+  color: #666;
+  font-size: 12px;
+}
+
+.article-saving-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 8px;
+}
+
+.article-modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.article-cancel-btn {
+  padding: 10px 20px;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.article-cancel-btn:hover:not(:disabled) {
+  background: #f8f9fa;
+}
+
+.article-save-btn {
+  padding: 10px 20px;
+  border: none;
+  background: #007bff;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.article-save-btn:hover:not(:disabled) {
+  background: #0056b3;
+}
+
+.article-save-btn:disabled,
+.article-cancel-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

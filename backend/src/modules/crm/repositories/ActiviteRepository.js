@@ -1,6 +1,7 @@
 import { db } from '../../../core/database/connection.js';
 
 export class ActiviteRepository {
+  
   async findByClient(tiers_id) {
     try {
       const activites = await db('activites')

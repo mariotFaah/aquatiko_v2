@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import type { Facture } from '../types';
 import { comptabiliteApi } from '../services/api';
+import { useAlertDialog } from '../../../core/hooks/useAlertDialog';
+import AlertDialog from '../../../core/components/AlertDialog/AlertDialog';
 import './FacturesListPage.css';
 
 export const FacturesListPage: React.FC = () => {
@@ -9,26 +11,32 @@ export const FacturesListPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'validee' | 'brouillon' | 'annulee'>('all');
 
+  // Utilisation du hook AlertDialog
+  const { isOpen, message, title, type, alert, close } = useAlertDialog();
+
   useEffect(() => {
     loadFactures();
   }, []);
 
-// Dans FacturesListPage.tsx - améliorer loadFactures
-const loadFactures = async () => {
-  try {
-    setLoading(true);
-    const data = await comptabiliteApi.getFactures();
-    console.log('📋 Factures chargées:', data); // Debug
-    setFactures(data);
-  } catch (error) {
-    console.error('Erreur chargement factures:', error);
-    // En cas d'erreur, définir un tableau vide
-    setFactures([]);
-    alert('Erreur lors du chargement des factures');
-  } finally {
-    setLoading(false);
-  }
-};
+  const loadFactures = async () => {
+    try {
+      setLoading(true);
+      const data = await comptabiliteApi.getFactures();
+      console.log('📋 Factures chargées:', data);
+      setFactures(data);
+    } catch (error) {
+      console.error('Erreur chargement factures:', error);
+      setFactures([]);
+      
+      // Utilisation de l'AlertDialog au lieu de alert()
+      alert('Erreur lors du chargement des factures', {
+        type: 'error',
+        title: 'Erreur de chargement'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredFactures = factures.filter(facture => {
     if (filter === 'all') return true;
@@ -163,7 +171,6 @@ const loadFactures = async () => {
                     >
                       Modifier
                     </Link>
-                    
                   </div>
                 </td>
               </tr>
@@ -187,6 +194,15 @@ const loadFactures = async () => {
           </div>
         )}
       </div>
+
+      {/* Composant AlertDialog */}
+      <AlertDialog
+        isOpen={isOpen}
+        title={title}
+        message={message}
+        type={type}
+        onClose={close}
+      />
     </div>
   );
 };
