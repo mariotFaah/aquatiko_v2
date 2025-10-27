@@ -25,14 +25,17 @@ export class FactureController {
       const nouvelleFacture = await this.facturationService.creerFacture(req.body);
       
       // CORRECTION: Régénérer les totaux AVANT de générer les écritures
-      if (req.body.statut === 'validee') {
         // S'assurer que les totaux sont calculés
+        // Récupérer la facture avec les totaux actualisés
+        // Vérifier que les totaux ne sont pas nuls avant de générer les écritures
+
+
+      if (req.body.statut === 'validee') {
         await this.facturationService.calculerTotalsFacture(nouvelleFacture.numero_facture);
         
-        // Récupérer la facture avec les totaux actualisés
+        
         const factureAvecTotaux = await this.facturationService.getFactureComplete(nouvelleFacture.numero_facture);
         
-        // Vérifier que les totaux ne sont pas nuls avant de générer les écritures
         if (factureAvecTotaux.total_ttc > 0) {
           await this.journalService.genererEcritureFacture(factureAvecTotaux);
           console.log('✅ Écritures comptables générées pour la facture', nouvelleFacture.numero_facture);
@@ -64,9 +67,6 @@ export class FactureController {
       const numero = req.params.id;
       const factureData = req.body;
 
-      console.log('🔄 Données reçues pour modification:', factureData);
-      console.log('🔍 Numéro facture depuis params:', numero);
-
       // Valider que la facture existe
       const factureExistante = await this.factureRepository.findById(numero);
       if (!factureExistante) {
@@ -91,13 +91,12 @@ export class FactureController {
     try {
       const factureValidee = await this.facturationService.validerFacture(req.params.id);
       
-      // CORRECTION: S'assurer que les totaux sont calculés avant génération écritures
       await this.facturationService.calculerTotalsFacture(req.params.id);
       
-      // Récupérer la facture avec totaux actualisés
+
       const factureAvecTotaux = await this.facturationService.getFactureComplete(req.params.id);
       
-      // GÉNÉRER LES ÉCRITURES COMPTABLES LORS DE LA VALIDATION
+      
       await this.journalService.genererEcritureFacture(factureAvecTotaux);
       
       successResponse(res, factureValidee, 'Facture validée avec succès');

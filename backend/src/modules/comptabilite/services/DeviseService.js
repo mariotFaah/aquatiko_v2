@@ -1,7 +1,7 @@
 // src/modules/comptabilite/services/DeviseService.js
 import { TauxChangeRepository } from '../repositories/TauxChangeRepository.js';
 
-export class DeviseService {  // <-- Ajouter 'export' ici
+export class DeviseService { 
   constructor() {
     this.tauxChangeRepo = new TauxChangeRepository();
   }
@@ -34,11 +34,9 @@ export class DeviseService {  // <-- Ajouter 'export' ici
     });
   }
 
-  // AJOUTER CET GETTER pour accéder au repository
   get tauxChangeRepository() {
     return this.tauxChangeRepo;
   }
 }
 
-// Export par défaut aussi pour compatibilité
 export default DeviseService;

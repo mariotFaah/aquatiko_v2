@@ -1,4 +1,4 @@
-// src/modules/comptabilite/services/JournalService.js - VERSION CORRIGÉE
+// src/modules/comptabilite/services/JournalService.js 
 import { EcritureComptableRepository } from '../repositories/EcritureComptableRepository.js';
 import { FactureRepository } from '../repositories/FactureRepository.js';
 import { PaiementRepository } from '../repositories/PaiementRepository.js';
@@ -19,14 +19,12 @@ export class JournalService {
 
   async genererEcritureFacture(facture) {
     try {
-      console.log('📝 Génération écritures pour facture:', facture.numero_facture);
+     
       
       const typeTiers = await this.getTypeTiers(facture.id_tiers);
-      console.log('📊 Type de tiers détecté:', typeTiers);
       
       const isAchat = typeTiers === 'fournisseur';
       const journal = isAchat ? 'achats' : 'ventes';
-      console.log('📋 Journal déterminé:', journal);
 
       // RÉCUPÉRATION DYNAMIQUE DES COMPTES
       const compteTiers = await this.planComptableRepo.findByCategorie(isAchat ? 'fournisseur' : 'client');
@@ -48,14 +46,14 @@ export class JournalService {
       const date = new Date(facture.date);
       const prefix = `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}`;
       
-      // CORRECTION: Écriture client/fournisseur - LOGIQUE INVERSEE
+    
       ecritures.push({
         numero_ecriture: `${prefix}-${facture.numero_facture}-1`,
         date: facture.date,
         journal: journal,
         compte: compteTiers.numero_compte,
         libelle: `Facture ${facture.numero_facture} - ${facture.nom_tiers || ''}`,
-        // CORRECTION: Clients -> DÉBIT (ils nous doivent), Fournisseurs -> CRÉDIT (nous leur devons)
+        //  Clients -> DÉBIT (ils nous doivent), Fournisseurs -> CRÉDIT (nous leur devons)
         debit: isAchat ? 0 : facture.total_ttc,      // Clients: débit, Fournisseurs: 0
         credit: isAchat ? facture.total_ttc : 0,     // Clients: 0, Fournisseurs: crédit
         devise: facture.devise || 'MGA',
@@ -63,7 +61,7 @@ export class JournalService {
         reference: facture.numero_facture.toString()
       });
 
-      // CORRECTION: Écriture TVA
+      // Écriture TVA
       if (facture.total_tva > 0) {
         ecritures.push({
           numero_ecriture: `${prefix}-${facture.numero_facture}-2`,
@@ -71,7 +69,7 @@ export class JournalService {
           journal: journal,
           compte: compteTVA.numero_compte,
           libelle: `TVA Facture ${facture.numero_facture}`,
-          // CORRECTION: TVA déductible (achats) -> DÉBIT, TVA collectée (ventes) -> CRÉDIT
+          //  TVA déductible (achats) -> DÉBIT, TVA collectée (ventes) -> CRÉDIT
           debit: isAchat ? facture.total_tva : 0,    // Achats: débit, Ventes: 0
           credit: isAchat ? 0 : facture.total_tva,   // Achats: 0, Ventes: crédit
           devise: facture.devise || 'MGA',
@@ -80,32 +78,26 @@ export class JournalService {
         });
       }
 
-      // CORRECTION: Écriture produit/charge
+      //  Écriture produit/charge
       ecritures.push({
         numero_ecriture: `${prefix}-${facture.numero_facture}-3`,
         date: facture.date,
         journal: journal,
         compte: compteProduit.numero_compte,
         libelle: `Facture ${facture.numero_facture}`,
-        // CORRECTION: Charges (achats) -> DÉBIT, Produits (ventes) -> CRÉDIT
+        //  Charges (achats) -> DÉBIT, Produits (ventes) -> CRÉDIT
         debit: isAchat ? facture.total_ht : 0,    // Achats: débit, Ventes: 0
         credit: isAchat ? 0 : facture.total_ht,   // Achats: 0, Ventes: crédit
         devise: facture.devise || 'MGA',
         taux_change: facture.taux_change || 1,
         reference: facture.numero_facture.toString()
       });
-
-      console.log(`📋 ${ecritures.length} écritures à créer pour journal ${journal}`);
-      console.log('🔍 Détail des écritures:', JSON.stringify(ecritures, null, 2));
       
       // Créer les écritures
       for (const ecriture of ecritures) {
-        console.log('➡️ Création écriture:', ecriture.numero_ecriture, '- Compte:', ecriture.compte, '- Débit:', ecriture.debit, '- Crédit:', ecriture.credit);
         await this.ecritureRepo.create(ecriture);
       }
-      
-      console.log('✅ Écritures créées avec succès pour facture', facture.numero_facture);
-      
+            
     } catch (error) {
       console.error('❌ Erreur génération écritures:', error);
       throw error;
@@ -134,7 +126,6 @@ export class JournalService {
 
   async genererEcriturePaiement(paiement) {
     try {
-      console.log('💰 Génération écriture paiement:', paiement.id_paiement);
       
       const date = new Date();
       const prefix = `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}`;
@@ -154,7 +145,6 @@ export class JournalService {
         reference: `PAY-${paiement.id_paiement}`
       };
 
-      console.log('➡️ Création écriture paiement:', ecriture.numero_ecriture, '- Compte:', ecriture.compte);
       return await this.ecritureRepo.create(ecriture);
       
     } catch (error) {
@@ -180,7 +170,6 @@ export class JournalService {
         return '512000';
       }
       
-      console.log(`💰 Compte trouvé pour mode ${mode_paiement}: ${compte.numero_compte}`);
       return compte.numero_compte;
       
     } catch (error) {

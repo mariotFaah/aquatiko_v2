@@ -81,12 +81,8 @@ export class LigneFactureRepository {
     }
   }
 
-  // Dans src/modules/comptabilite/repositories/LigneFactureRepository.js
-// Ajoutez cette méthode après les méthodes existantes :
-
 async deleteByFacture(numero_facture) {
   try {
-    console.log('🗑️ Suppression des lignes pour facture:', numero_facture);
     
     const result = await db('ligne_facture')
       .where('numero_facture', numero_facture)

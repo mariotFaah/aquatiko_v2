@@ -1,165 +1,175 @@
-📊 Module Comptabilité - Aquatiko
-🌟 Aperçu
+# 📊 Module Comptabilité - Aquatiko
 
-Module complet de gestion comptable pour l'entreprise Aquatiko, offrant une solution intégrée de gestion financière multi-devises avec génération automatique d'écritures comptables et gestion dynamique des référentiels.
+## 🌟 Aperçu
+Module complet de gestion comptable pour l’entreprise **Aquatiko**, offrant une solution intégrée de gestion financière **multi-devises** avec génération automatique d’écritures comptables et gestion dynamique des référentiels.
 
-🚀 Fonctionnalités
-💰 Gestion Multi-devises
+---
 
-    Support complet EUR, USD, MGA
-    Taux de change dynamiques
-    Conversion automatique entre devises
-    Historique des taux
+## 🚀 Fonctionnalités
 
-👥 Gestion des Tiers
+### 💰 Gestion Multi-devises
+- Support complet **EUR, USD, MGA**
+- Taux de change dynamiques
+- Conversion automatique entre devises
+- Historique des taux
 
-    Clients et fournisseurs
-    Devises préférées par tiers
-    Adresses et contacts complets
-    CRUD complet
+### 👥 Gestion des Tiers
+- Clients et fournisseurs
+- Devises préférées par tiers
+- Adresses et contacts complets
+- **CRUD complet**
 
-📦 Catalogue d'Articles
+### 📦 Catalogue d’Articles
+- Produits et services
+- Prix unitaire avec **TVA**
+- Gestion des unités
+- Statut **actif/inactif**
 
-    Produits et services
-    Prix unitaire avec TVA
-    Gestion des unités
-    Statut actif/inactif
+### 🧾 Facturation Avancée
+- Types : **Proforma, Facture, Avoir** (configurables)
+- Lignes détaillées avec **TVA**
+- Échéances et modes de règlement
+- Statuts : **Brouillon, Validée, Annulée**
 
-🧾 Facturation Avancée
+### 💳 Suivi des Paiements
+- Paiements **partiels et complets**
+- Modes de paiement configurables
+- Références de transaction
+- Statut de validation
 
-    Types : Proforma, Facture, Avoir (configurables)
-    Lignes détaillées avec TVA
-    Échéances et modes de règlement
-    Statuts : Brouillon, Validée, Annulée
+### 📊 Écritures Comptables Automatiques
+- Génération automatique à la validation
+- Journaux : **Ventes, Achats, Banque, Caisse**
+- Plan comptable **100 % configurable**
+- Référencement des opérations
 
-💳 Suivi des Paiements
+### 📈 Rapports Financiers
+- **Bilan comptable** avec soldes par compte
+- **Compte de résultat** (charges/produits)
+- **Déclaration TVA** collectée/déductible
+- **État de trésorerie** (entrées/sorties)
 
-    Paiements partiels et complets
-    Modes de paiement configurables
-    Références de transaction
-    Statut de validation
+### 📊 Tableau de Bord Statistiques
+- **Chiffre d’affaires par période**
+- **Top clients et produits**
+- **Indicateurs clés de performance**
+- **Métriques financières**
 
-📊 Écritures Comptables Automatiques
+### 🔧 Gestion des Référentiels (NOUVEAU)
+- **Plan comptable dynamique et configurable**
+- **Modes de paiement personnalisables**
+- **Types de documents extensibles**
+- **Taux de TVA modifiables**
 
-    Génération automatique à la validation
-    Journaux : Ventes, Achats, Banque, Caisse
-    Plan comptable 100% configurable
-    Référencement des opérations
+---
 
-📈 Rapports Financiers
+## 🛠️ Installation et Configuration
 
-    Bilan comptable avec soldes par compte
-    Compte de résultat (charges/produits)
-    Déclaration TVA collectée/déductible
-    État de trésorerie (entrées/sorties)
+### Prérequis
+- **Node.js 16+**
+- **MySQL / MariaDB**
+- **npm** ou **yarn**
 
-📊 Tableau de Bord Statistiques
 
-    Chiffre d'affaire par période
-    Top clients et produits
-    Indicateurs clés de performance
-    Métriques financières
+## 🛠️ Installation
 
-🔧 Gestion des Référentiels (NOUVEAU)
-
-    Plan comptable dynamique et configurable
-    Modes de paiement personnalisables
-    Types de documents extensibles
-    Taux de TVA modifiables
-
-🛠️ Installation et Configuration
-Prérequis
-
-    Node.js 16+
-    MySQL/MariaDB
-    npm ou yarn
-
-Installation
-# Cloner le projet
-git clone [repository-url]
+### 📥 Cloner le projet
+```bash
+git clone https://github.com/mariotFaah/aquatiko_v2
 cd aquatiko/backend
+```
 
-# Installer les dépendances
+# 📦 Installer les dépendances
+``` bash
 npm install
-
-# Configuration de la base de données
+```
+# ⚙️ Configuration de la base de données
+```bash
 cp .env.example .env
-# Éditer .env avec vos paramètres DB
+```
 
-# Exécuter les migrations
+# Éditez le fichier .env avec vos paramètres de base de données
+
+🗃️ Exécuter les migrations
+```bash
 npm run migrate
-
-# Peupler la base avec des données de test
+```
+# 🌱 Peupler la base avec des données de test
+```bash
 npm run seed
-
-# Démarrer le serveur
+```
+# 🚀 Démarrer le serveur
+```bash
 npm run dev
+```
 
-🌐 API Documentation
+
+
+# 🌐 API Documentation
 Base URL
-http://localhost:3001/api/comptabilite
+**http://localhost:3001/api/comptabilite**
 
-Endpoints Principaux
-📋 Tiers (Clients/Fournisseurs)
+## Endpoints Principaux
+### 📋 Tiers (Clients/Fournisseurs)
 GET    /tiers                    # Liste tous les tiers
 GET    /tiers/:id               # Détail d'un tiers
 POST   /tiers                    # Créer un tiers
 PUT    /tiers/:id               # Modifier un tiers
 DELETE /tiers/:id               # Supprimer un tiers
 
-📦 Articles
+### 📦 Articles
 GET    /articles                 # Liste tous les articles
 GET    /articles/:code          # Détail d'un article
 POST   /articles                 # Créer un article
 PUT    /articles/:code          # Modifier un article
 DELETE /articles/:code          # Supprimer un article
 
-🧾 Factures
+### 🧾 Factures
 GET    /factures                 # Liste toutes les factures
 GET    /factures/:id            # Détail d'une facture
 POST   /factures                 # Créer une facture
 PUT    /factures/:id            # Modifier une facture
 PATCH  /factures/:id/valider    # Valider une facture
 
-💳 Paiements
+### 💳 Paiements
 GET    /paiements                # Liste tous les paiements
 POST   /paiements                # Enregistrer un paiement
 GET    /paiements/facture/:numero_facture   # Paiements d'une facture
 GET    /paiements/:id           # Détail d'un paiement
 PUT    /paiements/:id           # Modifier un paiement
 
-🌍 Devises
+### 🌍 Devises
 GET    /devises/taux            # Liste des taux de change
 POST   /devises/taux            # Mettre à jour un taux
 POST   /devises/convertir       # Convertir entre devises
 
-📊 Rapports
+### 📊 Rapports
 GET    /rapports/bilan          # Bilan comptable
 GET    /rapports/compte-resultat # Compte de résultat
 GET    /rapports/tva            # Déclaration TVA
 GET    /rapports/tresorerie     # État de trésorerie
 
-📝 Écritures Comptables
+### 📝 Écritures Comptables
 GET    /ecritures               # Liste toutes les écritures
 GET    /ecritures/journal/:type # Écritures par journal
 GET    /ecritures/:id           # Détail d'une écriture
 POST   /ecritures               # Créer une écriture manuelle
 
-📈 Statistiques
+### 📈 Statistiques
 GET    /stats/indicateurs       # Indicateurs généraux
 GET    /stats/chiffre-affaire   # CA par période
 GET    /stats/top-clients       # Top 10 clients
 GET    /stats/top-produits      # Top 10 produits
 GET    /stats/factures-en-attente # Factures en attente de paiement
 
-🔧 Référentiels (NOUVEAU)
+### 🔧 Référentiels (NOUVEAU)
 GET    /referentiels/plan-comptable      # Récupérer le plan comptable
 GET    /referentiels/modes-paiement      # Liste des modes de paiement
 GET    /referentiels/types-facture       # Liste des types de facture
 GET    /referentiels/taux-tva            # Liste des taux de TVA
 
-💾 Structure de la Base de Données
-Tables Principales
+## 💾 Structure de la Base de Données
+### Tables Principales
 
     tiers - Clients et fournisseurs
     articles - Produits et services
@@ -169,14 +179,14 @@ Tables Principales
     ecritures_comptables - Écritures comptables
     taux_change - Taux de conversion
 
-Tables de Référence (NOUVEAU)
+### Tables de Référence (NOUVEAU)
 
     plan_comptable - Plan comptable configurable
     referentiel_types_facture - Types de documents
     referentiel_modes_paiement - Modes de paiement
     referentiel_taux_tva - Taux de TVA applicables
 
-Plan Comptable Dynamique (Exemple)
+## Plan Comptable Dynamique (Exemple)
 401000 - Fournisseurs
 411000 - Clients
 445620 - TVA déductible
@@ -186,8 +196,9 @@ Plan Comptable Dynamique (Exemple)
 607000 - Achats de marchandises
 701000 - Ventes de produits
 
-🔧 Architecture Technique
-Structure du Module
+# 🔧 Architecture Technique
+**Structure du Module** 
+```bash
 src/modules/comptabilite/
 ├── controllers/          # Contrôleurs API
 ├── entities/            # Modèles de données
@@ -196,8 +207,8 @@ src/modules/comptabilite/
 ├── routes/             # Définition des routes
 ├── validators/         # Validation des données
 └── index.js           # Point d'entrée du module
-
-Services Principaux
+```
+## Services Principaux
 
     FacturationService - Gestion des factures
     JournalService - Génération d'écritures (plan comptable dynamique)
@@ -207,8 +218,9 @@ Services Principaux
     PaiementService - Gestion des transactions
     ReferentielService - Gestion des référentiels (NOUVEAU)
 
-📋 Exemples d'Utilisation
-Création d'une Facture
+### 📋 Exemples d'Utilisation
+**Création d'une Facture**
+```bash
 curl -X POST http://localhost:3001/api/comptabilite/factures \
   -H "Content-Type: application/json" \
   -d '{
@@ -226,8 +238,10 @@ curl -X POST http://localhost:3001/api/comptabilite/factures \
     ],
     "statut": "validee"
   }'
+```
 
-Enregistrement d'un Paiement
+**Enregistrement d'un Paiement**
+```bash
 curl -X POST http://localhost:3001/api/comptabilite/paiements \
   -H "Content-Type: application/json" \
   -d '{
@@ -239,21 +253,30 @@ curl -X POST http://localhost:3001/api/comptabilite/paiements \
     "reference": "VIR-TEST",
     "statut": "validé"
   }'
-
-Consultation des Référentiels (NOUVEAU)
-# Plan comptable dynamique
+```
+## onsultation des Référentiels (NOUVEAU)
+ **Plan comptable dynamique**
+ ```bash
 curl "http://localhost:3001/api/comptabilite/referentiels/plan-comptable"
+```
 
-# Modes de paiement configurables
+ **Modes de paiement configurables**
+ ```bash
 curl "http://localhost:3001/api/comptabilite/referentiels/modes-paiement"
+```
 
-# Types de documents
+ **Types de documents**
+ ```bash
 curl "http://localhost:3001/api/comptabilite/referentiels/types-facture"
+```
 
-# Taux de TVA
+ **Taux de TVA**
+ ```bash
 curl "http://localhost:3001/api/comptabilite/referentiels/taux-tva"
+```
 
-Conversion de Devise
+**Conversion de Devise**
+```bash
 curl -X POST http://localhost:3001/api/comptabilite/devises/convertir \
   -H "Content-Type: application/json" \
   -d '{
@@ -261,11 +284,13 @@ curl -X POST http://localhost:3001/api/comptabilite/devises/convertir \
     "devise_source": "EUR",
     "devise_cible": "MGA"
   }'
+```
 
-Rapport de Trésorerie
+**Rapport de Trésorerie**
+```bash
 curl "http://localhost:3001/api/comptabilite/rapports/tresorerie?date_debut=2024-01-01&date_fin=2024-12-31"
-
-🧪 Tests et Validation
+```
+### 🧪 Tests et Validation
 Données de Test Incluses
 
     3 clients de test
@@ -278,23 +303,31 @@ Données de Test Incluses
     Taux de change EUR/USD/MGA
     Factures et paiements d'exemple
 
-Vérification du Module
-# Test de santé du module
+### Vérification du Module
+ **Test de santé du module**
+ ```bash
 curl "http://localhost:3001/api/comptabilite/test"
+```
 
-# Vérification des écritures générées
+ **Vérification des écritures générées**
+ ```bash
 curl "http://localhost:3001/api/comptabilite/ecritures"
-
-# Validation des rapports
+```
+ **Validation des rapports**
+ ```bash
 curl "http://localhost:3001/api/comptabilite/rapports/bilan"
+```
 
-# Vérification des paiements
+ **Vérification des paiements**
+ ```bash
 curl "http://localhost:3001/api/comptabilite/paiements/facture/1"
-
-# Consultation des référentiels dynamiques
+``` 
+ **Consultation des référentiels dynamiques**
+ ```bash
 curl "http://localhost:3001/api/comptabilite/referentiels/plan-comptable"
+```
 
-🔒 Sécurité et Validation
+### 🔒 Sécurité et Validation
 
     Validation des données d'entrée
     Gestion des erreurs centralisée
@@ -302,7 +335,7 @@ curl "http://localhost:3001/api/comptabilite/referentiels/plan-comptable"
     Logs détaillés pour le debugging
     Protection contre les injections SQL
 
-📈 Métriques et Performances
+### 📈 Métriques et Performances
 
     Génération automatique des écritures
     Calculs financiers optimisés
@@ -311,8 +344,8 @@ curl "http://localhost:3001/api/comptabilite/referentiels/plan-comptable"
     Indexation des requêtes fréquentes
     Plan comptable 100% dynamique
 
-🚦 Statut du Module
-✅ Complété à 100%
+### 🚦 Statut du Module
+**✅Complété à 100%**
 
     Gestion des tiers et articles
     Facturation multi-types
@@ -325,25 +358,32 @@ curl "http://localhost:3001/api/comptabilite/referentiels/plan-comptable"
     Plan comptable dynamique (NOUVEAU)
     Référentiels configurables (NOUVEAU)
 
-🎯 Prêt pour la Production
+**🎯 Prêt pour la Production**
 
 Le module a été testé avec des données réelles et est prêt pour une utilisation en production. Toutes les données sont maintenant 100% dynamiques et configurables.
 
-👥 Développement et Contribution
-Commandes de Développement
-# Mode développement avec rechargement automatique
+## 👥 Développement et Contribution
+**Commandes de Développement**
+ Mode développement avec rechargement automatique
+ ```bash
 npm run dev
+```
 
-# Exécution des migrations
+**Exécution des migrations**
+```bash
 npm run migrate
+```
 
-# Rollback des migrations
+**Rollback des migrations**
+```bash
 npm run migrate:rollback
-
-# Génération de données de test
+```
+## Génération de données de test
+```bash
 npm run seed
+```
 
-Standards de Code
+# *Standards de Code*
 
     ES6+ modules
     Async/await pour les opérations asynchrones
@@ -354,4 +394,4 @@ Standards de Code
 📞 Support et Maintenance
 Pour toute question ou problème concernant ce module, contacter l'équipe de développement Aquatiko.
 
-© 2024 Aquatiko - Tous droits réservés
+*© 2024 Aquatiko - Tous droits réservés*

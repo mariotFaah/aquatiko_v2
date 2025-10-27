@@ -96,7 +96,7 @@ export class RapportService {
 
   async genererRapportTVA(date_debut = '2024-01-01', date_fin = '2024-12-31') {
     try {
-      // CORRECTION: Inclure les deux comptes TVA
+      // Inclure les deux comptes TVA
       const tva_ecritures = await this.ecritureRepo.query()
         .whereIn('compte', ['445710', '445620']) // TVA collectée ET déductible
         .whereBetween('date', [date_debut, date_fin])

@@ -1,7 +1,7 @@
 // src/modules/comptabilite/entities/Facture.js
 export class Facture {
   constructor(data) {
-    this.numero_facture = data.numero_facture; // C'est un number maintenant
+    this.numero_facture = data.numero_facture; 
     this.date = data.date || new Date();
     this.type_facture = data.type_facture;
     this.id_tiers = data.id_tiers;

@@ -7,7 +7,6 @@ import { createTiersSchema, updateTiersSchema } from '../validators/tiers.valida
 const router = Router();
 const tiersController = new TiersController();
 
-// AJOUTER .bind() pour toutes les méthodes
 router.get('/', tiersController.getAll.bind(tiersController));
 router.get('/:id', tiersController.getById.bind(tiersController));
 router.post('/', validateRequest(createTiersSchema), tiersController.create.bind(tiersController));

@@ -15,10 +15,8 @@ export class EcritureComptableController {
       let ecritures;
       
       if (journal) {
-        // Écritures par journal
         ecritures = await this.ecritureRepo.findByJournal(journal, date_debut, date_fin);
       } else {
-        // Toutes les écritures avec pagination
         const offset = (page - 1) * limit;
         ecritures = await this.ecritureRepo.query()
           .orderBy('date', 'desc')

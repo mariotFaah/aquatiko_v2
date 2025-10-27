@@ -87,7 +87,6 @@ export class TiersRepository {
     }
   }
 
-  // AJOUTER LA MÉTHODE POUR RECHERCHER PAR DEVISE PRÉFÉRÉE
   async findByDevisePreferee(devise) {
     try {
       const tiers = await db('tiers')

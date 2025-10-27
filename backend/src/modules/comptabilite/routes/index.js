@@ -9,7 +9,7 @@ import rapportsRoutes from './rapports.routes.js';
 import ecrituresRoutes from './ecritures.routes.js'; 
 import statistiquesRoutes from './statistiques.routes.js';
 import referentielsRoutes from './referentiels.routes.js';
-import emailRoutes from './email.routes.js'; // MODIFICATION : import ES6
+import emailRoutes from './email.routes.js';
 
 const router = Router();
 
@@ -50,7 +50,7 @@ router.get('/test', (req, res) => {
         'Journaux comptables',
         'États financiers',
         'Gestion référentiels',
-        'Relances email' // AJOUT
+        'Relances email' 
       ],
       routes: {
         tiers: '/api/comptabilite/tiers',
@@ -62,7 +62,7 @@ router.get('/test', (req, res) => {
         ecritures: '/api/comptabilite/ecritures',
         stats: '/api/comptabilite/stats',
         referentiels: '/api/comptabilite/referentiels',
-        email: '/api/comptabilite/email' // AJOUT
+        email: '/api/comptabilite/email'
       },
       fonctionnalités: {
         'Multi-devises': 'Support EUR, USD, MGA avec taux de change',
@@ -74,7 +74,7 @@ router.get('/test', (req, res) => {
         'Statistiques': 'Chiffre d\'affaires, ventes par produit, clients',
         'Plan comptable dynamique': 'Configuration flexible des comptes',
         'Référentiels configurables': 'Modes paiement, types facture, TVA',
-        'Relances email': 'Relances automatiques des factures impayées' // AJOUT
+        'Relances email': 'Relances automatiques des factures impayées' 
       }
     }
   });

@@ -36,7 +36,7 @@ export class DeviseController {
     }
   }
 
-  // AJOUTER CETTE MÉTHODE
+ 
   async getTauxActifs(req, res) {
     try {
       const tauxActifs = await this.deviseService.tauxChangeRepo.findAllActifs();

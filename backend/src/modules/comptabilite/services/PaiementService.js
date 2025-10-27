@@ -14,7 +14,6 @@ export class PaiementService {
 
   async enregistrerPaiement(paiementData) {
     try {
-      console.log('💰 Données paiement reçues:', paiementData);
       
       const numeroFacture = paiementData.numero_facture;
       
@@ -28,9 +27,8 @@ export class PaiementService {
         throw new Error(`Facture ${numeroFacture} non trouvée`);
       }
 
-      console.log('📋 Facture trouvée:', facture.numero_facture, '- Total TTC:', facture.total_ttc);
 
-      // CORRECTION: Supprimer les champs qui n'existent pas dans la table
+      // Supprimer les champs qui n'existent pas dans la table
       const { id_facture, mode_reglement, ...paiementCorrige } = paiementData;
 
       const paiementComplet = {
@@ -40,21 +38,18 @@ export class PaiementService {
         devise: facture.devise,
         taux_change: 1,
         statut: paiementData.statut || 'validé',
-        // CORRECTION: Utiliser mode_paiement (nom correct de la colonne)
+        // Utiliser mode_paiement (nom correct de la colonne)
         mode_paiement: paiementData.mode_reglement || paiementData.mode_paiement
       };
 
       console.log('💾 Données paiement corrigées:', paiementComplet);
 
       const paiement = await this.paiementRepo.create(paiementComplet);
-      console.log('✅ Paiement créé avec ID:', paiement.id_paiement);
 
       // GÉNÉRER L'ÉCRITURE COMPTABLE DU PAIEMENT
       await this.journalService.genererEcriturePaiement(paiement);
-      console.log('📝 Écriture comptable générée pour le paiement');
 
       await this.mettreAJourStatutFacture(numeroFacture);
-      console.log('🔄 Statut facture mis à jour');
 
       return paiement;
     } catch (error) {
@@ -76,7 +71,6 @@ export class PaiementService {
 
       if (nouveauStatut !== facture.statut) {
         await this.factureRepo.update(numero_facture, { statut: nouveauStatut });
-        console.log(`🔄 Statut facture ${numero_facture} mis à jour: ${facture.statut} -> ${nouveauStatut}`);
       }
     } catch (error) {
       console.error('❌ Erreur mise à jour statut facture:', error);

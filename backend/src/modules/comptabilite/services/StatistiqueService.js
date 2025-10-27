@@ -40,7 +40,7 @@ export class StatistiqueService {
     }
   }
 
-  // AJOUTER CE DEBUG dans getTopClients
+ 
 async getTopClients(limit = 10) {
   try {
     const clients = await this.tiersRepo.findAll();
@@ -60,7 +60,6 @@ async getTopClients(limit = 10) {
           sum + parseFloat(f.total_ttc || 0), 0
         );
         
-        console.log(`💰 Client ${client.nom}: ${facturesClient.length} factures, CA: ${ca} MGA`);
         facturesClient.forEach(f => {
           console.log(`   - Facture ${f.numero_facture}: ${f.total_ttc} MGA (${f.nom_tiers})`);
         });

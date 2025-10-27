@@ -169,8 +169,7 @@ class EmailService {
   }
 }
 
-// Export par défaut
 export default EmailService;
 
-// Export nommé aussi pour compatibilité
+
 export { EmailService };

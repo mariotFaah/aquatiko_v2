@@ -7,7 +7,7 @@ import { createArticleSchema, updateArticleSchema } from '../validators/articles
 const router = Router();
 const articleController = new ArticleController();
 
-// AJOUTER .bind() pour toutes les méthodes
+
 router.get('/', articleController.getAll.bind(articleController));
 router.get('/:code', articleController.getByCode.bind(articleController));
 router.post('/', validateRequest(createArticleSchema), articleController.create.bind(articleController));

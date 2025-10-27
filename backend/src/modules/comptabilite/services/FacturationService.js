@@ -212,7 +212,7 @@ export class FacturationService {
     }
   }
 
-  // Mettre à jour une facture - VERSION CORRIGÉE
+  // Mettre à jour une facture 
   async updateFacture(numeroFacture, factureData) {
     try {
       console.log('📝 Mise à jour facture:', numeroFacture, factureData);
@@ -227,7 +227,7 @@ export class FacturationService {
       const factureModifiee = await this.factureRepository.update(numeroFacture, factureUpdate);
 
       if (lignes && Array.isArray(lignes)) {
-        console.log('📦 Mise à jour des lignes:', lignes.length, 'lignes');
+        
 
         await this.ligneFactureRepository.deleteByFacture(numeroFacture);
 
@@ -237,7 +237,6 @@ export class FacturationService {
           factureData.devise || 'MGA'
         );
         
-        console.log('✅ Lignes mises à jour:', lignesAvecCalculs.length);
       }
 
       await this.calculerTotalsFacture(numeroFacture);
@@ -272,8 +271,6 @@ export class FacturationService {
         totalTVA: totalTVA,
         totalTTC: totalTTC
       });
-
-      console.log('✅ Totaux mis à jour en base:', result);
 
       return { totalHT, totalTVA, totalTTC };
       

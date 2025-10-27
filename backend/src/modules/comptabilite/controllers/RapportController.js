@@ -48,5 +48,4 @@ export class RapportController {
   }
 }
 
-// Ajouter aussi l'export par défaut
 export default RapportController;

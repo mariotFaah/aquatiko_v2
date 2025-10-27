@@ -33,8 +33,6 @@ export class FactureRepository {
     }
   }
 
-  // Récupérer une facture par ID avec détails
-  // Dans FactureRepository.js - CORRIGER la méthode findById
 // Récupérer une facture par ID avec détails
 async findById(numero_facture) {
   try {
@@ -46,15 +44,10 @@ async findById(numero_facture) {
       throw new Error(`Numéro de facture invalide: ${numero_facture}`);
     }
     
-    console.log('🔍 Numéro converti:', num);
-    
-    // APPROCHE 1: Requête très simple d'abord
-    console.log('🔍 Test requête simple...');
     const factureSimple = await db('factures')
       .where('numero_facture', num)
       .first();
     
-    console.log('✅ Résultat requête simple:', !!factureSimple);
     
     if (!factureSimple) {
       return null;
@@ -74,8 +67,6 @@ async findById(numero_facture) {
       )
       .where('factures.numero_facture', num)
       .first();
-    
-    console.log('✅ Résultat requête JOIN:', !!factureComplete);
     
     return factureComplete;
     
@@ -100,7 +91,18 @@ async findById(numero_facture) {
   }
 
   // Mettre à jour une facture
-  
+  async update(numero_facture, factureData) {
+    try {
+      await db('factures')
+        .where('numero_facture', numero_facture)
+        .update(factureData);
+      
+      return this.findById(numero_facture);
+    } catch (error) {
+      console.error('Erreur FactureRepository.update:', error);
+      throw new Error('Erreur lors de la mise à jour de la facture');
+    }
+  }
 
   // Valider une facture
   async valider(numero_facture) {
@@ -164,10 +166,6 @@ async findById(numero_facture) {
     const numero = req.params.id;
     const factureData = req.body;
 
-    console.log('🔄 Données reçues pour modification:', factureData);
-    console.log('🔍 Numéro facture depuis params:', numero);
-    console.log('🔍 Type du numéro:', typeof numero);
-
     // Valider que la facture existe
     const factureExistante = await this.factureRepository.findById(numero);
     if (!factureExistante) {
@@ -189,12 +187,10 @@ async findById(numero_facture) {
   }
 }
 
-   // AJOUTER CETTE MÉTHODE
   query() {
     return db('factures');
   }
 
-  // AJOUTER CETTE MÉTHODE MANQUANTE
   async findByNumero(numero_facture) {
     try {
       const facture = await db('factures as f')
@@ -217,7 +213,6 @@ async findById(numero_facture) {
     }
   }
 
-  // AJOUTER CETTE MÉTHODE POUR RAPPORT SERVICE
   async getFacturesByPeriode(date_debut, date_fin) {
     try {
       let query = db('factures');
@@ -237,7 +232,6 @@ async findById(numero_facture) {
       throw new Error('Erreur lors du calcul des factures par période');
     }
   }
-  // Dans FactureRepository.js - CORRIGER la méthode update
 async update(numeroFacture, factureData) {
   try {
     // Filtrer les champs qui existent vraiment dans la table factures
@@ -258,7 +252,6 @@ async update(numeroFacture, factureData) {
     
     console.log('🔄 Mise à jour facture en base:', { numeroFacture, donneesMiseAJour });
     
-    // CORRECTION: Utiliser db directement au lieu de this.db
     const result = await db('factures')
       .where({ numero_facture: numeroFacture })
       .update(donneesMiseAJour);
@@ -275,9 +268,6 @@ async update(numeroFacture, factureData) {
   }
 }
 
-
-// Après la méthode update existante, ajoutez :
-
 // Dans FactureRepository.js - méthode updateTotals
 async updateTotals(numeroFacture, totals) {
   try {
@@ -292,7 +282,6 @@ async updateTotals(numeroFacture, totals) {
         updated_at: new Date()
       });
     
-    console.log('✅ Résultat mise à jour BDD:', result);
     return result > 0;
     
   } catch (error) {
@@ -302,14 +291,11 @@ async updateTotals(numeroFacture, totals) {
 }
 
 // Avant les méthodes deleteLignesFacture et addLigneFacture
-// CORRECTION: Méthodes deleteLignesFacture et addLigneFacture
 async deleteLignesFacture(numeroFacture) {
   try {
-    const result = await db('lignes_facture') // CORRECTION: db au lieu de this.db
+    const result = await db('lignes_facture') 
       .where({ numero_facture: numeroFacture })
       .delete();
-    
-    console.log(`🗑️ ${result} lignes supprimées pour la facture ${numeroFacture}`);
     
   } catch (error) {
     console.error('❌ Erreur suppression lignes:', error);
@@ -319,8 +305,7 @@ async deleteLignesFacture(numeroFacture) {
 
 async addLigneFacture(ligneData) {
   try {
-    const [id] = await db('lignes_facture').insert(ligneData); // CORRECTION: db au lieu de this.db
-    console.log(`✅ Ligne ajoutée avec ID: ${id}`);
+    const [id] = await db('lignes_facture').insert(ligneData); 
     return id;
   } catch (error) {
     console.error('❌ Erreur ajout ligne:', error);
@@ -328,31 +313,6 @@ async addLigneFacture(ligneData) {
   }
 }
 
-// Ajoutez cette méthode temporaire dans FactureRepository
-async testDirectQuery() {
-  try {
-    console.log('🧪 Test de requête directe...');
-    
-    // Test 1: Requête SQL directe
-    const directResult = await db.raw('SELECT * FROM factures WHERE numero_facture = ?', [12]);
-    console.log('📊 Résultat direct SQL:', directResult[0].length > 0 ? 'Trouvé' : 'Non trouvé');
-    
-    // Test 2: Requête Knex simple
-    const knexResult = await db('factures').where('numero_facture', 12).first();
-    console.log('📊 Résultat Knex simple:', !!knexResult);
-    
-    // Test 3: Vérifier le schéma
-    const schema = await db.raw('DESCRIBE factures');
-    const columns = schema[0].map(col => col.Field);
-    console.log('🔍 Colonnes disponibles:', columns);
-    console.log('🔍 numero_facture existe:', columns.includes('numero_facture'));
-    
-    return true;
-  } catch (error) {
-    console.error('❌ Test échoué:', error);
-    return false;
-  }
-}
 
 }
 

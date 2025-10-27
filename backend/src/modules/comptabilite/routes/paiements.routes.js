@@ -7,9 +7,9 @@ const paiementController = new PaiementController();
 
 // ✅ Routes CRUD complètes
 router.post('/', paiementController.create.bind(paiementController));
-router.get('/', paiementController.getAll.bind(paiementController)); // <-- CORRIGÉ
+router.get('/', paiementController.getAll.bind(paiementController)); 
 router.get('/facture/:numero_facture', paiementController.getByFacture.bind(paiementController));
-router.get('/:id', paiementController.getById.bind(paiementController)); // <-- AJOUT
-router.put('/:id', paiementController.update.bind(paiementController)); // <-- AJOUT
+router.get('/:id', paiementController.getById.bind(paiementController)); 
+router.put('/:id', paiementController.update.bind(paiementController)); 
 
 export default router;

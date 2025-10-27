@@ -19,7 +19,7 @@ export const createTiersSchema = Joi.object({
   email: Joi.string()
     .email({ 
       tlds: { 
-        allow: false // 🔥 CORRECTION : Désactive la validation stricte des TLD
+        allow: false 
       } 
     })
     .allow('')
@@ -40,7 +40,7 @@ export const updateTiersSchema = Joi.object({
   email: Joi.string()
     .email({ 
       tlds: { 
-        allow: false // 🔥 CORRECTION : Désactive la validation stricte des TLD
+        allow: false 
       } 
     })
     .allow('')
