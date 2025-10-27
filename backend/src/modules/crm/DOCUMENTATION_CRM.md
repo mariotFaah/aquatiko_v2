@@ -26,37 +26,38 @@ Module complet de **Gestion de la Relation Client (CRM)** pour Aquatiko, offrant
 ## 🚀 Fonctionnalités
 
 ### 👥 Gestion des Clients Étendue
-- ✅ **Fiches clients enrichies** - Données commerciales complètes
-- ✅ **Catégorisation** - Prospect, Client, Fournisseur, Partenaire
-- ✅ **Informations légales** - SIRET, forme juridique, secteur d'activité
-- ✅ **Indicateurs business** - CA annuel, effectif, responsable commercial
-- ✅ **Historique complet** - Dates premier contact et dernière activité
+- **Fiches clients enrichies** - Données commerciales complètes
+- **Catégorisation** - Prospect, Client, Fournisseur, Partenaire
+- **Informations légales** - SIRET, forme juridique, secteur d'activité
+- **Indicateurs business** - CA annuel, effectif, responsable commercial
+- **Historique complet** - Dates premier contact et dernière activité
 
 ### 📋 Gestion Commerciale
-- ✅ **Devis professionnels** - Numérotation automatique, statuts workflow
-- ✅ **Contrats de prestation** - Types multiples, périodicité, échéances
-- ✅ **Pipeline commercial** - Suivi des opportunités du devis au contrat
+- **Devis professionnels** - Numérotation automatique, statuts workflow
+- **Contrats de prestation** - Types multiples, périodicité, échéances
+- **Pipeline commercial** - Suivi des opportunités du devis au contrat
 
 ### 📞 Suivi des Activités
-- ✅ **Interactions clients** - Appels, emails, réunions, visites
-- ✅ **Calendrier des activités** - Dates, rappels, priorités
-- ✅ **Statuts d'avancement** - Planifié, Réalisé, Annulé
+- **Interactions clients** - Appels, emails, réunions, visites
+- **Calendrier des activités** - Dates, rappels, priorités
+- **Statuts d'avancement** - Planifié, Réalisé, Annulé
 
 ### 🔔 Système de Relances
-- ✅ **Relances automatisées** - Paiements, contrats, échéances
-- ✅ **Multi-canaux** - Email, téléphone, courrier, SMS
-- ✅ **Suivi des relances** - En attente, Envoyée, Traitée
+- **Relances automatisées** - Paiements, contrats, échéances
+- **Multi-canaux** - Email, téléphone, courrier, SMS
+- **Suivi des relances** - En attente, Envoyée, Traitée
 
 ### 📊 Analytics CRM
-- ✅ **Statistiques clients** - CA, nombre de devis/contrats
-- ✅ **Performance commerciale** - Taux de conversion devis
-- ✅ **Tableaux de bord** - Vue globale de l'activité commerciale
+- **Statistiques clients** - CA, nombre de devis/contrats
+- **Performance commerciale** - Taux de conversion devis
+- **Tableaux de bord** - Vue globale de l'activité commerciale
 
 ---
 
 ## 🏗️ Architecture Technique
 
 ### Structure du Module
+```bash
 src/modules/crm/
 ├── controllers/
 │ ├── ClientController.js # Gestion clients étendus
@@ -85,6 +86,7 @@ src/modules/crm/
 │ ├── contacts.routes.js # Routes contacts
 │ └── index.js # Routeur principal
 └── index.js # Point d'entrée du module
+```
 
 ### Stack Technique
 - **Backend**: Node.js, Express.js
@@ -103,53 +105,68 @@ src/modules/crm/
 - Modules Comptabilité et Import/Export installés
 
 ### Installation
+
+ **Exécuter les migrations CRM**
 ```bash
-# Exécuter les migrations CRM
 npx knex migrate:latest
-
-# Vérifier le statut des migrations
+```
+ **Vérifier le statut des migrations**
+ ```bash
 npx knex migrate:status
-
-# Démarrer le serveur
+```
+**Démarrer le serveur**
+```bash
 npm run dev
-Vérification
-# Test de santé du module
-curl http://localhost:3001/api/crm/health
+```
 
-# Vérifier les clients
+### Vérification
+ **Test de santé du module**
+ ```bash
+curl http://localhost:3001/api/crm/health
+``` 
+
+ **Vérifier les clients**
+ ```bash
 curl http://localhost:3001/api/crm/clients
-🌐 API Documentation
-Base URL
-http://localhost:3001/api/crm
-Endpoints Principaux
-👥 Clients
-MéthodeEndpointDescription
-GET/clientsListe tous les clients avec données CRM
-GET/clients/:idDétails complets d'un client
-PUT/clients/:id/crmMettre à jour les données CRM
-GET/clients/:id/activitesActivités d'un client
-GET/clients/:id/devisDevis d'un client
-GET/clients/:id/contratsContrats d'un client
-GET/clients/categorie/:categorieClients par catégorie
-📋 Devis
-MéthodeEndpointDescription
-GET/devisListe tous les devis
-GET/devis/:idDétail d'un devis
-POST/devisCréer un nouveau devis
-PUT/devis/:idModifier un devis
-PATCH/devis/:id/statutChanger le statut
-GET/devis/statsStatistiques des devis
-GET/devis/statut/:statutDevis par statut
-📞 Contacts
-MéthodeEndpointDescription
-GET/contacts/client/:clientIdContacts d'un client
-GET/contacts/:idDétail d'un contact
-POST/contactsCréer un contact
-PUT/contacts/:idModifier un contact
-DELETE/contacts/:idSupprimer un contact
-💾 Structure de la Base de Données
-Tables Principales
-Table tiers (étendue)
+```
+
+## 🌐 API Documentation
+**Base URL**
+***http://localhost:3001/api/crm***
+
+## Endpoints Principaux
+### 👥 Clients
+***MéthodeEndpointDescription***
+- GET/clientsListe tous les clients avec données CRM
+- GET/clients/:idDétails complets d'un client
+- PUT/clients/:id/crmMettre à jour les données CRM
+- GET/clients/:id/activitesActivités d'un client
+- GET/clients/:id/devisDevis d'un client
+- GET/clients/:id/contratsContrats d'un client
+- GET/clients/categorie/:categorieClients par catégorie
+
+### 📋 Devis
+***MéthodeEndpointDescription***
+- GET/devisListe tous les devis
+- GET/devis/:idDétail d'un devis
+- POST/devisCréer un nouveau devis
+- PUT/devis/:idModifier un devis
+- PATCH/devis/:id/statutChanger le statut
+- GET/devis/statsStatistiques des devis
+- GET/devis/statut/:statutDevis par statut
+
+### 📞 Contacts
+***MéthodeEndpointDescription***
+- GET/contacts/client/:clientIdContacts d'un client
+- GET/contacts/:idDétail d'un contact
+- POST/contactsCréer un contact
+- PUT/contacts/:idModifier un contact
+- DELETE/contacts/:idSupprimer un contact
+
+## 💾 Structure de la Base de Données
+### Tables Principales
+**Table tiers** (étendue)
+```bash
 ColonneTypeDescription
 siretVARCHAR(14)Numéro SIRET
 forme_juridiqueVARCHAR(100)SARL, SA, etc.
@@ -162,16 +179,19 @@ site_webVARCHAR(255)Site web
 responsable_commercialVARCHAR(255)Responsable commercial
 date_premier_contactDATEDate premier contact
 date_derniere_activiteDATEDate dernière activité
-Table contacts
+```
 
+**Table contacts**
+```bash
     Contacts multiples par client
 
     Contact principal désignable
 
     Fonction et coordonnées complètes
+```
 
-Table devis
-
+**Table devis**
+```bash
     Numérotation automatique (DEV-000001)
 
     Workflow: brouillon → envoyé → accepté/refusé
@@ -179,33 +199,37 @@ Table devis
     Dates de validité
 
     Montants HT et TTC
+```
 
-Table contrats
-
+**Table contrats**
+```bash
     Liaison avec devis
 
     Types: maintenance, consulting, formation, etc.
 
     Périodicité et échéances
+```
 
-Table activites
-
+**Table activites**
+```bash
     Types: appel, email, réunion, visite
 
     Système de rappels
 
     Priorités: bas, normal, haut, urgent
+```
 
-Table relances
-
+**Table relances**
+```bash
     Types: paiement, contrat, commerciale
 
     Canaux: email, téléphone, courrier, SMS
 
     Suivi du statut des relances
+```
 
-🔗 Intégrations
-🔄 Avec le Module Comptabilité
+## 🔗 Intégrations
+### 🔄 Avec le Module Comptabilité
 
     Clients partagés - Même table tiers
 
@@ -213,7 +237,7 @@ Table relances
 
     Relances paiements - Intégration automatique
 
-🌍 Avec le Module Import/Export
+### 🌍 Avec le Module Import/Export
 
     Suivi des commandes par client
 
@@ -221,12 +245,16 @@ Table relances
 
     Historique des opérations d'import/export
 
-📊 Flux de Données
+### 📊 Flux de Données
+```bash
 Nouveau Contact → Devis → Contrat → Commandes → Facturation → Paiements
      ↓              ↓         ↓          ↓           ↓           ↓
   Prospect     Négociation  Signé    Import/Export Comptabilité  Relances
-📋 Exemples d'Utilisation
-Création d'un Devis
+  ```
+
+## 📋 Exemples d'Utilisation
+**Création d'un Devis**
+```bash
 curl -X POST http://localhost:3001/api/crm/devis \
   -H "Content-Type: application/json" \
   -d '{
@@ -237,7 +265,10 @@ curl -X POST http://localhost:3001/api/crm/devis \
     "montant_ht": 2500000,
     "conditions": "Paiement à 30 jours"
   }'
-Ajout d'un Contact
+  ```
+
+**Ajout d'un Contact**
+```bash
 curl -X POST http://localhost:3001/api/crm/contacts \
   -H "Content-Type: application/json" \
   -d '{
@@ -249,7 +280,10 @@ curl -X POST http://localhost:3001/api/crm/contacts \
     "telephone": "+261 34 12 345 67",
     "principal": true
   }'
-Mise à Jour des Données CRM
+  ```
+
+**Mise à Jour des Données CRM**
+```bash
 curl -X PUT http://localhost:3001/api/crm/clients/1/crm \
   -H "Content-Type: application/json" \
   -d '{
@@ -257,17 +291,26 @@ curl -X PUT http://localhost:3001/api/crm/clients/1/crm \
     "chiffre_affaires_annuel": 75000000,
     "responsable_commercial": "Marie Dupont"
   }'
-Consultation des Statistiques
-# Statistiques des devis
+```
+
+**Consultation des Statistiques**
+- Statistiques des devis
+```bash
 curl http://localhost:3001/api/crm/devis/stats
+```
 
-# Clients par catégorie
+ **Clients par catégorie**
+ ```bash
 curl http://localhost:3001/api/crm/clients/categorie/client
+```
 
-# Activités d'un client
+ **Activités d'un client**
+ ```bash
 curl http://localhost:3001/api/crm/clients/1/activites
-🧪 Tests et Validation
-Données de Test Incluses
+```
+
+## 🧪 Tests et Validation
+**Données de Test Incluses**
 
     3 clients avec données CRM complètes
 
@@ -277,37 +320,61 @@ Données de Test Incluses
 
     Activités commerciales
 
-Vérification
-# Test de santé
+## Vérification
+ **Test de santé**
+ ```bash
 curl http://localhost:3001/api/crm/health
+```
 
-# Vérification des données
+ **Vérification des données**
+ ```bash
+ # Il faut installer "jq" s'il n'est pas encore dans ton systeme avec 
+ # sudo apt update
+# sudo apt install jq -y
+
 curl http://localhost:3001/api/crm/clients | jq
 curl http://localhost:3001/api/crm/devis | jq
 curl http://localhost:3001/api/crm/contacts/client/1 | jq
-Tests Automatisés
-# Exécuter les tests unitaires
+```
+
+## Tests Automatisés
+ **Exécuter les tests unitaires**
+ ```bash
 npm test
+```
 
-# Tests d'intégration
+**Tests d'intégration**
+```bash
 npm run test:integration
-🔧 Développement
-Commandes Utiles
-# Mode développement
+```
+
+## 🔧 Développement
+**Commandes Utiles**
+ **Mode développement**
+ ```bash
 npm run dev
+``` 
 
-# Nouvelles migrations
+**Nouvelles migrations**
+```bash
 npx knex migrate:make nom_migration
-
-# Rollback migrations
+``` 
+**Rollback migrations**
+```bash
 npx knex migrate:rollback
+```
 
-# Exécuter les seeds
+**Exécuter les seeds**
+```bash
 npx knex seed:run
+```
 
-# Vérifier le statut des migrations
+**Vérifier le statut des migrations**
+```bash
 npx knex migrate:status
-Standards de Code
+```
+
+## Standards de Code
 
     Architecture MVC modulaire
 
@@ -319,7 +386,7 @@ Standards de Code
 
     Documentation API complète
 
-Bonnes Pratiques
+## Bonnes Pratiques
 
     Validation des données en entrée
 
@@ -331,7 +398,7 @@ Bonnes Pratiques
 
     Performance des requêtes optimisées
 
-🔒 Sécurité
+## 🔒 Sécurité
 Mesures Implémentées
 
     Validation stricte des entrées utilisateur
@@ -342,7 +409,8 @@ Mesures Implémentées
 
     Logs d'audit des opérations sensibles
 
-Validation des Données
+***Validation des Données***
+```bash
 // Exemple de validation Joi
 const contactSchema = Joi.object({
   tiers_id: Joi.number().integer().positive().required(),
@@ -350,8 +418,10 @@ const contactSchema = Joi.object({
   email: Joi.string().email().optional(),
   principal: Joi.boolean().default(false)
 });
-📊 Performances
-Optimisations
+```
+
+## 📊 Performances
+**Optimisations**
 
     Indexation des champs de recherche fréquents
 
@@ -361,7 +431,7 @@ Optimisations
 
     Requêtes optimisées avec Knex
 
-Monitoring
+**Monitoring**
 
     Métriques de performance des endpoints
 
@@ -369,37 +439,49 @@ Monitoring
 
     Surveillance de l'utilisation mémoire
 
-🚨 Dépannage
+## 🚨 Dépannage
 Problèmes Courants
 Erreur de Connexion Base de Données
-# Vérifier la configuration
+**Vérifier la configuration**
+```bash
 cat .env | grep DB
+```
 
-# Tester la connexion
+**Tester la connexion**
+```bash
 npx knex --version
-Migrations Échouées
-# Vérifier le statut
-npx knex migrate:status
+```
+Si la migration a Échouée
 
-# Rollback et réessayer
+**Vérifier le statut**
+```bash
+npx knex migrate:status
+```
+
+**Rollback et réessayer**
+```bash
 npx knex migrate:rollback
 npx knex migrate:latest
-Données CRM Non Visibles
+```
+
+**Données CRM Non Visibles**
+```bash
 # Vérifier les colonnes ajoutées
 sudo mysql -u root -D gestion_entreprise -e "DESCRIBE tiers;"
+ 
 
 # Vérifier les données de test
 sudo mysql -u root -D gestion_entreprise -e "SELECT * FROM contacts;"
-📞 Support et Maintenance
-Contacts
+```
 
-    Équipe Technique : [développement@aquatiko.mg]
+## 📞 Support et Maintenance
+**Contacts**
 
-    Support Utilisateur : [support@aquatiko.mg]
+    Équipe Technique : mariotfanantenana@gmail.com
 
     Rapports de Bugs : [GitHub Issues]
 
-Maintenance
+**Maintenance**
 
     Sauvegardes : Automatiques quotidiennes
 
@@ -407,7 +489,7 @@ Maintenance
 
     Monitoring : 24/7 des performances
 
-Procédures
+**Procédures**
 
     Documentation des changements
 
@@ -415,7 +497,7 @@ Procédures
 
     Backup avant déploiement
 
-🎯 Roadmap
+## 🎯 Roadmap
 Prochaines Fonctionnalités (Q1 2025)
 
     Tableaux de bord analytiques avancés
@@ -428,7 +510,7 @@ Prochaines Fonctionnalités (Q1 2025)
 
     Système de notifications en temps réel
 
-Améliorations Planifiées (Q2 2025)
+## Améliorations Planifiées (Q2 2025)
 
     API GraphQL pour plus de flexibilité
 
@@ -438,7 +520,7 @@ Améliorations Planifiées (Q2 2025)
 
     Internationalisation (multi-langues)
 
-Évolutions Futures
+## Évolutions Futures
 
     Intelligence artificielle pour les recommandations
 
@@ -448,7 +530,7 @@ Améliorations Planifiées (Q2 2025)
 
     Automatisation des workflows marketing
 
-❓ FAQ
+## ❓ FAQ
 Comment ajouter un nouveau champ CRM ?
 
     Modifier la migration pour ajouter la colonne
@@ -461,9 +543,9 @@ Comment ajouter un nouveau champ CRM ?
 
     Exécuter la migration
 
-Comment intégrer avec un autre module ?
+## Comment intégrer avec un autre module ?
 
-Les modules communiquent via :
+### Les modules communiquent via :
 
     Les tables partagées (ex: tiers)
 
@@ -471,13 +553,13 @@ Les modules communiquent via :
 
     Les événements système
 
-Comment personnaliser les workflows ?
+### Comment personnaliser les workflows ?
 
 Modifier les enum dans les modèles :
 // Dans le modèle Devis
 statut: Joi.string().valid('brouillon', 'envoye', 'accepte', 'refuse', 'expire')
-📝 Journal des Changements
-Version 1.0.0 (Octobre 2024)
+##  📝 Journal des Changements
+***Version 1.0.0 (Octobre 2025)***
 
     ✅ Module CRM complet
 
@@ -487,7 +569,7 @@ Version 1.0.0 (Octobre 2024)
 
     ✅ Documentation technique
 
-Version 1.1.0 (Novembre 2024 - Planifiée)
+***Version 1.1.0 (Novembre 2024 - Planifiée)***
 
     🚧 Tableaux de bord analytics
 
@@ -495,8 +577,5 @@ Version 1.1.0 (Novembre 2024 - Planifiée)
 
     🚧 Notifications
 
-© 2024 Aquatiko - Tous droits réservés
+*© 2025 Aquatiko - Tous droits réservés*
 
-"Vos clients, notre priorité - Gérer les relations, créer la valeur"
-
-Dernière mise à jour : Octobre 2024

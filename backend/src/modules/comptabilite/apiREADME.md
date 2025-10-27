@@ -254,7 +254,7 @@ curl -X POST http://localhost:3001/api/comptabilite/paiements \
     "statut": "validé"
   }'
 ```
-## onsultation des Référentiels (NOUVEAU)
+## Consultation des Référentiels (NOUVEAU)
  **Plan comptable dynamique**
  ```bash
 curl "http://localhost:3001/api/comptabilite/referentiels/plan-comptable"
@@ -394,4 +394,4 @@ npm run seed
 📞 Support et Maintenance
 Pour toute question ou problème concernant ce module, contacter l'équipe de développement Aquatiko.
 
-*© 2024 Aquatiko - Tous droits réservés*
+*© 2025 Aquatiko - Tous droits réservés*
