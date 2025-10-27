@@ -1,4 +1,4 @@
-// CORRECTION COMPLÈTE de src/modules/import-export/repositories/CommandeRepository.js
+// src/modules/import-export/repositories/CommandeRepository.js
 import BaseRepository from '../../../core/database/BaseRepository.js';
 import Commande from '../entities/Commande.js';
 import LigneCommande from '../entities/LigneCommande.js';

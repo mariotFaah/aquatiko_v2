@@ -33,7 +33,7 @@ app.get('/api/health', async (req, res) => {
     status: 'OK', 
     timestamp: new Date().toISOString(),
     database: dbStatus ? 'Connected' : 'Disconnected',
-    modules: ['comptabilite', 'import-export', 'crm']  // ✅ AJOUT CRM
+    modules: ['comptabilite', 'import-export', 'crm']  
   });
 });
 
@@ -44,7 +44,7 @@ app.use('/api/import-export', importExportRoutes);
 // ✅ INITIALISATION DU MODULE CRM
 initCRMModule(app);
 
-// ✅ CORRECTION EXPRESS 5 : Route 404 avec un chemin explicite
+//  Route 404 avec un chemin explicite
 app.use('/:any*', (req, res) => {
   res.status(404).json({
     success: false,
@@ -70,7 +70,7 @@ app.listen(PORT, async () => {
   console.log(`🚀 Serveur backend démarré sur le port ${PORT}`);
   console.log(`📊 URL: http://localhost:${PORT}`);
   console.log(`🔍 Health check: http://localhost:${PORT}/api/health`);
-  console.log(`📦 Modules activés: Comptabilité, Import/Export, CRM`); // ✅ AJOUT CRM
+  console.log(`📦 Modules activés: Comptabilité, Import/Export, CRM`); 
   
   // Tester la connexion DB
   await testConnection();

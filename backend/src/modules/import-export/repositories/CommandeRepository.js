@@ -8,8 +8,7 @@ class CommandeRepository extends BaseRepository {
   }
 
   async findAllWithRelations(filters = {}) {
-    console.log('🔍 findAllWithRelations appelé avec filtres:', filters);
-
+   
     const query = this.db
       .select(
         'c.*',
@@ -34,8 +33,6 @@ class CommandeRepository extends BaseRepository {
     if (filters.client_id) query.where('c.client_id', filters.client_id);
 
     const commandes = await query.orderBy('c.created_at', 'desc');
-
-    console.log(`📦 ${commandes.length} commandes trouvées`);
 
     const commandesAvecRelations = await Promise.all(
       commandes.map(async (cmd) => {
@@ -122,7 +119,6 @@ class CommandeRepository extends BaseRepository {
       })
     );
 
-    console.log(`🎯 Commandes avec relations chargées: ${commandesAvecRelations.length}`);
     return commandesAvecRelations;
   }
 

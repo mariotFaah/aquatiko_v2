@@ -84,7 +84,7 @@ class CommandeService {
         };
       }
 
-      // CORRECTION : Calculer le total des coûts logistiques
+      // Calculer le total des coûts logistiques
       const couts = commande.couts_logistiques;
       const totalCouts = [
         'fret_maritime', 'fret_aerien', 'assurance', 
@@ -99,7 +99,7 @@ class CommandeService {
 
       return {
         marge_brute: margeBrute,
-        marge_nette: margeBrute, // Pour l'instant, on ne déduit pas les taxes
+        marge_nette: margeBrute, 
         taux_marge: Math.round(tauxMarge * 100) / 100,
         total_couts: totalCouts,
         chiffre_affaires: chiffreAffaires

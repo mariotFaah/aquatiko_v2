@@ -304,4 +304,4 @@ Gestion centralisée des erreurs
 📞 Support et Maintenance
 
 Pour toute question, contacter l’équipe de développement Aquatiko.
-© 2024 Aquatiko - Tous droits réservés
+© 2025 Aquatiko - Tous droits réservés
