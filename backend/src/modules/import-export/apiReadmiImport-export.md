@@ -72,38 +72,49 @@ Permet un suivi complet des commandes clients/fournisseurs, des expéditions et 
 ```bash
 # Exécuter les migrations Knex
 npx knex migrate:latest
-
+```
+```bash
 # Vérifier le statut
 npx knex migrate:status
-🌐 API Documentation
+```
+## 🌐 API Documentation
 
-Base URL : http://localhost:3001/api/import-export
+Base URL : *http://localhost:3001/api/import-export*
 
-Commandes
+**Commandes**
+```bash
 | Méthode | Endpoint              | Description                          |
 | ------- | --------------------- | ------------------------------------ |
 | GET     | /commandes            | Liste toutes les commandes           |
 | GET     | /commandes/:id        | Détail d’une commande avec relations |
 | POST    | /commandes            | Créer une nouvelle commande          |
 | PATCH   | /commandes/:id/statut | Mettre à jour le statut              |
+```
 
-Expéditions
+**Expéditions**
+```bash
 | Méthode | Endpoint              | Description                           |
 | ------- | --------------------- | ------------------------------------- |
 | POST    | /commandes/expedition | Créer ou mettre à jour une expédition |
+```
 
-Coûts Logistiques
+**Coûts Logistiques**
+```bash
 | Méthode | Endpoint         | Description                                        |
 | ------- | ---------------- | -------------------------------------------------- |
 | POST    | /commandes/couts | Enregistrer ou mettre à jour les coûts logistiques |
+```
 
-Calcul de marge
+**Calcul de marge**
+```bash
 | Méthode | Endpoint             | Description                      |
 | ------- | -------------------- | -------------------------------- |
 | GET     | /commandes/:id/marge | Calculer la marge d’une commande |
+```
 
-💾 Structure de la Base de Données
-Table commandes
+## 💾 Structure de la Base de Données
+### Table commandes
+```bash
 | Champ           | Type                                                        | Description        | Obligatoire |
 | --------------- | ----------------------------------------------------------- | ------------------ | ----------- |
 | id              | INT UNSIGNED AUTO_INCREMENT                                 | ID unique          | ✅           |
@@ -115,7 +126,10 @@ Table commandes
 | statut          | ENUM('brouillon','confirmée','expédiée','livrée','annulée') | Workflow           | ✅           |
 | montant_total   | DECIMAL(15,2)                                               | Calcul automatique | ✅           |
 | devise          | VARCHAR(3)                                                  | EUR, USD, MGA      | ✅           |
-Table lignes_commande
+
+```
+**Table lignes_commande**
+```bash
 | Champ         | Type                        | Description                     | Obligatoire |
 | ------------- | --------------------------- | ------------------------------- | ----------- |
 | id            | INT UNSIGNED AUTO_INCREMENT | ID unique                       | ✅           |
@@ -125,7 +139,10 @@ Table lignes_commande
 | quantite      | DECIMAL(10,2)               | Quantité                        | ✅           |
 | prix_unitaire | DECIMAL(15,2)               | Prix unitaire                   | ✅           |
 | taux_tva      | DECIMAL(5,2)                | TVA (%)                         | ✅           |
-Table expeditions
+```
+
+**Table expeditions**
+```bash
 | Champ                | Type                                                        | Description          | Obligatoire |
 | -------------------- | ----------------------------------------------------------- | -------------------- | ----------- |
 | id                   | INT UNSIGNED AUTO_INCREMENT                                 | ID unique            | ✅           |
@@ -138,7 +155,10 @@ Table expeditions
 | transporteur         | VARCHAR(255)                                                | Transporteur         | ❌           |
 | mode_transport       | VARCHAR(50)                                                 | Mode transport       | ❌           |
 | statut               | ENUM('preparation','expédiée','transit','arrivée','livrée') | Statut               | ✅           |
-Table couts_logistiques
+```
+
+**Table couts_logistiques**
+```bash
 | Champ           | Type                        | Description       | Obligatoire |
 | --------------- | --------------------------- | ----------------- | ----------- |
 | id              | INT UNSIGNED AUTO_INCREMENT | ID unique         | ✅           |
@@ -151,8 +171,11 @@ Table couts_logistiques
 | transport_local | DECIMAL(15,2)               | Transport local   | ❌           |
 | autres_frais    | DECIMAL(15,2)               | Autres frais      | ❌           |
 | devise_couts    | VARCHAR(3)                  | Devise coûts      | ✅           |
-📋 Exemples d’Utilisation
+```
+
+## 📋 Exemples d’Utilisation
 Création d’une commande d’import
+```bash
 curl -X POST http://localhost:3001/api/import-export/commandes \
 -H "Content-Type: application/json" \
 -d '{
@@ -170,11 +193,17 @@ curl -X POST http://localhost:3001/api/import-export/commandes \
     }
   ]
 }'
-Mise à jour du statut
+```
+
+**Mise à jour du statut**
+```bash
 curl -X PATCH http://localhost:3001/api/import-export/commandes/4/statut \
 -H "Content-Type: application/json" \
 -d '{"statut": "confirmée"}'
-Enregistrement des coûts logistiques
+```
+
+**Enregistrement des coûts logistiques**
+```bash
 curl -X POST http://localhost:3001/api/import-export/commandes/couts \
 -H "Content-Type: application/json" \
 -d '{
@@ -184,9 +213,14 @@ curl -X POST http://localhost:3001/api/import-export/commandes/couts \
   "droits_douane": 300000,
   "transport_local": 200000
 }'
-Calcul de marge
+```
+
+**Calcul de marge**
+```bash
 curl http://localhost:3001/api/import-export/commandes/4/marge
+```
 Réponse type :
+```bash
 {
   "success": true,
   "message": "Calcul de marge effectué avec succès",
@@ -198,18 +232,20 @@ Réponse type :
     "chiffre_affaires": "6000000.00"
   }
 }
-📐 Formules de Calcul
+```
+## 📐 Formules de Calcul
 
-Montant total commande
+**Montant total commande**
 total = Σ(ligne.quantite * ligne.prix_unitaire * (1 + ligne.taux_tva/100))
 
-Total coûts logistiques
+**Total coûts logistiques**
 total_couts = fret_maritime + fret_aerien + assurance + droits_douane + frais_transit + transport_local + autres_frais
-Marge brute
+**Marge brute**
 marge_brute = montant_total_commande - total_couts_logistiques
-Taux de marge
+**Taux de marge**
 taux_marge = (marge_brute / montant_total_commande) * 100
-🔧 Architecture Technique
+## 🔧 Architecture Technique
+```bash
 src/modules/import-export/
 ├── controllers/
 │   └── CommandeController.js
@@ -230,17 +266,18 @@ src/modules/import-export/
 │   ├── index.js
 │   └── commandes.routes.js
 └── index.js
+```
 
-
-Workflow métier :
+**Workflow métier :**
+```bash
 Création Commande → Validation → Expédition → Arrivée → Facturation → Calcul Marge
      ↓              ↓           ↓           ↓           ↓           ↓
  Brouillon      Confirmée   Expédiée    Arrivée     Livrée     Analyse
+```
 
+## 🧪 Tests et Validation
 
-🧪 Tests et Validation
-
-Vérifier les données de test :
+**Vérifier les données de test :**
 
 2 clients minimum dans tiers
 
@@ -248,14 +285,22 @@ Vérifier les données de test :
 
 Articles avec code_article
 
-Test de santé :
+**Test de santé :**
+```bash
 curl http://localhost:3001/api/health
-Test création et récupération commande :
+```
+
+**Test création et récupération commande :**
+```bash
 curl -X POST http://localhost:3001/api/import-export/commandes \
 -H "Content-Type: application/json" \
 -d '{"type":"import","client_id":1,"fournisseur_id":2,"date_commande":"2024-01-15"}'
+```
+```bash
 curl http://localhost:3001/api/import-export/commandes
-🔒 Sécurité et Validation
+```
+
+## 🔒 Sécurité et Validation
 
 Validation stricte des entrées
 
@@ -277,11 +322,12 @@ Coûts logistiques : ✅ 100%
 
 Calcul marges : ✅ 100%
 
-Prêt pour production
+***Prêt pour production***
 
-👥 Développement et Contribution
+## 👥 Développement et Contribution
 
 Commandes utiles :
+```bash
 # Mode développement
 npm run dev
 
@@ -290,8 +336,8 @@ npx knex migrate:make nom_migration
 
 # Exécution migrations
 npx knex migrate:latest
-
-Standards de code :
+```
+**Standards de code :**
 
 Modules ES6+
 
@@ -304,4 +350,4 @@ Gestion centralisée des erreurs
 📞 Support et Maintenance
 
 Pour toute question, contacter l’équipe de développement Aquatiko.
-© 2025 Aquatiko - Tous droits réservés
+*© 2025 Aquatiko - Tous droits réservés*
