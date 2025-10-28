@@ -42,8 +42,6 @@ export class FacturationService {
         notes: factureData.notes || null
       };
 
-      console.log('📝 Données facture à créer (multi-devise):', facture);
-
       // Créer la facture
       const nouvelleFacture = await this.factureRepository.create(facture);
 
@@ -215,8 +213,6 @@ export class FacturationService {
   // Mettre à jour une facture 
   async updateFacture(numeroFacture, factureData) {
     try {
-      console.log('📝 Mise à jour facture:', numeroFacture, factureData);
-
       const factureExistante = await this.getFacture(numeroFacture);
       if (!factureExistante) {
         throw new Error('Facture non trouvée');
@@ -264,7 +260,6 @@ export class FacturationService {
         totalTTC += parseFloat(ligne.montant_ttc) || 0;
       }
 
-      console.log(`💰 Totaux calculés pour facture ${numero_facture}: HT=${totalHT}, TVA=${totalTVA}, TTC=${totalTTC}`);
 
       const result = await this.factureRepository.updateTotals(numero_facture, {
         totalHT: totalHT,

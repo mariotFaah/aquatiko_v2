@@ -24,7 +24,7 @@ export class FactureController {
     try {
       const nouvelleFacture = await this.facturationService.creerFacture(req.body);
       
-      // CORRECTION: Régénérer les totaux AVANT de générer les écritures
+      //  Régénérer les totaux AVANT de générer les écritures
         // S'assurer que les totaux sont calculés
         // Récupérer la facture avec les totaux actualisés
         // Vérifier que les totaux ne sont pas nuls avant de générer les écritures

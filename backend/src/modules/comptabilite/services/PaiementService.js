@@ -42,8 +42,6 @@ export class PaiementService {
         mode_paiement: paiementData.mode_reglement || paiementData.mode_paiement
       };
 
-      console.log('💾 Données paiement corrigées:', paiementComplet);
-
       const paiement = await this.paiementRepo.create(paiementComplet);
 
       // GÉNÉRER L'ÉCRITURE COMPTABLE DU PAIEMENT

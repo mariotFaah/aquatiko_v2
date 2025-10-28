@@ -17,8 +17,8 @@
   background: linear-gradient(180deg, #1a1f36 0%, #0f1423 100%);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 999;
-  overflow-y: auto;
-  overflow-x: hidden;
+  /*overflow-y: auto;
+  overflow-x: hidden;*/
   border-right: 1px solid #2d3748;
   box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
 }

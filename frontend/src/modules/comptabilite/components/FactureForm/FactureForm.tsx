@@ -11,8 +11,8 @@ import './FactureForm.css';
 const ENTREPRISE_INFO = {
   nom: 'Aquatiko',
   adresse: 'By pass tana 102',
-  telephone: '020 22 840 61',
-  email: 'aquatiko@shop.com'
+  telephone: '+261 32 77 531 69',
+  email: 'contact@aquatiko.shop'
 };
 
 // FONCTION UTILITAIRE SÉCURISÉE - CORRECTION GLOBALE

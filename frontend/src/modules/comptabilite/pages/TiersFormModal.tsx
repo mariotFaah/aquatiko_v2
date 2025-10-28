@@ -65,28 +65,47 @@ export const TiersFormModal: React.FC<Props> = ({ tiers, onClose, onSave }) => {
       return;
     }
 
+    // Validation du numéro de téléphone si fourni
+    if (form.telephone && !/^\+?\d{1,4}[\s\d-]{6,}$/.test(form.telephone)) {
+      alert('Veuillez saisir un numéro de téléphone valide', {
+        type: 'warning',
+        title: 'Téléphone invalide'
+      });
+      return;
+    }
+
     setSaving(true);
     
     try {
       console.log('📤 Données envoyées:', form);
       
-      if (tiers) {
+      if (tiers && tiers.id_tiers) {
         await comptabiliteApi.updateTiers(tiers.id_tiers, form);
         alert('Client/fournisseur modifié avec succès!', {
           type: 'success',
           title: 'Succès'
         });
-      } else {
+      } else if (!tiers) {
         await comptabiliteApi.createTiers(form);
         alert('Client/fournisseur créé avec succès!', {
           type: 'success',
           title: 'Succès'
         });
+      } else {
+        throw new Error('Identifiant du tiers manquant');
       }
       
       // Appeler onSave après un court délai pour laisser voir le message de succès
-      setTimeout(() => {
-        onSave();
+      setTimeout(async () => {
+        try {
+          await onSave();
+        } catch (error) {
+          console.error('Erreur lors du rafraîchissement:', error);
+          alert('Les modifications ont été enregistrées mais le rafraîchissement a échoué', {
+            type: 'warning',
+            title: 'Attention'
+          });
+        }
       }, 1000);
       
     } catch (err) {

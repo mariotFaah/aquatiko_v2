@@ -1,5 +1,5 @@
 // src/modules/comptabilite/services/emailApi.ts
-import type { Facture, Tiers } from '../types';
+import type { Facture } from '../types';
 
 const API_BASE_URL = 'http://localhost:3001/api/comptabilite';
 

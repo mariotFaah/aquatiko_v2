@@ -112,7 +112,7 @@ export const EcheancesPage: React.FC = () => {
   // FONCTION RELANCE GROUPÉE
   const handleRelanceGroupee = async () => {
     const facturesAvecEmail = echeances.filter(f => f.email);
-    const facturesSansEmail = echeances.filter(f => !f.email);
+    //const facturesSansEmail = echeances.filter(f => !f.email);
 
     if (facturesAvecEmail.length === 0) {
       alert('Aucun client avec email trouvé. Impossible d\'envoyer des relances.', {

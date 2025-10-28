@@ -15,10 +15,10 @@ dotenv.config();
 
 const app = express();
 
-// Middleware
+// Middleware CORS corrigé - Autorise toutes les origines
 app.use(helmet());
 app.use(cors({
-  origin: 'http://localhost:5173', // URL exacte de votre frontend Vite
+  origin: true,  // Autorise toutes les origines
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept']

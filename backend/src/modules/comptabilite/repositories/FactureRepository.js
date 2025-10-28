@@ -36,7 +36,6 @@ export class FactureRepository {
 // Récupérer une facture par ID avec détails
 async findById(numero_facture) {
   try {
-    console.log('🔍 Recherche facture avec:', numero_facture);
     
     // CONVERSION EXPLICITE
     const num = parseInt(numero_facture);
@@ -54,7 +53,6 @@ async findById(numero_facture) {
     }
     
     // APPROCHE 2: Maintenant avec le JOIN
-    console.log('🔍 Test requête avec JOIN...');
     const factureComplete = await db('factures')
       .join('tiers', 'factures.id_tiers', 'tiers.id_tiers')
       .select(
@@ -162,7 +160,7 @@ async findById(numero_facture) {
   // Mettre à jour le statut
  async update(req, res) {
   try {
-    // CORRECTION: Utiliser req.params.id au lieu de req.params.numero
+    // Utiliser req.params.id au lieu de req.params.numero
     const numero = req.params.id;
     const factureData = req.body;
 
@@ -250,7 +248,7 @@ async update(numeroFacture, factureData) {
     
     donneesMiseAJour.updated_at = new Date();
     
-    console.log('🔄 Mise à jour facture en base:', { numeroFacture, donneesMiseAJour });
+   
     
     const result = await db('factures')
       .where({ numero_facture: numeroFacture })
@@ -271,7 +269,6 @@ async update(numeroFacture, factureData) {
 // Dans FactureRepository.js - méthode updateTotals
 async updateTotals(numeroFacture, totals) {
   try {
-    console.log('💰 Mise à jour BDD des totaux:', { numeroFacture, totals });
     
     const result = await db('factures')
       .where('numero_facture', numeroFacture)

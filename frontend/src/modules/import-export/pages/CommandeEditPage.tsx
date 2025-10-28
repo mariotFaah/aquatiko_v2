@@ -419,8 +419,8 @@ const CommandeEditPage: React.FC = () => {
 
               {lignes.map((ligne, index) => {
                 const montantHT = ligne.quantite * ligne.prix_unitaire;
-                const montantTVA = montantHT * (ligne.taux_tva / 100);
-                const montantTTC = montantHT + montantTVA;
+               // const montantTVA = montantHT * (ligne.taux_tva / 100);
+                //const montantTTC = montantHT + montantTVA;
 
                 return (
                   <div key={index} className="ligne-item">

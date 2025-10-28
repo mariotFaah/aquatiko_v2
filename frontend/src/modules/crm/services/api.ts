@@ -1,5 +1,5 @@
 // src/modules/crm/services/api.ts
-import type { Client, Devis, Contact, Activite, ClientStats } from '../types';
+import type { Client, Devis, Contact, Activite } from '../types';
 
 const API_BASE_URL = 'http://localhost:3001/api/crm';
 

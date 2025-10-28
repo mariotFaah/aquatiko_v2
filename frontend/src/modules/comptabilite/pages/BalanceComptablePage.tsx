@@ -23,7 +23,7 @@ export const BalanceComptablePage: React.FC = () => {
   const loadBalance = async () => {
     setLoading(true);
     try {
-      const data = await rapportApi.getBalance(filters.date_debut, filters.date_fin);
+      const data = await rapportApi.getBilan(filters.date_fin);
       // Transformer les données pour l'affichage
       const balanceData: CompteBalance[] = Object.entries(data).map(([compte, details]: [string, any]) => ({
         compte,
@@ -65,8 +65,10 @@ export const BalanceComptablePage: React.FC = () => {
   };
 
   useEffect(() => {
-    loadBalance();
-  }, []);
+    if (filters.date_debut || filters.date_fin) {
+      loadBalance();
+    }
+  }, [filters.date_debut, filters.date_fin]);
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));

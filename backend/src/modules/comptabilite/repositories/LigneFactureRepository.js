@@ -88,7 +88,6 @@ async deleteByFacture(numero_facture) {
       .where('numero_facture', numero_facture)
       .delete();
     
-    console.log(`✅ ${result} lignes supprimées pour la facture ${numero_facture}`);
     return result;
     
   } catch (error) {

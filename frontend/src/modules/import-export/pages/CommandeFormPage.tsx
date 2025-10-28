@@ -12,7 +12,7 @@ import './CommandeFormPage.css';
 interface UnifiedTiers {
   id: number;
   nom: string;
-  type_tiers: string;
+  type_tiers: 'client' | 'fournisseur';
   email?: string;
   telephone?: string;
   adresse?: string;
@@ -34,7 +34,6 @@ const CommandeFormPage: React.FC = () => {
     fournisseur_id: 0,
     date_commande: new Date().toISOString().split('T')[0],
     devise: 'EUR',
-    statut: 'confirmée',
     lignes: []
   });
 
@@ -61,14 +60,20 @@ const CommandeFormPage: React.FC = () => {
       ]);
       
       // ADAPTER LES DONNÉES TIERS
-      const adaptedTiers: UnifiedTiers[] = tiersData.map((tier: ComptabiliteTiers) => ({
-        id: tier.id_tiers, // ← CONVERTIR id_tiers → id
-        nom: tier.nom,
-        type_tiers: tier.type_tiers,
-        email: tier.email,
-        telephone: tier.telephone,
-        adresse: tier.adresse
-      }));
+      const adaptedTiers: UnifiedTiers[] = tiersData
+        .filter((tier): tier is ComptabiliteTiers & { id_tiers: number, type_tiers: 'client' | 'fournisseur' } => 
+          typeof tier.id_tiers === 'number' && 
+          typeof tier.nom === 'string' && 
+          (tier.type_tiers === 'client' || tier.type_tiers === 'fournisseur')
+        )
+        .map(tier => ({
+          id: tier.id_tiers,
+          nom: tier.nom,
+          type_tiers: tier.type_tiers,
+          email: tier.email || undefined,
+          telephone: tier.telephone || undefined,
+          adresse: tier.adresse || undefined
+        }));
       
       setTiers(adaptedTiers);
       setArticles(articlesData);
@@ -297,21 +302,7 @@ const CommandeFormPage: React.FC = () => {
                 </select>
               </div>
 
-              {/* Champ Statut */}
-              <div className="form-group">
-                <label className="form-label required">Statut</label>
-                <select
-                  value={formData.statut || 'brouillon'}
-                  onChange={(e) => handleInputChange('statut', e.target.value)}
-                  className="form-select"
-                  required
-                >
-                  <option value="brouillon">Brouillon</option>
-                  <option value="confirmée">Confirmée</option>
-                  <option value="expédiée">Expédiée</option>
-                  <option value="livrée">Livrée</option>
-                </select>
-              </div>
+
             </div>
           </div>
 
