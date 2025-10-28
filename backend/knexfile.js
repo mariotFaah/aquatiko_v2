@@ -1,45 +1,34 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-export default {
-  development: {
-    client: 'mysql2',
-    connection: {
-      host: process.env.DB_HOST || '127.0.0.1',
-      port: process.env.DB_PORT || 3306,
-      database: process.env.DB_NAME || 'gestion_entreprise',
-      user: process.env.DB_USER || 'admin',
-      password: process.env.DB_PASSWORD || 'mot_de_passe',
-      charset: 'utf8mb4'
-    },
-    migrations: {
-      directory: './migrations',
-      tableName: 'knex_migrations'
-    },
-    seeds: {
-      directory: './seeds'
-    },
-    pool: {
-      min: 2,
-      max: 10
-    }
+const dbConfig = {
+  client: 'mysql2',
+  connection: {
+    // Utilise les variables Railway en priorité, puis les variables locales
+    host: process.env.MYSQLHOST || process.env.DB_HOST || '127.0.0.1',
+    port: process.env.MYSQLPORT || process.env.DB_PORT || 3306,
+    user: process.env.MYSQLUSER || process.env.DB_USER || 'admin',
+    password: process.env.MYSQLPASSWORD || process.env.DB_PASSWORD || 'mot_de_passe',
+    database: process.env.MYSQLDATABASE || process.env.DB_NAME || 'gestion_entreprise',
+    charset: 'utf8mb4',
+    // SSL pour la production
+    ssl: process.env.MYSQLHOST ? { rejectUnauthorized: false } : undefined
   },
-  
-  production: {
-    client: 'mysql2',
-    connection: {
-      host: process.env.DB_HOST,
-      port: process.env.DB_PORT,
-      database: process.env.DB_NAME,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD
-    },
-    migrations: {
-      directory: './migrations'
-    },
-    pool: {
-      min: 2,
-      max: 10
-    }
+  migrations: {
+    directory: './migrations',
+    tableName: 'knex_migrations'
+  },
+  seeds: {
+    directory: './seeds'
+  },
+  pool: {
+    min: 2,
+    max: 10
   }
+};
+
+export default {
+  development: dbConfig,
+  production: dbConfig,
+  test: dbConfig
 };
