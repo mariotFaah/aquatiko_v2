@@ -67,6 +67,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
         { name: 'Journal', path: '/comptabilite/journal', icon: '📔' },
         { name: 'Balance', path: '/comptabilite/balance', icon: '⚖️' },
         { name: 'Bilan', path: '/comptabilite/bilan', icon: '📊' },
+        { name: 'Declaration TVA', path:'/comptabilite/tva', icon:'🧾'},
         { name: 'Taux Change', path: '/comptabilite/taux-change', icon: '💹' },
       ],
     },
@@ -105,7 +106,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
           {isOpen && (
             <div className="sidebar-brand">
               <div className="brand-logo">🌊</div>
-              <h1 className="sidebar-title">Aquatiko</h1>
+              <h1 className="sidebar-title">OMNISERVE EXPERTS </h1>
             </div>
           )}
           
@@ -114,84 +115,87 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
           </button>
         </div>
 
-        <nav className="sidebar-nav">
-          {menuItems.map((item) => (
-            <div key={item.path} className="sidebar-menu">
-              {hasChildren(item) ? (
-                <>
-                  <button
-                    onClick={() => toggleSubmenu(item.name)}
+        {/* Container scrollable pour le contenu */}
+        <div className="sidebar-content">
+          <nav className="sidebar-nav">
+            {menuItems.map((item) => (
+              <div key={item.path} className="sidebar-menu">
+                {hasChildren(item) ? (
+                  <>
+                    <button
+                      onClick={() => toggleSubmenu(item.name)}
+                      className={`sidebar-link ${
+                        location.pathname.startsWith(item.path) ? 'active' : ''
+                      }`}
+                    >
+                      <span className="sidebar-icon">{item.icon}</span>
+                      {isOpen && (
+                        <>
+                          <span className="sidebar-text">{item.name}</span>
+                          <div className="sidebar-right">
+                            {item.badge && (
+                              <span className="sidebar-badge">{item.badge}</span>
+                            )}
+                            <span className="sidebar-arrow">
+                              {openSubmenus[item.name] ? '▾' : '▸'}
+                            </span>
+                          </div>
+                        </>
+                      )}
+                    </button>
+                    
+                    {openSubmenus[item.name] && isOpen && (
+                      <div className="sidebar-submenu">
+                        {item.children.map((child) => (
+                          <Link
+                            key={child.path}
+                            to={child.path}
+                            className={`sidebar-submenu-link ${
+                              location.pathname === child.path ? 'active' : ''
+                            }`}
+                          >
+                            <span className="submenu-icon">{child.icon}</span>
+                            <span className="submenu-text">{child.name}</span>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <Link
+                    to={item.path}
                     className={`sidebar-link ${
-                      location.pathname.startsWith(item.path) ? 'active' : ''
+                      location.pathname === item.path ? 'active' : ''
                     }`}
                   >
                     <span className="sidebar-icon">{item.icon}</span>
                     {isOpen && (
                       <>
                         <span className="sidebar-text">{item.name}</span>
-                        <div className="sidebar-right">
-                          {item.badge && (
-                            <span className="sidebar-badge">{item.badge}</span>
-                          )}
-                          <span className="sidebar-arrow">
-                            {openSubmenus[item.name] ? '▾' : '▸'}
-                          </span>
-                        </div>
+                        {item.badge && (
+                          <span className="sidebar-badge">{item.badge}</span>
+                        )}
                       </>
                     )}
-                  </button>
-                  
-                  {openSubmenus[item.name] && isOpen && (
-                    <div className="sidebar-submenu">
-                      {item.children.map((child) => (
-                        <Link
-                          key={child.path}
-                          to={child.path}
-                          className={`sidebar-submenu-link ${
-                            location.pathname === child.path ? 'active' : ''
-                          }`}
-                        >
-                          <span className="submenu-icon">{child.icon}</span>
-                          <span className="submenu-text">{child.name}</span>
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </>
-              ) : (
-                <Link
-                  to={item.path}
-                  className={`sidebar-link ${
-                    location.pathname === item.path ? 'active' : ''
-                  }`}
-                >
-                  <span className="sidebar-icon">{item.icon}</span>
-                  {isOpen && (
-                    <>
-                      <span className="sidebar-text">{item.name}</span>
-                      {item.badge && (
-                        <span className="sidebar-badge">{item.badge}</span>
-                      )}
-                    </>
-                  )}
-                </Link>
-              )}
-            </div>
-          ))}
-        </nav>
+                  </Link>
+                )}
+              </div>
+            ))}
+          </nav>
 
-        {/* User profile section */}
-        {isOpen && (
-          <div className="sidebar-footer">
-            <div className="user-profile">
-              <div className="user-avatar">AK</div>
-              <div className="user-info">
-                <div className="user-name">Aquatiko Team</div>
-                <div className="user-role">Administrateur</div>
+          {/* User profile section */}
+          {isOpen && (
+            <div className="sidebar-footer">
+              <div className="user-profile">
+                <div className="user-avatar">AK</div>
+                <div className="user-info">
+                  <div className="user-name">OMNISERVE EXPERTS  Team</div>
+                  <div className="user-role">Administrateur</div>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </>
   );

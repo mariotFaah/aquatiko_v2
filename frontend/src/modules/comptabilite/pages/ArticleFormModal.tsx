@@ -18,14 +18,12 @@ type ArticleFormData = Omit<Article, 'actif' | 'created_at' | 'updated_at'>;
 export const ArticleFormModal: React.FC<Props> = ({ article, nextArticleCode, onClose, onSave }) => {
   const [form, setForm] = useState<ArticleFormData>(
     article ? {
-      // Pour la modification, ne prenez que les champs éditables
       code_article: article.code_article,
       description: article.description,
       prix_unitaire: Number(article.prix_unitaire),
       taux_tva: Number(article.taux_tva),
       unite: article.unite,
     } : {
-      // Pour la création
       code_article: nextArticleCode || 'ART001',
       description: '',
       prix_unitaire: 0,
@@ -36,7 +34,6 @@ export const ArticleFormModal: React.FC<Props> = ({ article, nextArticleCode, on
 
   const [saving, setSaving] = useState(false);
 
-  // Utilisation du hook AlertDialog
   const { isOpen, message, title, type, alert, close } = useAlertDialog();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -50,7 +47,6 @@ export const ArticleFormModal: React.FC<Props> = ({ article, nextArticleCode, on
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validation des champs
     if (!form.description.trim()) {
       alert('La description est obligatoire', {
         type: 'warning',
@@ -81,7 +77,6 @@ export const ArticleFormModal: React.FC<Props> = ({ article, nextArticleCode, on
       console.log('📤 Données envoyées:', form);
       
       if (article) {
-        // Modification - on envoie seulement les champs modifiables (sans code_article)
         const { code_article, ...updateData } = form;
         console.log('🔄 Données de modification:', updateData);
         await comptabiliteApi.updateArticle(article.code_article, updateData);
@@ -100,7 +95,6 @@ export const ArticleFormModal: React.FC<Props> = ({ article, nextArticleCode, on
         });
       }
       
-      // Appeler onSave après un court délai pour laisser voir le message de succès
       setTimeout(() => {
         onSave();
       }, 1000);

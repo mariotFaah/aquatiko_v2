@@ -2,6 +2,7 @@
 import type { EcritureComptable } from '../types';
 
 const API_BASE_URL = 'http://localhost:3001/api/comptabilite';
+//const API_BASE_URL = ' https://sentence-hands-therapy-surely.trycloudflare.com/api/comptabilite';
 
 // Fonction pour parser les montants string en number
 const parseMontants = (ecritures: any[]): EcritureComptable[] => {

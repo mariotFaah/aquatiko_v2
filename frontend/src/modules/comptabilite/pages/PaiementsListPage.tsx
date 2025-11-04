@@ -1,4 +1,4 @@
-// src/modules/comptabilite/pages/PaiementsListPage.tsx - VERSION 100% API
+// src/modules/comptabilite/pages/PaiementsListPage.tsx  
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import type { Paiement, Facture } from '../types';

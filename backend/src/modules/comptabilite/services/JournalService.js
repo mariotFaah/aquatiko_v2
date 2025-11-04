@@ -19,41 +19,66 @@ export class JournalService {
 
   async genererEcritureFacture(facture) {
     try {
-     
+      console.log('📝 Génération écritures pour facture:', facture.numero_facture);
       
       const typeTiers = await this.getTypeTiers(facture.id_tiers);
       
       const isAchat = typeTiers === 'fournisseur';
       const journal = isAchat ? 'achats' : 'ventes';
 
-      // RÉCUPÉRATION DYNAMIQUE DES COMPTES
+      // RÉCUPÉRATION DYNAMIQUE DES COMPTES - CORRIGÉE
       const compteTiers = await this.planComptableRepo.findByCategorie(isAchat ? 'fournisseur' : 'client');
-      const compteTVA = await this.planComptableRepo.findByCategorie('tva');
+      
+      // Gestion robuste des comptes TVA
+      let compteTVA;
+          if (isAchat) {
+            // Achats : TVA déductible
+            compteTVA = await this.planComptableRepo.findByNumero('445620') 
+                        || await this.planComptableRepo.findByNumero('445600');
+          } else {
+            // Ventes : TVA collectée (priorité à 445710)
+            compteTVA = await this.planComptableRepo.findByNumero('445710')
+                        || await this.planComptableRepo.findByNumero('445700')
+                        || await this.planComptableRepo.findByCategorie('tva');
+          }
+      
       const compteProduit = await this.planComptableRepo.findByCategorie(isAchat ? 'achat' : 'vente');
 
-      if (!compteTiers || !compteTVA || !compteProduit) {
-        console.error('❌ Configuration comptable incomplète');
-        throw new Error('Configuration comptable incomplète. Vérifiez le plan comptable.');
+      // VÉRIFICATIONS AVEC MESSAGES D'ERREUR DÉTAILLÉS
+      if (!compteTiers) {
+        const typeCompte = isAchat ? 'fournisseur' : 'client';
+        throw new Error(`Compte ${typeCompte} non trouvé dans le plan comptable`);
+      }
+
+      if (!compteTVA) {
+        const typeTVA = isAchat ? 'déductible (445620/445600)' : 'collectée (445710/445700)';
+        throw new Error(`Compte TVA ${typeTVA} non trouvé dans le plan comptable`);
+      }
+
+      if (!compteProduit) {
+        const typeProduit = isAchat ? 'achat' : 'vente';
+        throw new Error(`Compte ${typeProduit} non trouvé dans le plan comptable`);
       }
 
       console.log('💰 Comptes dynamiques récupérés:', {
         compteTiers: compteTiers.numero_compte,
         compteTVA: compteTVA.numero_compte,
-        compteProduit: compteProduit.numero_compte
+        compteProduit: compteProduit.numero_compte,
+        type: isAchat ? 'ACHAT' : 'VENTE'
       });
 
       const ecritures = [];
       const date = new Date(facture.date);
       const prefix = `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}`;
       
-    
+      // ÉCRITURE 1: TIERS (Client ou Fournisseur)
       ecritures.push({
         numero_ecriture: `${prefix}-${facture.numero_facture}-1`,
         date: facture.date,
         journal: journal,
         compte: compteTiers.numero_compte,
         libelle: `Facture ${facture.numero_facture} - ${facture.nom_tiers || ''}`,
-        //  Clients -> DÉBIT (ils nous doivent), Fournisseurs -> CRÉDIT (nous leur devons)
+        // Clients -> DÉBIT (ils nous doivent), Fournisseurs -> CRÉDIT (nous leur devons)
         debit: isAchat ? 0 : facture.total_ttc,      // Clients: débit, Fournisseurs: 0
         credit: isAchat ? facture.total_ttc : 0,     // Clients: 0, Fournisseurs: crédit
         devise: facture.devise || 'MGA',
@@ -61,15 +86,15 @@ export class JournalService {
         reference: facture.numero_facture.toString()
       });
 
-      // Écriture TVA
+      // ÉCRITURE 2: TVA (si applicable)
       if (facture.total_tva > 0) {
         ecritures.push({
           numero_ecriture: `${prefix}-${facture.numero_facture}-2`,
           date: facture.date,
           journal: journal,
           compte: compteTVA.numero_compte,
-          libelle: `TVA Facture ${facture.numero_facture}`,
-          //  TVA déductible (achats) -> DÉBIT, TVA collectée (ventes) -> CRÉDIT
+          libelle: `TVA Facture ${facture.numero_facture} - ${isAchat ? 'déductible' : 'collectée'}`,
+          // TVA déductible (achats) -> DÉBIT, TVA collectée (ventes) -> CRÉDIT
           debit: isAchat ? facture.total_tva : 0,    // Achats: débit, Ventes: 0
           credit: isAchat ? 0 : facture.total_tva,   // Achats: 0, Ventes: crédit
           devise: facture.devise || 'MGA',
@@ -78,14 +103,14 @@ export class JournalService {
         });
       }
 
-      //  Écriture produit/charge
+      // ÉCRITURE 3: PRODUIT/CHARGE
       ecritures.push({
         numero_ecriture: `${prefix}-${facture.numero_facture}-3`,
         date: facture.date,
         journal: journal,
         compte: compteProduit.numero_compte,
-        libelle: `Facture ${facture.numero_facture}`,
-        //  Charges (achats) -> DÉBIT, Produits (ventes) -> CRÉDIT
+        libelle: `Facture ${facture.numero_facture} - ${isAchat ? 'Achat' : 'Vente'} HT`,
+        // Charges (achats) -> DÉBIT, Produits (ventes) -> CRÉDIT
         debit: isAchat ? facture.total_ht : 0,    // Achats: débit, Ventes: 0
         credit: isAchat ? 0 : facture.total_ht,   // Achats: 0, Ventes: crédit
         devise: facture.devise || 'MGA',
@@ -93,10 +118,15 @@ export class JournalService {
         reference: facture.numero_facture.toString()
       });
       
-      // Créer les écritures
+      // CRÉATION DES ÉCRITURES
+      console.log(`📊 Création de ${ecritures.length} écritures pour facture ${facture.numero_facture}`);
       for (const ecriture of ecritures) {
         await this.ecritureRepo.create(ecriture);
+        console.log(`✅ Écriture créée: ${ecriture.numero_ecriture} - ${ecriture.compte} - ${ecriture.debit > 0 ? 'Débit' : 'Crédit'}: ${ecriture.debit || ecriture.credit}`);
       }
+      
+      console.log(`🎉 Écritures générées avec succès pour facture ${facture.numero_facture}`);
+      return ecritures;
             
     } catch (error) {
       console.error('❌ Erreur génération écritures:', error);
@@ -126,6 +156,7 @@ export class JournalService {
 
   async genererEcriturePaiement(paiement) {
     try {
+      console.log('💰 Génération écriture pour paiement:', paiement.id_paiement);
       
       const date = new Date();
       const prefix = `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}`;
@@ -137,7 +168,7 @@ export class JournalService {
         date: paiement.date_paiement,
         journal: 'banque',
         compte: compte,
-        libelle: `Paiement ${paiement.reference || paiement.id_paiement}`,
+        libelle: `Paiement ${paiement.reference || paiement.id_paiement} - ${paiement.mode_paiement}`,
         debit: paiement.montant,
         credit: 0,
         devise: paiement.devise,
@@ -145,7 +176,9 @@ export class JournalService {
         reference: `PAY-${paiement.id_paiement}`
       };
 
-      return await this.ecritureRepo.create(ecriture);
+      const result = await this.ecritureRepo.create(ecriture);
+      console.log(`✅ Écriture paiement créée: ${ecriture.numero_ecriture}`);
+      return result;
       
     } catch (error) {
       console.error('❌ Erreur génération écriture paiement:', error);
@@ -166,7 +199,7 @@ export class JournalService {
       const compte = await this.planComptableRepo.findByCategorie(categorie);
       
       if (!compte) {
-        console.warn(`⚠️ Compte non trouvé pour catégorie: ${categorie}, utilisation du fallback`);
+        console.warn(`⚠️ Compte non trouvé pour catégorie: ${categorie}, utilisation du fallback 512000`);
         return '512000';
       }
       
@@ -195,9 +228,47 @@ export class JournalService {
         };
       }
       
+      // VÉRIFICATION SPÉCIFIQUE DES COMPTES TVA
+      const comptesTVA = ['445620', '445600', '445710', '445700'];
+      resultats.tva_details = {};
+      
+      for (const numeroCompte of comptesTVA) {
+        const compte = await this.planComptableRepo.findByNumero(numeroCompte);
+        resultats.tva_details[numeroCompte] = compte ? {
+          libelle: compte.libelle,
+          present: true
+        } : {
+          present: false
+        };
+      }
+      
       return resultats;
     } catch (error) {
       console.error('❌ Erreur vérification configuration:', error);
+      throw error;
+    }
+  }
+
+  // NOUVELLE MÉTHODE : RÉGÉNÉRER LES ÉCRITURES D'UNE FACTURE
+  async regenererEcrituresFacture(numero_facture) {
+    try {
+      console.log(`🔄 Régénération des écritures pour facture ${numero_facture}`);
+      
+      // Supprimer les anciennes écritures
+      await this.ecritureRepo.deleteByFacture(numero_facture);
+      console.log(`✅ Anciennes écritures supprimées pour facture ${numero_facture}`);
+      
+      // Récupérer la facture
+      const facture = await this.factureRepo.findById(numero_facture);
+      if (!facture) {
+        throw new Error(`Facture ${numero_facture} non trouvée`);
+      }
+      
+      // Régénérer les écritures
+      return await this.genererEcritureFacture(facture);
+      
+    } catch (error) {
+      console.error(`❌ Erreur régénération écritures facture ${numero_facture}:`, error);
       throw error;
     }
   }

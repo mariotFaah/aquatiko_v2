@@ -2,6 +2,7 @@
 import type { Paiement } from '../types';
 
 const API_BASE_URL = 'http://localhost:3001/api/comptabilite';
+//const API_BASE_URL = 'https://sentence-hands-therapy-surely.trycloudflare.com/api/comptabilite';
 
 // Fonction utilitaire pour parser les montants
 const parsePaiement = (paiement: any): Paiement => ({

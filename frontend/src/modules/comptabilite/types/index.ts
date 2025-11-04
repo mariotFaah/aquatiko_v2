@@ -1,6 +1,6 @@
 // src/modules/comptabilite/types/index.ts
 import type { Tiers } from '../../../types/shared';
-export type { Tiers }; // ✅ on garde seulement le Tiers partagé
+export type { Tiers };
 
 export interface LigneFacture {
   id_ligne?: number;
@@ -26,6 +26,8 @@ export interface Article {
   unite: string;
   devise?: string;
   actif?: boolean;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Facture {
@@ -107,6 +109,7 @@ export interface ConversionDevise {
   date?: string;
 }
 
+// TYPES POUR LES RAPPORTS - AMÉLIORÉS AVEC DONNÉES RÉELLES
 export interface RapportBilan {
   [compte: string]: {
     debit: number;
@@ -119,16 +122,218 @@ export interface RapportCompteResultat {
   charges: number;
   produits: number;
   resultat_net: number;
+  periode?: string;
 }
 
 export interface RapportTresorerie {
   entrees: number;
   sorties_prevues: number;
   solde_tresorerie: number;
+  periode?: string;
+  details?: {
+    total_paiements: number;
+    total_factures: number;
+    date_generation?: string;
+  };
+  note?: string;
 }
 
 export interface RapportTVA {
   tva_collectee: number;
   tva_deductable: number;
   tva_a_payer: number;
+  periode?: string;
+  nombre_ecritures?: number;
+  details?: {
+    comptes_collectee: string[];
+    comptes_deductible: string[];
+    date_generation?: string;
+  };
+  note?: string;
+}
+
+// TYPES POUR LES RÉFÉRENTIELS DYNAMIQUES
+export interface PlanComptable {
+  numero_compte: string;
+  libelle: string;
+  type_compte: 'actif' | 'passif' | 'charge' | 'produit';
+  categorie: string;
+  actif?: boolean;
+  type?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface TypeFacture {
+  code: string;
+  libelle: string;
+  actif?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface ModePaiement {
+  code: string;
+  libelle: string;
+  actif?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface TauxTVA {
+  taux: number;
+  libelle: string;
+  actif?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+// TYPES POUR LES STATISTIQUES
+export interface IndicateursStats {
+  total_clients: number;
+  total_fournisseurs: number;
+  total_factures: number;
+  total_paiements: number;
+  chiffre_affaire: number;
+  factures_impayees: number;
+  tresorerie: number;
+}
+
+export interface ChiffreAffaireStats {
+  periode: string;
+  montant: number;
+  evolution?: number;
+}
+
+export interface TopClient {
+  nom: string;
+  chiffre_affaire: number;
+  nombre_factures: number;
+}
+
+export interface TopProduit {
+  code_article: string;
+  description: string;
+  quantite_vendue: number;
+  chiffre_affaire: number;
+}
+
+// TYPES POUR LES ÉCHÉANCES
+export interface Echeance {
+  numero_facture: number;
+  nom_tiers: string;
+  date_echeance: string;
+  montant: number;
+  statut: 'payee' | 'en_retard' | 'a_venir';
+  jours_restants?: number;
+}
+
+// TYPES POUR LES JOURNAUX COMPTABLES
+export interface JournalComptable {
+  journal: 'ventes' | 'achats' | 'banque' | 'caisse';
+  ecritures: EcritureComptable[];
+  total_debit: number;
+  total_credit: number;
+  solde: number;
+}
+
+// TYPES POUR LES ÉTATS FINANCIERS COMPLETS
+export interface EtatFinancier {
+  bilan: RapportBilan;
+  compte_resultat: RapportCompteResultat;
+  tva: RapportTVA;
+  tresorerie: RapportTresorerie;
+  periode: string;
+  date_generation: string;
+}
+
+// TYPES POUR LES RÉPONSES API STANDARDISÉES
+export interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+  timestamp: string;
+}
+
+export interface PaginatedResponse<T> {
+  success: boolean;
+  message: string;
+  data: {
+    items: T[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+  timestamp: string;
+}
+
+// TYPES POUR LES FILTRES
+export interface FiltrePeriode {
+  date_debut?: string;
+  date_fin?: string;
+}
+
+export interface FiltreFactures extends FiltrePeriode {
+  type_facture?: string;
+  statut?: string;
+  id_tiers?: number;
+}
+
+export interface FiltrePaiements extends FiltrePeriode {
+  mode_paiement?: string;
+  statut?: string;
+}
+
+// TYPES POUR LES DONNÉES D'IMPORT/EXPORT
+export interface ExportData {
+  format: 'pdf' | 'excel' | 'csv';
+  data: any;
+  options?: {
+    periode?: string;
+    include_details?: boolean;
+    password_protected?: boolean;
+  };
+}
+
+// TYPES POUR LES CALCULS FINANCIERS
+export interface CalculTVA {
+  montant_ht: number;
+  taux_tva: number;
+  montant_tva: number;
+  montant_ttc: number;
+}
+
+export interface CalculDevise {
+  montant_origine: number;
+  devise_origine: string;
+  montant_converti: number;
+  devise_cible: string;
+  taux_change: number;
+  date_conversion: string;
+}
+
+// TYPES POUR LES ALERTES ET NOTIFICATIONS
+export interface AlerteFinanciere {
+  type: 'echeance' | 'tresorerie' | 'tva' | 'seuil';
+  titre: string;
+  message: string;
+  severite: 'info' | 'warning' | 'error';
+  date_creation: string;
+  lue: boolean;
+}
+
+
+
+
+// TYPE UTILITAIRE POUR LES FORMULAIRES
+export type FormMode = 'create' | 'edit' | 'view';
+
+// TYPE POUR LES OPTIONS DE FILTRES
+export interface FilterOptions {
+  periodes: { value: string; label: string }[];
+  types_facture: { value: string; label: string }[];
+  statuts_facture: { value: string; label: string }[];
+  modes_paiement: { value: string; label: string }[];
+  statuts_paiement: { value: string; label: string }[];
 }

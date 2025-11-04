@@ -1,0 +1,7 @@
+ cloudflared tunnel --url http://localhost:3001
+ ngrok http 5173
+npm run build
+
+ serve dist -p 5173
+
+

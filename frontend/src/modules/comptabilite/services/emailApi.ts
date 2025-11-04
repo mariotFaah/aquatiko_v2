@@ -2,6 +2,7 @@
 import type { Facture } from '../types';
 
 const API_BASE_URL = 'http://localhost:3001/api/comptabilite';
+//const API_BASE_URL = 'https://sentence-hands-therapy-surely.trycloudflare.com/api/comptabilite';
 
 export const emailApi = {
   // Envoyer une relance pour une facture spécifique

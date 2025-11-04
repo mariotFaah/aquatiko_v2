@@ -58,7 +58,6 @@ export const BilanComptablePage: React.FC = () => {
     return libelles[compte] || `Compte ${compte}`;
   };
 
-  // LOGIQUE COMPTABLE CORRECTE - PLUS D'INVERSION
   const classerComptes = () => {
     const actif: Array<{compte: string, libelle: string, solde: number}> = [];
     const passif: Array<{compte: string, libelle: string, solde: number}> = [];

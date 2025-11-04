@@ -1,7 +1,12 @@
-// src/modules/comptabilite/services/api.ts - VERSION CORRIGÉE COMPLÈTE
+// src/modules/comptabilite/services/api.ts 
+/*
+  Decommentena ilay api_base_url faharoa rehefa prod dia soloina amlay nihebergena anlay backend
+  aveo commentena lay en local
+*/
 import type { Tiers, Article, Facture, Paiement, TauxChange } from '../types';
 
 const API_BASE_URL = 'http://localhost:3001/api/comptabilite';
+//const API_BASE_URL = ' https://sentence-hands-therapy-surely.trycloudflare.com/api/comptabilite';
 
 export const comptabiliteApi = {
   // ---- Tiers API ----
@@ -21,7 +26,6 @@ export const comptabiliteApi = {
     
     const data = await res.json();
     
-    // VÉRIFICATION CORRIGÉE
     if (!res.ok || !data.success) {
       throw new Error(data.message || 'Erreur lors de la création du tiers');
     }
@@ -135,7 +139,6 @@ export const comptabiliteApi = {
     return data.data;
   },
 
-  // NOUVELLE FONCTION POUR VALIDER LES FACTURES
   validerFacture: async (numero: number): Promise<Facture> => {
     const res = await fetch(`${API_BASE_URL}/factures/${numero}/valider`, {
       method: 'PATCH',

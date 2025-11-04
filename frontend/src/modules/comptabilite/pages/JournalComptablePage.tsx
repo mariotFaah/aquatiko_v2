@@ -1,6 +1,6 @@
 // src/modules/comptabilite/pages/JournalComptablePage.tsx
 import React, { useState, useEffect } from 'react';
-import ecritureApi from '../services/ecritureApi';  // ✅ Nom correct
+import ecritureApi from '../services/ecritureApi';   
 import type { EcritureComptable } from '../types';
 import MontantDevise from '../components/MontantDevise/MontantDevise';
 import { useAlertDialog } from '../../../core/hooks/useAlertDialog';
@@ -24,7 +24,7 @@ export const JournalComptablePage: React.FC = () => {
     setLoading(true);
     setSearching(true);
     try {
-      const data = await ecritureApi.getEcrituresComptables(filters);  // ✅ ecritureApi
+      const data = await ecritureApi.getEcrituresComptables(filters);  
       setEcritures(data);
       
       if (data.length === 0) {

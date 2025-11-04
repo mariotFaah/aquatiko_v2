@@ -41,4 +41,13 @@ export class ReferentielController {
       errorResponse(res, error.message);
     }
   }
+
+  async addCompteComptable(req, res) {
+  try {
+    const compte = await this.referentielService.addCompteComptable(req.body);
+    successResponse(res, compte, 'Compte comptable ajouté avec succès');
+  } catch (error) {
+    errorResponse(res, error.message);
+  }
+}
 }

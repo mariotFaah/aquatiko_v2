@@ -9,13 +9,12 @@ import AlertDialog from '../../../../core/components/AlertDialog/AlertDialog';
 import './FactureForm.css';
 
 const ENTREPRISE_INFO = {
-  nom: 'Aquatiko',
-  adresse: 'By pass tana 102',
+  nom: 'OMNISERVE EXPERTS',
+  adresse: '2239 Ambodisaina Ivondro Tamatave',
   telephone: '+261 32 77 531 69',
-  email: 'contact@aquatiko.shop'
+  email: 'contact@omniserve.experts'
 };
 
-// FONCTION UTILITAIRE SÉCURISÉE - CORRECTION GLOBALE
 const safeToFixed = (value: any, decimals: number = 2): number => {
   if (value == null || value === '') return 0;
   const num = Number(value);
@@ -103,7 +102,7 @@ export const FactureForm: React.FC = () => {
     }
   };
 
-  // FONCTION CORRIGÉE
+ 
   const convertirPrix = (prixMGA: number, deviseCible: string): number => {
     if (deviseCible === 'MGA') {
       return prixMGA;
@@ -120,7 +119,6 @@ export const FactureForm: React.FC = () => {
 
     const prixConverti = prixMGA / taux.taux;
     
-    // CORRECTION : Utilisation de safeToFixed
     return safeToFixed(prixConverti);
   };
 
@@ -145,7 +143,6 @@ export const FactureForm: React.FC = () => {
     return formData.facture.devise || 'MGA';
   };
 
-  // FONCTION CORRIGÉE
   const handleDeviseChange = async (nouvelleDevise: string) => {
     try {
       const taux = tauxChange.find(t => 
@@ -170,7 +167,6 @@ export const FactureForm: React.FC = () => {
           
           return {
             ...ligne,
-            // CORRECTION : Utilisation de safeToFixed
             prix_unitaire: safeToFixed(prixConverti)
           };
         }
@@ -213,7 +209,6 @@ export const FactureForm: React.FC = () => {
     }));
   };
 
-  // FONCTION CORRIGÉE
   const handleLigneChange = (index: number, field: string, value: any) => {
     setFormData(prev => {
       const newLignes = [...prev.lignes];
@@ -228,7 +223,6 @@ export const FactureForm: React.FC = () => {
             ...newLignes[index],
             code_article: value,
             description: article.description,
-            // CORRECTION : Utilisation de safeToFixed
             prix_unitaire: safeToFixed(prixConverti),
             taux_tva: article.taux_tva
           };
@@ -304,7 +298,6 @@ export const FactureForm: React.FC = () => {
     });
   };
 
-  // FONCTION CORRIGÉE
   const handleSubmit = async (e: React.FormEvent, statut: 'brouillon' | 'validee' = 'brouillon') => {
     e.preventDefault();
     
@@ -346,7 +339,6 @@ export const FactureForm: React.FC = () => {
         code_article: ligne.code_article,
         description: ligne.description,
         quantite: ligne.quantite,
-        // CORRECTION : Utilisation de safeToFixed
         prix_unitaire: safeToFixed(prixEnMGA),
         taux_tva: ligne.taux_tva,
         remise: ligne.remise
@@ -366,7 +358,6 @@ export const FactureForm: React.FC = () => {
       statut: statut,
       devise: currentDevise,
       taux_change: formData.facture.taux_change || 1.0,
-      // CORRECTIONS : Utilisation de safeToFixed
       total_ht: safeToFixed(totalHT_MGA),
       total_tva: safeToFixed(totalTVA_MGA),
       total_ttc: safeToFixed(totalTTC_MGA),

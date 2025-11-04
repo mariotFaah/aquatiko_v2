@@ -7,10 +7,10 @@ import AlertDialog from '../../../core/components/AlertDialog/AlertDialog';
 import './FactureEditPage.css';
 
 const ENTREPRISE_INFO = {
-  nom: 'Aquatiko',
-  adresse: 'By pass tana 102',
-  telephone: '020 22 840 61',
-  email: 'aquatiko@shop.com'
+  nom: 'OMNISERVE EXPERTS',
+  adresse: '2239 Ambodisaina Ivondro Tamatave',
+  telephone: '+261 32 77 531 69',
+  email: 'contact@omniserve.experts'
 };
 
 // Définir le type pour formData

@@ -5,9 +5,11 @@ export class PlanComptableRepository {
     return db('plan_comptable').where('actif', true).orderBy('numero_compte');
   }
 
-  async findByNumero(numero_compte) {
-    return db('plan_comptable').where({ numero_compte }).first();
-  }
+    async findByNumero(numero_compte) {
+      return db('plan_comptable')
+        .where('numero_compte', numero_compte)
+        .first();
+    }
 
   async findByCategorie(categorie) {
     return db('plan_comptable').where({ categorie, actif: true }).first();

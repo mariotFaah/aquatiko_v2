@@ -2,6 +2,7 @@
 import type { Client, Devis, Contact, Activite } from '../types';
 
 const API_BASE_URL = 'http://localhost:3001/api/crm';
+//const API_BASE_URL = 'https://sentence-hands-therapy-surely.trycloudflare.com/api/crm';
 
 // Types de réponse API
 interface ApiResponse<T> {

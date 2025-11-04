@@ -1,8 +1,9 @@
 // src/modules/comptabilite/services/deviseApi.ts
 import type { TauxChange, ConversionDevise } from '../types';
 
-// CORRECTION: Changer 3001 par 3001 (ou l'inverse selon votre besoin)
-const API_BASE_URL = 'http://localhost:3001/api/comptabilite'; // ✅ Port correct
+//  Changer 3001 par 3001 (ou l'inverse selon votre besoin)
+const API_BASE_URL = 'http://localhost:3001/api/comptabilite';
+//const API_BASE_URL = 'https://sentence-hands-therapy-surely.trycloudflare.com/api/comptabilite'; // ✅ Port correct
 
 
 export const deviseApi = {

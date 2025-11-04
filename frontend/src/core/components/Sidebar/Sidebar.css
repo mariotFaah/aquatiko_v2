@@ -4,9 +4,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
   z-index: 998;
-  backdrop-filter: blur(2px);
 }
 
 .sidebar {
@@ -17,10 +15,10 @@
   background: linear-gradient(180deg, #1a1f36 0%, #0f1423 100%);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 999;
-  /*overflow-y: auto;
-  overflow-x: hidden;*/
   border-right: 1px solid #2d3748;
   box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
 }
 
 .sidebar.open {
@@ -31,6 +29,14 @@
   width: 70px;
 }
 
+/* Container principal scrollable */
+.sidebar-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
 .sidebar-header {
   display: flex;
   align-items: center;
@@ -39,6 +45,7 @@
   border-bottom: 1px solid #2d3748;
   height: 70px;
   background: rgba(255, 255, 255, 0.02);
+  flex-shrink: 0; /* Empêche le header de rétrécir */
 }
 
 .sidebar-brand {
@@ -85,9 +92,13 @@
   color: #63b3ed;
 }
 
+/* Navigation scrollable */
 .sidebar-nav {
   padding: 1rem 0.75rem;
   flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0; /* Important pour le flex scrolling */
 }
 
 .sidebar-menu {
@@ -262,11 +273,12 @@
   border-radius: 6px;
 }
 
-/* Footer avec profil utilisateur */
+/* Footer fixe en bas */
 .sidebar-footer {
   border-top: 1px solid #2d3748;
   padding: 1rem;
   background: rgba(255, 255, 255, 0.02);
+  flex-shrink: 0; /* Empêche le footer de rétrécir */
 }
 
 .user-profile {
@@ -307,22 +319,28 @@
   font-size: 0.75rem;
 }
 
-/* Scrollbar personnalisée */
-.sidebar::-webkit-scrollbar {
-  width: 4px;
+/* Scrollbar personnalisée pour la navigation */
+.sidebar-nav::-webkit-scrollbar {
+  width: 6px;
 }
 
-.sidebar::-webkit-scrollbar-track {
+.sidebar-nav::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.sidebar::-webkit-scrollbar-thumb {
+.sidebar-nav::-webkit-scrollbar-thumb {
   background: #4a5568;
-  border-radius: 2px;
+  border-radius: 3px;
 }
 
-.sidebar::-webkit-scrollbar-thumb:hover {
+.sidebar-nav::-webkit-scrollbar-thumb:hover {
   background: #718096;
+}
+
+/* Pour Firefox */
+.sidebar-nav {
+  scrollbar-width: thin;
+  scrollbar-color: #4a5568 transparent;
 }
 
 /* Responsive */
@@ -339,5 +357,17 @@
   
   .sidebar-overlay {
     display: block;
+  }
+}
+
+/* Animation smooth pour l'ouverture/fermeture */
+.sidebar-content {
+  transition: all 0.3s ease;
+}
+
+/* Empêcher le débordement sur les petits écrans */
+@media (max-height: 600px) {
+  .sidebar-nav {
+    max-height: calc(100vh - 140px); /* Header + Footer */
   }
 }

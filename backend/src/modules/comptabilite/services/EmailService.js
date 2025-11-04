@@ -3,12 +3,12 @@ class EmailService {
   constructor() {
     // Configuration SMTP (à adapter selon votre serveur email)
     this.config = {
-      host: process.env.SMTP_HOST || 'localhost',
+      host: process.env.SMTP_HOST || 'smtp.gmail.com',
       port: process.env.SMTP_PORT || 587,
       secure: false,
       auth: {
-        user: process.env.SMTP_USER || 'aquatiko@localhost',
-        pass: process.env.SMTP_PASS || 'password'
+        user: process.env.SMTP_USER || 'lyamkim3@gmail.com',
+        pass: process.env.SMTP_PASS || 'mitia2018'
       }
     };
   }

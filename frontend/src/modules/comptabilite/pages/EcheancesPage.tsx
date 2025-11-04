@@ -29,12 +29,12 @@ export const EcheancesPage: React.FC = () => {
         comptabiliteApi.getTiers()
       ]);
       
-      // CORRECTION : Fusionner les emails des tiers avec les factures
+      // Fusionner les emails des tiers avec les factures
       const echeancesAvecEmails = facturesData.map(facture => {
         const tierCorrespondant = tiersData.find(t => t.nom === facture.nom_tiers);
         return {
           ...facture,
-          email: tierCorrespondant?.email // ← AJOUT DE L'EMAIL DEPUIS LES TIERS
+          email: tierCorrespondant?.email 
         };
       });
       
@@ -71,7 +71,7 @@ export const EcheancesPage: React.FC = () => {
     return 'modere';
   };
 
-  // FONCTION RELANCE INDIVIDUELLE
+  // FONCTION RELANCE INDIVIDUELLE - Confirmation
   const handleRelanceClient = async (facture: Facture) => {
     if (!facture.email) {
       alert(`Aucun email trouvé pour ${facture.nom_tiers}. Veuillez mettre à jour les contacts.`, {
@@ -81,15 +81,31 @@ export const EcheancesPage: React.FC = () => {
       return;
     }
 
+    alert(
+      `Confirmez-vous l'envoi d'une relance à ${facture.nom_tiers} ?\n\n` +
+      `📧 Email: ${facture.email}\n` +
+      `💰 Montant: ${facture.total_ttc.toLocaleString('fr-FR')} ${facture.devise}\n` +
+      `📅 Retard: ${calculerJoursRetard(facture.echeance)} jours`,
+      {
+        type: 'warning',
+        title: 'Confirmation de relance',
+        onConfirm: () => envoyerRelanceConfirmee(facture)
+      }
+    );
+  };
+
+  // Fonction appelée après confirmation
+  const envoyerRelanceConfirmee = async (facture: Facture) => {
     setEnvoiEnCours(facture.numero_facture!);
-    setMessageConfirmation('');
 
     try {
       const result = await emailApi.envoyerRelance(facture);
       
       if (result.success) {
-        setMessageConfirmation(`Relance envoyée à ${facture.nom_tiers} (${facture.email})`);
+        // Afficher le message de confirmation
+        setMessageConfirmation(`Rappel pour le client ${facture.nom_tiers} envoyé avec succès`);
         
+        // Masquer le message après 3 secondes
         setTimeout(() => {
           setMessageConfirmation('');
         }, 3000);
@@ -109,10 +125,9 @@ export const EcheancesPage: React.FC = () => {
     }
   };
 
-  // FONCTION RELANCE GROUPÉE
+  // FONCTION RELANCE GROUPÉE - Confirmation
   const handleRelanceGroupee = async () => {
     const facturesAvecEmail = echeances.filter(f => f.email);
-    //const facturesSansEmail = echeances.filter(f => !f.email);
 
     if (facturesAvecEmail.length === 0) {
       alert('Aucun client avec email trouvé. Impossible d\'envoyer des relances.', {
@@ -122,19 +137,37 @@ export const EcheancesPage: React.FC = () => {
       return;
     }
 
-    // Utilisation de confirm natif pour la confirmation groupée
-    if (!window.confirm(`Envoyer des relances à ${facturesAvecEmail.length} client(s) ?`)) {
-      return;
-    }
+    // Préparer le message de confirmation détaillé
+    let messageConfirmation = `Vous allez envoyer des relances à ${facturesAvecEmail.length} client(s).\n\n`;
+    
+    // Ajouter des statistiques
+    const totalMontant = facturesAvecEmail.reduce((sum, f) => sum + f.total_ttc, 0);
+    const retardsMoyens = Math.round(facturesAvecEmail.reduce((sum, f) => sum + calculerJoursRetard(f.echeance), 0) / facturesAvecEmail.length);
+    const facturesSansEmail = echeances.filter(f => !f.email);
+    
+    messageConfirmation += `📊 Statistiques:\n`;
+    messageConfirmation += `• Montant total: ${totalMontant.toLocaleString('fr-FR')} MGA\n`;
+    messageConfirmation += `• Retard moyen: ${retardsMoyens} jours\n`;
+    messageConfirmation += `• Clients sans email: ${facturesSansEmail.length}\n\n`;
+    messageConfirmation += `Confirmez-vous l'envoi groupé ?`;
 
+    alert(messageConfirmation, {
+      type: 'warning',
+      title: 'Relance groupée',
+      onConfirm: () => envoyerRelancesGroupéesConfirmees(facturesAvecEmail)
+    });
+  };
+
+  // Fonction appelée après confirmation groupée
+  const envoyerRelancesGroupéesConfirmees = async (facturesAvecEmail: Facture[]) => {
     setEnvoiGroupeEnCours(true);
-    setMessageConfirmation('');
 
     try {
       const result = await emailApi.envoyerRelancesGroupées(facturesAvecEmail);
       
       if (result.success) {
-        setMessageConfirmation(`${facturesAvecEmail.length} relance(s) envoyée(s) avec succès !`);
+        // Afficher le message de confirmation pour le groupe
+        setMessageConfirmation(`${facturesAvecEmail.length} rappel(s) client(s) envoyé(s) avec succès !`);
         
         setTimeout(() => {
           setMessageConfirmation('');

@@ -37,12 +37,10 @@ export const TauxChangeCalculator: React.FC<TauxChangeCalculatorProps> = ({ onCo
     setLoading(true);
     try {
       const tauxData = await deviseApi.getTauxChangeActuel(source, cible);
-      // CORRECTION: s'assurer que tauxChange est un nombre
       const taux = typeof tauxData.taux === 'number' ? tauxData.taux : parseFloat(tauxData.taux);
       setTauxChange(taux);
     } catch (error) {
       console.error('Erreur chargement taux change:', error);
-      // Taux par défaut pour démo
       const tauxParDefaut: { [key: string]: number } = {
         'MGA-USD': 0.00022,
         'USD-MGA': 4500,
@@ -63,7 +61,6 @@ export const TauxChangeCalculator: React.FC<TauxChangeCalculatorProps> = ({ onCo
   }, [deviseSource, deviseCible]);
 
   const calculerConversion = () => {
-    // CORRECTION: s'assurer que tauxChange est un nombre valide
     const taux = typeof tauxChange === 'number' ? tauxChange : 1;
     const resultat = montant * taux;
     setMontantConverti(parseFloat(resultat.toFixed(2)));
@@ -157,7 +154,6 @@ export const TauxChangeCalculator: React.FC<TauxChangeCalculatorProps> = ({ onCo
       ) : (
         <div className="taux-info">
           <small>
-            {/* CORRECTION: s'assurer que tauxChange est un nombre avant d'appeler toFixed */}
             1 {deviseSource} = {typeof tauxChange === 'number' ? tauxChange.toFixed(6) : '1.000000'} {deviseCible}
           </small>
         </div>

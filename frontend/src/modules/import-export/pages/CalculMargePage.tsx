@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { importExportApi } from '../services/api';
-import type { Commande, CalculMarge } from '../types';
+import type { Commande } from '../types';
+import MargeIndicator from '../components/MargeIndicator/MargeIndicator';
+import StatutBadge from '../components/StatutBadge/StatutBadge';
+import { useCalculMarge } from '../hooks/useCalculMarge';
 import './CalculMargePage.css';
 
 const CalculMargePage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [loading, setLoading] = useState(true);
   const [commande, setCommande] = useState<Commande | null>(null);
-  const [marge, setMarge] = useState<CalculMarge | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const { marge, loading, error, calculerMarge } = useCalculMarge();
 
   useEffect(() => {
     if (id) {
@@ -19,19 +20,11 @@ const CalculMargePage: React.FC = () => {
 
   const loadDonnees = async () => {
     try {
-      setLoading(true);
-      const [commandeData, margeData] = await Promise.all([
-        importExportApi.getCommande(Number(id)),
-        importExportApi.calculerMarge(Number(id))
-      ]);
-      
+      const commandeData = await importExportApi.getCommande(Number(id));
       setCommande(commandeData);
-      setMarge(margeData);
+      await calculerMarge(Number(id));
     } catch (err) {
       console.error('Erreur chargement données:', err);
-      setError('Erreur lors du chargement des données');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -113,12 +106,25 @@ const CalculMargePage: React.FC = () => {
             </div>
             <div className="info-item">
               <span className="info-label">Statut:</span>
-              <span className={`status-badge status-${commande.statut}`}>
-                {commande.statut}
-              </span>
+              <StatutBadge statut={commande.statut} type="commande" />
             </div>
           </div>
         </div>
+
+        {/* NOUVEAU : Indicateur de marge amélioré */}
+        {marge && (
+          <div className="marge-overview-section">
+            <h2 className="section-title">Aperçu de la Rentabilité</h2>
+            <div className="marge-overview">
+              <MargeIndicator 
+                margeBrute={marge.marge_brute}
+                chiffreAffaires={marge.chiffre_affaires}
+                showTaux={true}
+                size="lg"
+              />
+            </div>
+          </div>
+        )}
 
         {/* Indicateurs de performance */}
         <div className="kpi-section">
