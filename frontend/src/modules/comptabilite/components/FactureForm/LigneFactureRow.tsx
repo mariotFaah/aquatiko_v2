@@ -21,44 +21,74 @@ export const LigneFactureRow: React.FC<LigneFactureRowProps> = ({
   showRemove,
   disabled = false
 }) => {
+  // Filtrer les articles : exclure les ruptures de stock et les articles inactifs
+  const articlesDisponibles = articles.filter(article => 
+    article.statut_stock !== 'rupture' && 
+    article.actif !== false
+  );
+
   // Fonction pour gérer le changement d'article
   const handleArticleChange = (articleCode: string) => {
-    // Trouver l'article sélectionné
     const selectedArticle = articles.find(article => article.code_article === articleCode);
     
     if (selectedArticle) {
-      // Mettre à jour le code article ET la description ET le taux TVA
+      // Mettre à jour toutes les propriétés de l'article
       onChange(index, 'code_article', selectedArticle.code_article);
       onChange(index, 'description', selectedArticle.description);
       onChange(index, 'taux_tva', selectedArticle.taux_tva);
+      onChange(index, 'prix_unitaire', selectedArticle.prix_unitaire);
       
-      // Optionnel : mettre à jour aussi le prix unitaire si tu veux
-      // onChange(index, 'prix_unitaire', selectedArticle.prix_unitaire);
+      // Vérifier la disponibilité du stock
+      if (selectedArticle.quantite_stock !== undefined && selectedArticle.quantite_stock <= 0) {
+        console.warn(`⚠️ Article ${selectedArticle.code_article} en rupture de stock`);
+      }
     } else {
-      // Si aucun article sélectionné, réinitialiser
+      // Réinitialiser si aucun article sélectionné
       onChange(index, 'code_article', '');
       onChange(index, 'description', '');
       onChange(index, 'taux_tva', 0);
+      onChange(index, 'prix_unitaire', 0);
     }
   };
 
+  // Obtenir l'article actuellement sélectionné
+  const articleActuel = articles.find(article => article.code_article === ligne.code_article);
+
+  // Vérifier si l'article sélectionné est en rupture
+  const articleEnRupture = articleActuel?.statut_stock === 'rupture';
+
+  // Calculer le stock disponible pour l'article actuel
+  const stockDisponible = articleActuel?.quantite_stock || 0;
+
+  // Vérifier si la quantité demandée dépasse le stock
+  const quantiteExcessive = stockDisponible > 0 && ligne.quantite > stockDisponible;
+
   return (
-    <tr className="ligne-facture-row">
+    <tr className={`ligne-facture-row ${articleEnRupture ? 'ligne-rupture' : ''} ${quantiteExcessive ? 'ligne-stock-insuffisant' : ''}`}>
       {/* Référence */}
       <td className="ligne-facture-cell">
         <select
           value={ligne.code_article}
           onChange={(e) => handleArticleChange(e.target.value)}
-          className="ligne-article-select"
+          className={`ligne-article-select ${articleEnRupture ? 'select-rupture' : ''}`}
           disabled={disabled}
         >
-          <option value="">Sélectionner</option>
-          {articles.map(article => (
+          <option value="">Sélectionner un article</option>
+          {articlesDisponibles.map(article => (
             <option key={article.code_article} value={article.code_article}>
               {article.code_article} - {article.description}
+              {article.quantite_stock !== undefined && ` (Stock: ${article.quantite_stock})`}
+              {article.statut_stock === 'stock_faible' && ' ⚠️'}
             </option>
           ))}
         </select>
+        
+        {/* Message d'alerte si l'article sélectionné est en rupture */}
+        {articleEnRupture && (
+          <div className="ligne-alerte-rupture">
+            ⚠️ Cet article est en rupture de stock
+          </div>
+        )}
       </td>
 
       {/* Libellé */}
@@ -84,6 +114,11 @@ export const LigneFactureRow: React.FC<LigneFactureRowProps> = ({
           step="0.01"
           disabled={disabled}
         />
+        {articleActuel && (
+          <div className="ligne-prix-reference">
+            Ref: {articleActuel.prix_unitaire?.toLocaleString()} Ar
+          </div>
+        )}
       </td>
 
       {/* Quantité */}
@@ -92,11 +127,23 @@ export const LigneFactureRow: React.FC<LigneFactureRowProps> = ({
           type="number"
           value={ligne.quantite}
           onChange={(e) => onChange(index, 'quantite', parseFloat(e.target.value) || 0)}
-          className="ligne-input"
+          className={`ligne-input ${quantiteExcessive ? 'input-stock-insuffisant' : ''}`}
           min="0.01"
           step="0.01"
           disabled={disabled}
         />
+        
+        {/* Informations de stock */}
+        {articleActuel && articleActuel.quantite_stock !== undefined && (
+          <div className={`ligne-info-stock ${quantiteExcessive ? 'info-stock-insuffisant' : ''}`}>
+            Stock: {stockDisponible}
+            {quantiteExcessive && (
+              <span className="ligne-alerte-quantite">
+                ⚠️ Stock insuffisant
+              </span>
+            )}
+          </div>
+        )}
       </td>
 
       {/* Remise */}
@@ -111,6 +158,7 @@ export const LigneFactureRow: React.FC<LigneFactureRowProps> = ({
           step="0.01"
           disabled={disabled}
         />
+        <div className="ligne-remise-suffix">%</div>
       </td>
 
       {/* Montant HT (lecture seule) */}
@@ -123,24 +171,15 @@ export const LigneFactureRow: React.FC<LigneFactureRowProps> = ({
         </div>
       </td>
 
-      {/* TVA - Maintenant en lecture seule car rempli automatiquement */}
+      {/* TVA - Lecture seule avec taux de l'article */}
       <td className="ligne-facture-cell">
         <div className="ligne-tva-display">
           {ligne.taux_tva}%
         </div>
-        {/* Cache le select si tu veux forcer l'utilisation du taux de l'article */}
-        {!disabled && (
-          <select
-            value={ligne.taux_tva}
-            onChange={(e) => onChange(index, 'taux_tva', parseFloat(e.target.value))}
-            className="ligne-tva-select"
-            style={{ display: 'none' }} // Cache le select
-          >
-            <option value={0}>0%</option>
-            <option value={5}>5%</option>
-            <option value={10}>10%</option>
-            <option value={20}>20%</option>
-          </select>
+        {articleActuel && (
+          <div className="ligne-tva-reference">
+            Taux article
+          </div>
         )}
       </td>
 
@@ -152,8 +191,9 @@ export const LigneFactureRow: React.FC<LigneFactureRowProps> = ({
               type="button"
               onClick={() => onRemove(index)}
               className="ligne-remove-button"
+              title="Supprimer cette ligne"
             >
-              ❌ Supprimer
+              ❌
             </button>
           )}
         </td>

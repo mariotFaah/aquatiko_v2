@@ -18,6 +18,21 @@ export interface LigneFacture {
   article_unite?: string;
 }
 
+/// src/modules/comptabilite/types.ts
+export interface ArticleBackend {
+  code_article: string;
+  description: string;
+  prix_unitaire: number;
+  taux_tva: number;
+  unite: string;
+  devise?: string;
+  actif?: boolean;
+  quantite_stock?: number;
+  seuil_alerte?: number; // Nom utilisé par le backend
+  statut_stock?: 'disponible' | 'stock_faible' | 'rupture';
+  created_at?: string;
+  updated_at?: string;
+}
 export interface Article {
   code_article: string;
   description: string;
@@ -26,9 +41,47 @@ export interface Article {
   unite: string;
   devise?: string;
   actif?: boolean;
+  
+  // CORRECTION: utiliser les noms exacts de la base de données
+  quantite_stock?: number;
+  seuil_alerte?: number; // Changé de seuil_alerte à seuil_alerte
+  statut_stock?: 'disponible' | 'stock_faible' | 'rupture'; // Note: 'disponible' au lieu de 'en_stock'
+  
   created_at?: string;
   updated_at?: string;
 }
+
+// Interface pour la mise à jour du stock
+export interface UpdateStockRequest {
+  quantite_stock: number;
+  seuil_alerte?: number;
+}
+
+// Interface pour l'ajustement du stock
+export interface AdjustStockRequest {
+  quantite: number;
+  raison?: string;
+}
+
+// Interface pour la réponse de disponibilité
+export interface DisponibiliteResponse {
+  disponible: boolean;
+  quantite_disponible: number;
+  quantite_demandee: number;
+  suffisant: boolean;
+  message?: string;
+}
+
+// Interface pour les alertes de stock
+export interface StockAlerte {
+  code_article: string;
+  description: string;
+  quantite_stock: number;
+  seuil_alerte: number;
+  statut_stock: string;
+  priorite: 'faible' | 'rupture';
+}
+
 
 export interface Facture {
   numero_facture?: number;

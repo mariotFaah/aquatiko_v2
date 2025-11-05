@@ -19,11 +19,14 @@ Module complet de gestion comptable pour l’entreprise **Aquatiko**, offrant un
 - Adresses et contacts complets
 - **CRUD complet**
 
-### 📦 Catalogue d’Articles
-- Produits et services
-- Prix unitaire avec **TVA**
-- Gestion des unités
-- Statut **actif/inactif**
+### 📦 CCatalogue d'Articles avec Gestion de Stock
+    - Produits et services
+    - Prix unitaire avec TVA
+    - Gestion des unités
+    - Statut actif/inactif
+    - Gestion de stock en temps réel
+    - Alertes de stock automatiques
+    - Statuts de stock : En stock, Rupture, Faible stock
 
 ### 🧾 Facturation Avancée
 - Types : **Proforma, Facture, Avoir** (configurables)
@@ -60,6 +63,29 @@ Module complet de gestion comptable pour l’entreprise **Aquatiko**, offrant un
 - **Modes de paiement personnalisables**
 - **Types de documents extensibles**
 - **Taux de TVA modifiables**
+
+## Gestion du Stock
+### 🔄 Fonctionnalités de Stock
+
+    Suivi en temps réel des quantités disponibles
+
+    Statuts de stock : En stock, Rupture, Faible stock
+
+    Alertes automatiques pour les stocks critiques
+
+    Ajustements de stock manuels et automatiques
+
+    Vérification de disponibilité avant facturation
+
+    Seuils personnalisables par article
+
+### 📊 Statuts de Stock
+
+    🟢 EN_STOCK - Stock suffisant
+
+    🟡 FAIBLE_STOCK - Niveau critique (en dessous du seuil)
+
+    🔴 RUPTURE_STOCK - Stock épuisé
 
 ---
 
@@ -117,12 +143,18 @@ POST   /tiers                    # Créer un tiers
 PUT    /tiers/:id               # Modifier un tiers
 DELETE /tiers/:id               # Supprimer un tiers
 
-### 📦 Articles
-GET    /articles                 # Liste tous les articles
-GET    /articles/:code          # Détail d'un article
-POST   /articles                 # Créer un article
-PUT    /articles/:code          # Modifier un article
-DELETE /articles/:code          # Supprimer un article
+### 📦 Articles et Stock
+Méthode	Endpoint	Description
+GET	/articles	Liste tous les articles
+GET	/articles/:code	Détail d'un article
+POST	/articles	Créer un article
+PUT	/articles/:code	Modifier un article
+DELETE	/articles/:code	Supprimer un article
+GET	/articles/statut/:statut	Articles par statut de stock
+PUT	/articles/:code/stock	Mettre à jour le stock
+PATCH	/articles/:code/stock/adjust	Ajuster le stock (± quantité)
+GET	/articles/alertes/stock	Alertes de stock critique
+GET	/articles/:code/disponibilite	Vérifier disponibilité
 
 ### 🧾 Factures
 GET    /factures                 # Liste toutes les factures
@@ -216,7 +248,8 @@ src/modules/comptabilite/
     StatistiqueService - Métriques et KPI
     DeviseService - Conversion de devises
     PaiementService - Gestion des transactions
-    ReferentielService - Gestion des référentiels (NOUVEAU)
+    ReferentielService - Gestion des référentiels 
+    StockService - Gestion des stocks et alertes
 
 ### 📋 Exemples d'Utilisation
 **Création d'une Facture**
@@ -325,6 +358,68 @@ curl "http://localhost:3001/api/comptabilite/paiements/facture/1"
  **Consultation des référentiels dynamiques**
  ```bash
 curl "http://localhost:3001/api/comptabilite/referentiels/plan-comptable"
+```
+### 📊 Statuts de Stock
+- **`en_stock`** - Stock suffisant
+- **`stock_faible`** - Niveau critique (en dessous du seuil)
+- **`rupture`** - Stock épuisé
+
+**Gestion des Articles et Stock**
+Créer un Article avec Gestion de Stock
+```bash
+curl -X POST http://localhost:3001/api/comptabilite/articles \
+  -H "Content-Type: application/json" \
+  -d '{
+    "code_article": "ART100",
+    "designation": "Nouveau Produit avec Stock",
+    "prix_unitaire": 15000,
+    "taux_tva": 20,
+    "unite": "pièce",
+    "quantite_stock": 100,
+    "seuil_alerte_stock": 10,
+    "statut": "actif"
+  }'
+```
+Mettre à Jour le Stock
+```bash
+curl -X PUT http://localhost:3001/api/comptabilite/articles/ART100/stock \
+  -H "Content-Type: application/json" \
+  -d '{
+    "quantite_stock": 150,
+    "seuil_alerte_stock": 15
+  }'
+```
+
+Ajuster le Stock (± quantité)
+```bash
+curl -X PATCH http://localhost:3001/api/comptabilite/articles/ART100/stock/adjust \
+  -H "Content-Type: application/json" \
+  -d '{
+    "quantite": -5,
+    "raison": "Vente client"
+  }'
+```
+
+Obtenir les Alertes de Stock
+```bash
+curl "http://localhost:3001/api/comptabilite/articles/alertes/stock"
+```
+
+Vérifier la Disponibilité
+```bash
+curl "http://localhost:3001/api/comptabilite/articles/ART001/disponibilite?quantite=5"
+
+```
+
+```bash
+# Articles en rupture de stock
+curl "http://localhost:3001/api/comptabilite/articles/statut/rupture"
+
+# Articles en faible stock
+curl "http://localhost:3001/api/comptabilite/articles/statut/stock_faible"
+
+# Articles en stock normal
+curl "http://localhost:3001/api/comptabilite/articles/statut/en_stock"
 ```
 
 ### 🔒 Sécurité et Validation

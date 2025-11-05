@@ -1,3 +1,4 @@
+// src/modules/comptabilite/controllers/ArticleController.js
 import { successResponse, errorResponse, createdResponse } from '../../../core/utils/response.js';
 import { ArticleService } from '../services/ArticleService.js';
 
@@ -49,6 +50,65 @@ export class ArticleController {
     try {
       await this.articleService.deleteArticle(req.params.code);
       successResponse(res, null, 'Article supprimé avec succès');
+    } catch (error) {
+      errorResponse(res, error.message);
+    }
+  }
+
+  // NOUVELLES MÉTHODES POUR LA GESTION DU STOCK
+  async getByStockStatus(req, res) {
+    try {
+      const { statut } = req.params;
+      const articles = await this.articleService.getArticlesByStockStatus(statut);
+      successResponse(res, articles, `Articles avec statut ${statut} récupérés avec succès`);
+    } catch (error) {
+      errorResponse(res, error.message);
+    }
+  }
+
+  async updateStock(req, res) {
+    try {
+      const { quantite_stock } = req.body;
+      const articleMaj = await this.articleService.updateStock(req.params.code, quantite_stock);
+      successResponse(res, articleMaj, 'Stock mis à jour avec succès');
+    } catch (error) {
+      errorResponse(res, error.message);
+    }
+  }
+
+  async adjustStock(req, res) {
+    try {
+      const { quantite } = req.body;
+      const articleMaj = await this.articleService.adjustStock(req.params.code, quantite);
+      successResponse(res, articleMaj, 'Stock ajusté avec succès');
+    } catch (error) {
+      errorResponse(res, error.message);
+    }
+  }
+
+  async getStockAlerts(req, res) {
+    try {
+      const rupture = await this.articleService.getArticlesByStockStatus('rupture');
+      const stockFaible = await this.articleService.getArticlesByStockStatus('stock_faible');
+      
+      successResponse(res, {
+        rupture_stock: rupture,
+        stock_faible: stockFaible,
+        total_alertes: rupture.length + stockFaible.length
+      }, 'Alertes stock récupérées avec succès');
+    } catch (error) {
+      errorResponse(res, error.message);
+    }
+  }
+
+  async checkAvailability(req, res) {
+    try {
+      const { quantite } = req.query;
+      const disponibilite = await this.articleService.checkAvailability(
+        req.params.code, 
+        quantite ? parseInt(quantite) : 1
+      );
+      successResponse(res, disponibilite, 'Disponibilité vérifiée avec succès');
     } catch (error) {
       errorResponse(res, error.message);
     }

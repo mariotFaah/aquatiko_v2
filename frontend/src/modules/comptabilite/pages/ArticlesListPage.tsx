@@ -13,6 +13,7 @@ export const ArticlesListPage: React.FC = () => {
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [stockFilter, setStockFilter] = useState<string>('tous');
 
   // Utilisation du hook AlertDialog
   const { isOpen, message, title, type, alert, close } = useAlertDialog();
@@ -27,6 +28,23 @@ export const ArticlesListPage: React.FC = () => {
       const data = await comptabiliteApi.getArticles();
       console.log('📋 Tous les articles:', data);
       console.log('🔢 Codes existants:', data.map(a => a.code_article));
+      setArticles(data);
+    } catch (err) {
+      console.error('Erreur lors du chargement des articles:', err);
+      alert('Erreur lors du chargement des articles: ' + (err instanceof Error ? err.message : 'Erreur inconnue'), {
+        type: 'error',
+        title: 'Erreur de chargement'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fonction pour charger les articles par statut de stock
+  const loadArticlesByStatut = async (statut: string) => {
+    try {
+      setLoading(true);
+      const data = await comptabiliteApi.getArticlesByStatut(statut);
       setArticles(data);
     } catch (err) {
       console.error('Erreur lors du chargement des articles:', err);
@@ -68,7 +86,6 @@ export const ArticlesListPage: React.FC = () => {
   };
 
   const handleDelete = async (code: string) => {
-    // Utilisation de confirm natif pour la confirmation de suppression
     if (!window.confirm(`Êtes-vous sûr de vouloir supprimer l'article ${code} ?`)) return;
     
     try {
@@ -100,6 +117,35 @@ export const ArticlesListPage: React.FC = () => {
   const handleAdd = () => {
     setSelectedArticle(null);
     setShowModal(true);
+  };
+
+  // Fonction pour gérer le filtre de stock
+  const handleStockFilterChange = (filter: string) => {
+    setStockFilter(filter);
+    if (filter === 'tous') {
+      loadArticles();
+    } else {
+      loadArticlesByStatut(filter);
+    }
+  };
+
+  // Fonction pour obtenir le badge de statut de stock
+  const getStockStatusBadge = (article: Article) => {
+    if (!article.quantite_stock && article.quantite_stock !== 0) return null;
+    
+    const status = article.statut_stock || 'en_stock';
+    const quantite = article.quantite_stock || 0;
+    
+    switch (status) {
+      case 'rupture':
+        return <span className="stock-badge stock-rupture">Rupture</span>;
+      case 'stock_faible':
+        return <span className="stock-badge stock-faible">Faible ({quantite})</span>;
+      case 'en_stock':
+        return <span className="stock-badge stock-normal">Stock ({quantite})</span>;
+      default:
+        return <span className="stock-badge stock-unknown">Inconnu</span>;
+    }
   };
 
   if (loading) {
@@ -138,6 +184,44 @@ export const ArticlesListPage: React.FC = () => {
           </div>
           <div className="articles-stat-label">Articles avec prix</div>
         </div>
+        <div className="articles-stat-card">
+          <div className="articles-stat-number">
+            {articles.filter(a => a.statut_stock === 'rupture').length}
+          </div>
+          <div className="articles-stat-label">En rupture</div>
+        </div>
+        <div className="articles-stat-card">
+          <div className="articles-stat-number">
+            {articles.filter(a => a.statut_stock === 'stock_faible').length}
+          </div>
+          <div className="articles-stat-label">Stock faible</div>
+        </div>
+      </div>
+
+      {/* Filtres de stock */}
+      <div className="articles-filters">
+        <div className="filter-group">
+          <label>Filtrer par stock:</label>
+          <select 
+            value={stockFilter} 
+            onChange={(e) => handleStockFilterChange(e.target.value)}
+            className="stock-filter-select"
+          >
+            <option value="tous">Tous les articles</option>
+            <option value="en_stock">En stock</option>
+            <option value="stock_faible">Stock faible</option>
+            <option value="rupture">En rupture</option>
+          </select>
+        </div>
+        <button 
+          className="stock-alerts-btn"
+          onClick={() => {
+            // Navigation vers la page des alertes de stock
+            window.location.href = '#/comptabilite/stock-alerts';
+          }}
+        >
+          🚨 Alertes de Stock
+        </button>
       </div>
 
       <div className="articles-table-container">
@@ -149,6 +233,8 @@ export const ArticlesListPage: React.FC = () => {
               <th>Prix Unitaire</th>
               <th>TVA</th>
               <th>Unité</th>
+              <th>Stock</th>
+              <th>Statut</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -173,6 +259,14 @@ export const ArticlesListPage: React.FC = () => {
                 </td>
                 <td className="article-unit">
                   <span className="article-unit-text">{article.unite}</span>
+                </td>
+                <td className="article-stock">
+                  <span className="article-stock-value">
+                    {article.quantite_stock !== undefined ? article.quantite_stock : 'N/A'}
+                  </span>
+                </td>
+                <td className="article-status">
+                  {getStockStatusBadge(article)}
                 </td>
                 <td className="articles-actions">
                   <button 

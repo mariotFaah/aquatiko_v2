@@ -22,7 +22,7 @@ export const importExportRoutes: RouteObject[] = [
       {
         index: true,
         // Le contenu du dashboard est maintenant géré par ImportExportPage
-        element: null, // Laisse ImportExportPage gérer l'affichage
+        element: null, 
       },
       
       // Gestion des commandes

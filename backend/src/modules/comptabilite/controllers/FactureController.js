@@ -87,16 +87,29 @@ export class FactureController {
     }
   }
 
+
+
+   async annuler(req, res) {
+    try {
+      const factureAnnulee = await this.facturationService.annulerFacture(req.params.id);
+      
+      successResponse(res, factureAnnulee, 'Facture annulée avec succès');
+    } catch (error) {
+      errorResponse(res, error.message);
+    }
+  }
+
+  // MODIFIER: Méthode valider pour inclure la gestion du stock
   async valider(req, res) {
     try {
       const factureValidee = await this.facturationService.validerFacture(req.params.id);
       
+      // Recalculer les totaux
       await this.facturationService.calculerTotalsFacture(req.params.id);
-      
 
       const factureAvecTotaux = await this.facturationService.getFactureComplete(req.params.id);
       
-      
+      // Générer les écritures comptables
       await this.journalService.genererEcritureFacture(factureAvecTotaux);
       
       successResponse(res, factureValidee, 'Facture validée avec succès');

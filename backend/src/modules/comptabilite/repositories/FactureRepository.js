@@ -310,6 +310,22 @@ async addLigneFacture(ligneData) {
   }
 }
 
+async annuler(numero_facture) {
+  try {
+    await db('factures')
+      .where('numero_facture', numero_facture)
+      .update({
+        statut: 'annulee',
+        updated_at: new Date()
+      });
+    
+    return { message: 'Facture annulée avec succès' };
+  } catch (error) {
+    console.error('Erreur FactureRepository.annuler:', error);
+    throw new Error('Erreur lors de l\'annulation de la facture');
+  }
+}
+
 
 }
 

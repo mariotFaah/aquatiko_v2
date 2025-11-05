@@ -98,6 +98,45 @@ export class ArticleRepository {
       throw new Error('Erreur lors de la récupération des articles par devise');
     }
   }
+
+  async findWithStockInfo() {
+    try {
+      const articles = await db('articles')
+        .select('*')
+        .orderBy('code_article', 'asc');
+      
+      // Ajouter le statut calculé
+      return articles.map(article => ({
+        ...article,
+        statut_stock: this.calculerStatutStock(article.quantite_stock, article.seuil_alerte)
+      }));
+    } catch (error) {
+      console.error('Erreur ArticleRepository.findWithStockInfo:', error);
+      throw new Error('Erreur lors de la récupération des articles avec info stock');
+    }
+  }
+
+  async findByStockStatus(statut) {
+    try {
+      const articles = await db('articles')
+        .select('*')
+        .where('actif', true);
+
+      return articles.filter(article => {
+        const statutArticle = this.calculerStatutStock(article.quantite_stock, article.seuil_alerte);
+        return statutArticle === statut;
+      });
+    } catch (error) {
+      console.error('Erreur ArticleRepository.findByStockStatus:', error);
+      throw new Error('Erreur lors de la récupération par statut stock');
+    }
+  }
+
+  calculerStatutStock(quantite, seuil) {
+    if (quantite <= 0) return 'rupture';
+    if (quantite <= seuil) return 'stock_faible';
+    return 'disponible';
+  }
 }
 
 export default ArticleRepository;

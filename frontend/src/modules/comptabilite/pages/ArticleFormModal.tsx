@@ -23,16 +23,23 @@ export const ArticleFormModal: React.FC<Props> = ({ article, nextArticleCode, on
       prix_unitaire: Number(article.prix_unitaire),
       taux_tva: Number(article.taux_tva),
       unite: article.unite,
+      quantite_stock: article.quantite_stock ?? 0,
+      seuil_alerte: article.seuil_alerte ?? 5,
     } : {
       code_article: nextArticleCode || 'ART001',
       description: '',
       prix_unitaire: 0,
       taux_tva: 20,
       unite: 'unite',
+      quantite_stock: 0,
+      seuil_alerte: 5,
     }
   );
 
   const [saving, setSaving] = useState(false);
+  const [showStockFields, setShowStockFields] = useState(
+    (article?.quantite_stock ?? 0) > 0 || (article?.seuil_alerte ?? 0) > 0
+  );
 
   const { isOpen, message, title, type, alert, close } = useAlertDialog();
 
@@ -40,8 +47,24 @@ export const ArticleFormModal: React.FC<Props> = ({ article, nextArticleCode, on
     const { name, value } = e.target;
     setForm(prev => ({ 
       ...prev, 
-      [name]: name.includes('prix') || name.includes('tva') ? Number(value) : value 
+      [name]: name.includes('prix') || name.includes('tva') || name.includes('quantite') || name.includes('seuil') 
+        ? Number(value) 
+        : value 
     }));
+  };
+
+  // Fonction utilitaire pour obtenir les valeurs de stock
+  const getStockValue = (): { quantite: number; seuil: number } => ({
+    quantite: form.quantite_stock ?? 0,
+    seuil: form.seuil_alerte?? 5
+  });
+
+  // Fonction utilitaire pour déterminer le statut du stock
+  const getStockStatus = (): 'rupture' | 'stock_faible' | 'disponible' => {
+    const { quantite, seuil } = getStockValue();
+    if (quantite <= 0) return 'rupture';
+    if (quantite <= seuil) return 'stock_faible';
+    return 'disponible';
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -71,13 +94,40 @@ export const ArticleFormModal: React.FC<Props> = ({ article, nextArticleCode, on
       return;
     }
 
+    const { quantite, seuil } = getStockValue();
+
+    if (showStockFields && quantite < 0) {
+      alert('La quantité en stock ne peut pas être négative', {
+        type: 'warning',
+        title: 'Stock invalide'
+      });
+      return;
+    }
+
+    if (showStockFields && seuil < 0) {
+      alert('Le seuil d\'alerte ne peut pas être négatif', {
+        type: 'warning',
+        title: 'Seuil invalide'
+      });
+      return;
+    }
+
     setSaving(true);
     
     try {
       console.log('📤 Données envoyées:', form);
       
+      // Préparer les données pour l'envoi
+      const dataToSend = { ...form };
+      
+      // Si la gestion de stock n'est pas activée, ne pas envoyer les valeurs de stock
+      if (!showStockFields) {
+        delete dataToSend.quantite_stock;
+        delete dataToSend.seuil_alerte;
+      }
+      
       if (article) {
-        const { code_article, ...updateData } = form;
+        const { code_article, ...updateData } = dataToSend;
         console.log('🔄 Données de modification:', updateData);
         await comptabiliteApi.updateArticle(article.code_article, updateData);
         
@@ -87,7 +137,7 @@ export const ArticleFormModal: React.FC<Props> = ({ article, nextArticleCode, on
         });
       } else {
         // Création
-        await comptabiliteApi.createArticle(form);
+        await comptabiliteApi.createArticle(dataToSend);
         
         alert('Article créé avec succès', {
           type: 'success',
@@ -114,6 +164,21 @@ export const ArticleFormModal: React.FC<Props> = ({ article, nextArticleCode, on
       setSaving(false);
     }
   };
+
+  const toggleStockFields = () => {
+    setShowStockFields(!showStockFields);
+    if (!showStockFields) {
+      // Si on active la gestion de stock, initialiser les valeurs
+      setForm(prev => ({
+        ...prev,
+        quantite_stock: prev.quantite_stock ?? 0,
+        seuil_alerte: prev.seuil_alerte ?? 5,
+      }));
+    }
+  };
+
+  const { quantite, seuil } = getStockValue();
+  const stockStatus = getStockStatus();
 
   return (
     <div className="article-modal-overlay">
@@ -162,34 +227,36 @@ export const ArticleFormModal: React.FC<Props> = ({ article, nextArticleCode, on
             />
           </div>
 
-          <div className="article-form-group">
-            <label className="article-form-label">Prix Unitaire (Ar) *</label>
-            <input 
-              name="prix_unitaire" 
-              type="number" 
-              step="0.01"
-              min="0"
-              value={form.prix_unitaire} 
-              onChange={handleChange} 
-              className="article-form-input"
-              required 
-              disabled={saving}
-            />
-          </div>
+          <div className="article-form-row">
+            <div className="article-form-group">
+              <label className="article-form-label">Prix Unitaire (Ar) *</label>
+              <input 
+                name="prix_unitaire" 
+                type="number" 
+                step="0.01"
+                min="0"
+                value={form.prix_unitaire} 
+                onChange={handleChange} 
+                className="article-form-input"
+                required 
+                disabled={saving}
+              />
+            </div>
 
-          <div className="article-form-group">
-            <label className="article-form-label">Taux TVA (%)</label>
-            <input 
-              name="taux_tva" 
-              type="number" 
-              step="0.01"
-              min="0"
-              max="100"
-              value={form.taux_tva} 
-              onChange={handleChange} 
-              className="article-form-input"
-              disabled={saving}
-            />
+            <div className="article-form-group">
+              <label className="article-form-label">Taux TVA (%)</label>
+              <input 
+                name="taux_tva" 
+                type="number" 
+                step="0.01"
+                min="0"
+                max="100"
+                value={form.taux_tva} 
+                onChange={handleChange} 
+                className="article-form-input"
+                disabled={saving}
+              />
+            </div>
           </div>
 
           <div className="article-form-group">
@@ -208,7 +275,82 @@ export const ArticleFormModal: React.FC<Props> = ({ article, nextArticleCode, on
               <option value="litre">Litre</option>
               <option value="mètre">Mètre</option>
               <option value="mois">Mois</option>
+              <option value="paquet">Paquet</option>
+              <option value="carton">Carton</option>
+              <option value="boîte">Boîte</option>
             </select>
+          </div>
+
+          {/* Section Gestion de Stock */}
+          <div className="stock-section">
+            <div className="stock-section-header">
+              <h3>📦 Gestion de Stock</h3>
+              <label className="stock-toggle">
+                <input 
+                  type="checkbox" 
+                  checked={showStockFields}
+                  onChange={toggleStockFields}
+                  disabled={saving}
+                />
+                <span className="stock-toggle-slider"></span>
+                Activer la gestion de stock
+              </label>
+            </div>
+
+            {showStockFields && (
+              <div className="stock-fields">
+                <div className="article-form-row">
+                  <div className="article-form-group">
+                    <label className="article-form-label">
+                      Quantité en stock
+                      <span className={`stock-indicator ${stockStatus}`}>
+                        {stockStatus === 'rupture' ? '🔴 Rupture' :
+                         stockStatus === 'stock_faible' ? '🟡 Faible' : '🟢 Disponible'}
+                      </span>
+                    </label>
+                    <input 
+                      name="quantite_stock" 
+                      type="number" 
+                      step="1"
+                      min="0"
+                      value={quantite} 
+                      onChange={handleChange} 
+                      className="article-form-input"
+                      disabled={saving}
+                      placeholder="0"
+                    />
+                  </div>
+
+                  <div className="article-form-group">
+                    <label className="article-form-label">Seuil d'alerte stock</label>
+                    <input 
+                      name="seuil_alerte"
+                      type="number" 
+                      step="1"
+                      min="0"
+                      value={seuil} 
+                      onChange={handleChange} 
+                      className="article-form-input"
+                      disabled={saving}
+                      placeholder="5"
+                    />
+                    <small className="field-help">
+                      Alerte quand stock ≤ ce seuil
+                    </small>
+                  </div>
+                </div>
+
+                <div className="stock-info">
+                  <div className="stock-status">
+                    <strong>Statut actuel:</strong>
+                    <span className={`stock-status-badge ${stockStatus}`}>
+                      {stockStatus === 'rupture' ? '🔴 Rupture de stock' :
+                       stockStatus === 'stock_faible' ? '🟡 Stock faible' : '🟢 Stock disponible'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="article-modal-actions">
