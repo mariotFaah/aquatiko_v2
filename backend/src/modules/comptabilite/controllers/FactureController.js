@@ -117,6 +117,71 @@ export class FactureController {
       errorResponse(res, error.message);
     }
   }
+
+   async enregistrerPaiement(req, res) {
+    try {
+      const { id } = req.params;
+      const paiementData = {
+        ...req.body,
+        numero_facture: parseInt(id)
+      };
+
+      const resultat = await this.facturationService.enregistrerPaiement(paiementData);
+      
+      createdResponse(res, resultat, 'Paiement enregistré avec succès');
+    } catch (error) {
+      errorResponse(res, error.message);
+    }
+  }
+
+  // 🆕 NOUVELLE MÉTHODE : Historique des paiements d'une facture
+  async getHistoriquePaiements(req, res) {
+    try {
+      const { id } = req.params;
+      const historique = await this.facturationService.getHistoriquePaiements(id);
+      
+      successResponse(res, historique, 'Historique des paiements récupéré');
+    } catch (error) {
+      errorResponse(res, error.message);
+    }
+  }
+
+  // 🆕 NOUVELLE MÉTHODE : Calculer les pénalités de retard
+  async calculerPenalites(req, res) {
+    try {
+      const { id } = req.params;
+      const penalites = await this.facturationService.calculerPenalites(id);
+      
+      successResponse(res, penalites, 'Pénalités calculées');
+    } catch (error) {
+      errorResponse(res, error.message);
+    }
+  }
+
+  // 🆕 NOUVELLE MÉTHODE : Configurer le paiement flexible
+  async configurerPaiement(req, res) {
+    try {
+      const { id } = req.params;
+      const config = req.body;
+      
+      const factureConfig = await this.facturationService.configurerPaiementFlexible(id, config);
+      
+      successResponse(res, factureConfig, 'Configuration de paiement mise à jour');
+    } catch (error) {
+      errorResponse(res, error.message);
+    }
+  }
+
+  // 🆕 NOUVELLE MÉTHODE : Récupérer les factures en retard
+  async getFacturesEnRetard(req, res) {
+    try {
+      const facturesEnRetard = await this.facturationService.verifierFacturesEnRetard();
+      
+      successResponse(res, facturesEnRetard, 'Factures en retard récupérées');
+    } catch (error) {
+      errorResponse(res, error.message);
+    }
+  }
 }
 
 export default FactureController;

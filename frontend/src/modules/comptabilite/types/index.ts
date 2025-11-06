@@ -2,6 +2,16 @@
 import type { Tiers } from '../../../types/shared';
 export type { Tiers };
 
+export interface PaiementFlexibleConfig {
+  type_paiement: 'comptant' | 'flexible' | 'acompte' | 'echeance';
+  date_finale_paiement: string; 
+  montant_minimum_paiement: number; 
+  penalite_retard: number; 
+  montant_acompte: number; 
+  mode_paiement_acompte: string; 
+}
+
+
 export interface LigneFacture {
   id_ligne?: number;
   numero_facture?: number;
@@ -93,18 +103,53 @@ export interface Facture {
   total_ht: number;
   total_tva: number;
   total_ttc: number;
-  statut: 'brouillon' | 'validee' | 'annulee';
+  statut: 'brouillon' | 'validee' | 'annulee' | 'payee' | 'partiellement_payee' | 'en_retard' | 'non_payee';
   nom_tiers?: string;
   adresse?: string;
   email?: string;
   telephone?: string;
   type_tiers?: 'client' | 'fournisseur';
+  numero_tiers?: string;
   devise?: string;
   taux_change?: number;
   notes?: string;
   lignes: LigneFacture[];
+  
+  // NOUVELLES PROPRIÉTÉS PAIEMENT FLEXIBLE
+  type_paiement?: 'comptant' | 'flexible' | 'acompte' | 'echeance';
+  date_finale_paiement?: string;
+  montant_minimum_paiement?: number;
+  penalite_retard?: number;
+  montant_acompte?: number;
+  mode_paiement_acompte?: string;
+  
+  // STATUTS DE PAIEMENT - CORRIGÉ (avec deux 'e')
+  montant_paye?: number;
+  montant_restant?: number;
+  statut_paiement?: 'non_payee' | 'partiellement_payee' | 'payee' | 'en_retard';
+  
   created_at?: string;
   updated_at?: string;
+}
+
+export interface FactureAvecPaiement extends Omit<Facture, 'type_paiement' | 'statut_paiement' | 'montant_paye' | 'montant_restant'> {
+  // CORRECTION : utiliser les mêmes noms que dans Facture (avec deux 'e')
+  statut_paiement: 'non_payee' | 'partiellement_payee' | 'payee' | 'en_retard';
+  type_paiement: 'comptant' | 'flexible' | 'acompte' | 'echeance';
+  montant_paye: number;
+  montant_restant: number;
+  date_finale_paiement?: string;
+  montant_minimum_paiement?: number;
+  penalite_retard?: number;
+  historique_paiements?: {
+    paiements: Paiement[];
+    resume: {
+      total_paye: number;
+      nombre_paiements: number;
+      premier_paiement: string | null;
+      dernier_paiement: string | null;
+    };
+  };
 }
 
 export interface FactureFormData {

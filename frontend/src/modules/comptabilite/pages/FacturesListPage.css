@@ -1,123 +1,185 @@
+/* FacturesListPage.css - Version simplifiée sans indicateurs */
+
 .factures-list-page {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  padding: 1.5rem;
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  background-color: #f8f9fa;
+  min-height: 100vh;
 }
 
-/* En-tête */
+/* Header */
 .factures-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 30px;
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
 }
 
 .factures-title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #111827;
-  margin: 0;
+  color: #2c3e50;
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin: 0 0 8px 0;
 }
 
 .factures-subtitle {
-  color: #6b7280;
-  margin-top: 0.25rem;
-  margin-bottom: 0;
+  color: #7f8c8d;
+  font-size: 1.1rem;
+  margin: 0;
+  font-weight: 400;
 }
 
 .factures-new-button {
-  background-color: #2563eb;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 0.5rem;
-  font-weight: 500;
+  padding: 12px 24px;
+  border-radius: 8px;
   text-decoration: none;
-  transition: background-color 0.2s;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .factures-new-button:hover {
-  background-color: #1d4ed8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  color: white;
+  text-decoration: none;
 }
 
-/* Filtres */
+/* Filtres et Recherche */
 .factures-filters {
-  background-color: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  padding: 1rem;
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  margin-bottom: 25px;
+}
+
+.factures-search {
+  margin-bottom: 20px;
+}
+
+.factures-search-input {
+  width: 100%;
+  max-width: 400px;
+  padding: 12px 16px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: #f8f9fa;
+}
+
+.factures-search-input:focus {
+  outline: none;
+  border-color: #3498db;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
 
 .factures-filter-buttons {
   display: flex;
-  gap: 1rem;
+  gap: 10px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
 }
 
-.factures-filter-button {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 0.5rem;
-  font-weight: 500;
+.factures-filter-button,
+.factures-type-button {
+  padding: 10px 18px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  background: white;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  font-size: 0.9rem;
 }
 
-.factures-filter-button.active {
-  background-color: #2563eb;
+.factures-filter-button.active,
+.factures-type-button.active {
+  background: #3498db;
   color: white;
+  border-color: #3498db;
+  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
 }
 
-.factures-filter-button.inactive {
-  background-color: #f3f4f6;
-  color: #374151;
+.factures-filter-button.inactive:hover,
+.factures-type-button.inactive:hover {
+  border-color: #3498db;
+  background: #f8f9fa;
 }
 
-.factures-filter-button.inactive:hover {
-  background-color: #e5e7eb;
+.factures-type-filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 /* Tableau */
 .factures-table-container {
-  background-color: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
   overflow: hidden;
 }
 
 .factures-table {
   width: 100%;
   border-collapse: collapse;
-}
-
-.factures-table thead {
-  background-color: #f9fafb;
+  font-size: 0.95rem;
 }
 
 .factures-table th {
-  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 16px 12px;
   text-align: left;
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: #6b7280;
+  font-weight: 600;
+  font-size: 0.9rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-bottom: 1px solid #e5e7eb;
+  letter-spacing: 0.5px;
 }
 
-.factures-table tbody tr {
-  background-color: white;
-  transition: background-color 0.2s;
+.factures-table th:first-child {
+  border-top-left-radius: 12px;
 }
 
-.factures-table tbody tr:hover {
-  background-color: #f9fafb;
+.factures-table th:last-child {
+  border-top-right-radius: 12px;
 }
 
 .factures-table td {
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid #e5e7eb;
-  vertical-align: middle;
+  padding: 16px 12px;
+  border-bottom: 1px solid #f1f3f4;
+  vertical-align: top;
+}
+
+.factures-table tr:last-child td {
+  border-bottom: none;
+}
+
+.factures-table tr:hover {
+  background-color: #f8f9fa;
+}
+
+.factures-row-retard {
+  background-color: #fff5f5 !important;
+}
+
+.factures-row-retard:hover {
+  background-color: #ffeaea !important;
 }
 
 /* Cellules spécifiques */
@@ -130,184 +192,368 @@
 }
 
 .factures-cell-actions {
-  min-width: 150px;
+  min-width: 180px;
+}
+
+.factures-cell-number {
+  font-weight: 700;
+  color: #2c3e50;
+  font-size: 1.1rem;
+}
+
+.factures-cell-devise {
+  font-size: 0.8rem;
+  color: #7f8c8d;
+  margin-top: 4px;
+}
+
+.factures-cell-client-name {
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 4px;
+}
+
+.factures-cell-client-details {
+  font-size: 0.85rem;
+  color: #7f8c8d;
+}
+
+.factures-cell-echeance {
+  font-size: 0.8rem;
+  color: #7f8c8d;
+  margin-top: 6px;
+}
+
+.factures-cell-date {
+  color: #5a6c7d;
+  font-weight: 500;
+}
+
+.factures-cell-amount {
+  font-weight: 700;
+  color: #27ae60;
+  font-size: 1.05rem;
+}
+
+.factures-cell-paye {
+  font-size: 0.8rem;
+  color: #7f8c8d;
+  margin-top: 4px;
 }
 
 /* Badges */
 .factures-badge {
-  display: inline-flex;
-  padding: 0.25rem 0.5rem;
-  font-size: 0.75rem;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
   font-weight: 600;
-  border-radius: 9999px;
-  text-transform: capitalize;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  display: inline-block;
 }
 
-/* Couleurs des statuts */
 .factures-badge-validee {
-  background-color: #dcfce7;
-  color: #166534;
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
 }
 
 .factures-badge-brouillon {
-  background-color: #fef3c7;
-  color: #92400e;
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
 }
 
 .factures-badge-annulee {
-  background-color: #fee2e2;
-  color: #991b1b;
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.factures-badge-partiel {
+  background: #cce7ff;
+  color: #004085;
+  border: 1px solid #b3d7ff;
+}
+
+.factures-badge-payee {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.factures-badge-retard {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.factures-badge-non-payee {
+  background: #e2e3e5;
+  color: #383d41;
+  border: 1px solid #d6d8db;
 }
 
 .factures-badge-facture {
-  background-color: #dbeafe;
-  color: #1e40af;
+  background: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
 }
 
 .factures-badge-proforma {
-  background-color: #e9d5ff;
-  color: #7e22ce;
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
 }
 
 .factures-badge-avoir {
-  background-color: #fed7aa;
-  color: #c2410c;
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
 }
 
-.factures-badge-default {
-  background-color: #f3f4f6;
-  color: #374151;
+/* Badges de paiement */
+.factures-paiement-badge {
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  display: inline-block;
+}
+
+.factures-paiement-comptant {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.factures-paiement-flexible {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+.factures-paiement-acompte {
+  background: #cce7ff;
+  color: #004085;
+  border: 1px solid #b3d7ff;
+}
+
+.factures-paiement-echeance {
+  background: #e2e3e5;
+  color: #383d41;
+  border: 1px solid #d6d8db;
+}
+
+/* Progression */
+.factures-cell-progression {
+  min-width: 120px;
+}
+
+.factures-progression-bar {
+  width: 100%;
+  height: 10px;
+  background: #e9ecef;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.factures-progression-fill {
+  height: 100%;
+  transition: width 0.5s ease;
+  border-radius: 5px;
+}
+
+.factures-progression-fill.empty {
+  background: #e9ecef;
+}
+
+.factures-progression-fill.partial {
+  background: linear-gradient(90deg, #ffc107, #ffb300);
+}
+
+.factures-progression-fill.complete {
+  background: linear-gradient(90deg, #28a745, #20c997);
+}
+
+.factures-progression-text {
+  font-size: 0.8rem;
+  color: #6c757d;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Jours restants */
+.factures-jours-restants {
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+.factures-jours-restants.normal {
+  background: #d4edda;
+  color: #155724;
+}
+
+.factures-jours-restants.warning {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.factures-jours-restants.retard {
+  background: #f8d7da;
+  color: #721c24;
 }
 
 /* Actions */
 .factures-actions {
   display: flex;
-  gap: 0.5rem;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
 .factures-action-link {
-  font-size: 0.875rem;
-  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 6px;
   text-decoration: none;
-  transition: color 0.2s;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .factures-action-view {
-  color: #2563eb;
-}
-
-.factures-action-view:hover {
-  color: #1e40af;
+  background: #17a2b8;
+  color: white;
 }
 
 .factures-action-edit {
-  color: #059669;
+  background: #ffc107;
+  color: #212529;
 }
 
-.factures-action-edit:hover {
-  color: #047857;
+.factures-action-validate {
+  background: #28a745;
+  color: white;
 }
 
-.factures-action-delete {
-  color: #dc2626;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 0.875rem;
-  font-weight: 500;
+.factures-action-cancel {
+  background: #dc3545;
+  color: white;
 }
 
-.factures-action-delete:hover {
-  color: #b91c1c;
+.factures-action-payment {
+  background: #6f42c1;
+  color: white;
+}
+
+.factures-action-link:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  text-decoration: none;
+  color: white;
 }
 
 /* État vide */
 .factures-empty {
   text-align: center;
-  padding: 3rem 1rem;
+  padding: 60px 20px;
+  color: #6c757d;
 }
 
 .factures-empty-text {
-  color: #6b7280;
-  font-size: 1.125rem;
-  margin-bottom: 1rem;
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+  color: #7f8c8d;
 }
 
 .factures-empty-button {
-  display: inline-block;
-  background-color: #2563eb;
+  background: #3498db;
   color: white;
-  padding: 0.5rem 1.5rem;
-  border-radius: 0.5rem;
+  padding: 12px 24px;
+  border-radius: 8px;
   text-decoration: none;
-  font-weight: 500;
-  transition: background-color 0.2s;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: inline-block;
 }
 
 .factures-empty-button:hover {
-  background-color: #1d4ed8;
+  background: #2980b9;
+  color: white;
+  text-decoration: none;
+  transform: translateY(-2px);
 }
 
-/* État de chargement */
+/* Loading */
 .factures-loading {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 16rem;
+  height: 400px;
 }
 
 .factures-loading-text {
-  font-size: 1.125rem;
-  color: #6b7280;
+  font-size: 1.2rem;
+  color: #6c757d;
 }
 
 /* Responsive */
-@media (max-width: 1024px) {
+@media (max-width: 1200px) {
   .factures-table-container {
     overflow-x: auto;
   }
   
   .factures-table {
-    min-width: 800px;
+    min-width: 1000px;
   }
 }
 
 @media (max-width: 768px) {
   .factures-list-page {
-    padding: 1rem;
-    gap: 1rem;
+    padding: 15px;
   }
   
   .factures-header {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
+    gap: 20px;
+    text-align: center;
   }
   
-  .factures-filter-buttons {
-    flex-wrap: wrap;
-    gap: 0.5rem;
+  .factures-filter-buttons,
+  .factures-type-filters {
+    justify-content: center;
   }
   
-  .factures-filter-button {
-    font-size: 0.875rem;
-    padding: 0.375rem 0.75rem;
+  .factures-actions {
+    flex-direction: column;
+    gap: 4px;
   }
   
-  .factures-table th,
-  .factures-table td {
-    padding: 0.75rem 1rem;
+  .factures-action-link {
+    justify-content: center;
+    font-size: 0.75rem;
   }
 }
 
 @media (max-width: 480px) {
-  .factures-actions {
+  .factures-filter-buttons,
+  .factures-type-filters {
     flex-direction: column;
-    gap: 0.25rem;
   }
   
-  .factures-action-link,
-  .factures-action-delete {
-    font-size: 0.8rem;
+  .factures-filter-button,
+  .factures-type-button {
+    width: 100%;
+    text-align: center;
   }
 }

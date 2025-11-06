@@ -1,14 +1,18 @@
 import * as React from 'react';
 import './CalculsFacture.css';
 
-interface CalculsFactureProps {
+// Dans CalculsFacture.tsx, ajoutez ces props
+export interface CalculsFactureProps {
   totalHT: number;
   totalTVA: number;
   totalTTC: number;
   echeance: string;
   reglement: string;
-  devise?: string;
-  taux_change?: number;
+  devise: string;
+  taux_change: number;
+  typePaiement?: 'comptant' | 'flexible' | 'acompte' | 'echeance';
+  montantAcompte?: number;
+  dateFinalePaiement?: string;
 }
 
 export const CalculsFacture: React.FC<CalculsFactureProps> = ({

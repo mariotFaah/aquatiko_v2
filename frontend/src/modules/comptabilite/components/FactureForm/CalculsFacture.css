@@ -125,3 +125,70 @@
   color: #166534;
   font-size: 1.125rem;
 }
+
+/* Dans CalculsFacture.css */
+.calculs-paiement-info {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.calculs-paiement-info h4 {
+  margin: 0 0 12px 0;
+  color: #495057;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.calculs-paiement-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.calculs-paiement-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.calculs-paiement-item:last-child {
+  border-bottom: none;
+}
+
+.calculs-paiement-item span {
+  color: #6c757d;
+  font-size: 14px;
+}
+
+.calculs-paiement-item strong {
+  color: #495057;
+  font-size: 14px;
+}
+
+.calculs-pourcentage {
+  color: #6c757d;
+  font-size: 12px;
+  margin-left: 8px;
+}
+
+/* Styles pour les types de paiement */
+.calculs-paiement-type-comptant {
+  color: #28a745;
+}
+
+.calculs-paiement-type-flexible {
+  color: #ffc107;
+}
+
+.calculs-paiement-type-acompte {
+  color: #17a2b8;
+}
+
+.calculs-paiement-type-echeance {
+  color: #6f42c1;
+}

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { Tiers, Article, FactureFormData, Facture, TauxChange } from '../../types';
+import type { Tiers, Article, FactureFormData, Facture, TauxChange, PaiementFlexibleConfig } from '../../types';
 import { comptabiliteApi } from '../../services/api';
 import { LigneFactureRow } from './LigneFactureRow';
 import { CalculsFacture } from './CalculsFacture';
@@ -36,6 +36,16 @@ export const FactureForm: React.FC = () => {
   
   // Utilisation du hook AlertDialog
   const { isOpen, message, title, type, alert, close } = useAlertDialog();
+
+  // État pour la configuration du paiement flexible
+  const [paiementFlexible, setPaiementFlexible] = useState<PaiementFlexibleConfig>({
+    type_paiement: 'comptant',
+    date_finale_paiement: '',
+    montant_minimum_paiement: 0,
+    penalite_retard: 0,
+    montant_acompte: 0,
+    mode_paiement_acompte: 'virement'
+  });
 
   const [formData, setFormData] = useState<FactureFormData>({
     facture: {
@@ -79,7 +89,16 @@ export const FactureForm: React.FC = () => {
         total_ttc: totalTTC
       }
     }));
-  }, [formData.lignes]);
+
+    // Mettre à jour le montant d'acompte si le type est "acompte"
+    if (paiementFlexible.type_paiement === 'acompte') {
+      const acompteCalcul = totalTTC * 0.3; // 30% par défaut
+      setPaiementFlexible(prev => ({
+        ...prev,
+        montant_acompte: safeToFixed(acompteCalcul)
+      }));
+    }
+  }, [formData.lignes, paiementFlexible.type_paiement]);
 
   const loadInitialData = async () => {
     try {
@@ -102,7 +121,6 @@ export const FactureForm: React.FC = () => {
     }
   };
 
- 
   const convertirPrix = (prixMGA: number, deviseCible: string): number => {
     if (deviseCible === 'MGA') {
       return prixMGA;
@@ -209,6 +227,13 @@ export const FactureForm: React.FC = () => {
     }));
   };
 
+  const handlePaiementFlexibleChange = (field: keyof PaiementFlexibleConfig, value: any) => {
+    setPaiementFlexible(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
   const handleLigneChange = (index: number, field: string, value: any) => {
     setFormData(prev => {
       const newLignes = [...prev.lignes];
@@ -298,6 +323,54 @@ export const FactureForm: React.FC = () => {
     });
   };
 
+  const validerConfigurationPaiement = (): boolean => {
+    const { type_paiement, date_finale_paiement, montant_minimum_paiement } = paiementFlexible;
+
+    if (type_paiement === 'flexible') {
+      if (!date_finale_paiement) {
+        alert('La date finale de paiement est requise pour le paiement flexible', {
+          type: 'warning',
+          title: 'Configuration incomplète'
+        });
+        return false;
+      }
+      if (montant_minimum_paiement <= 0) {
+        alert('Le montant minimum de paiement doit être supérieur à 0', {
+          type: 'warning',
+          title: 'Configuration incomplète'
+        });
+        return false;
+      }
+    }
+
+    if (type_paiement === 'acompte') {
+      if (paiementFlexible.montant_acompte <= 0) {
+        alert('Le montant d\'acompte doit être supérieur à 0', {
+          type: 'warning',
+          title: 'Configuration incomplète'
+        });
+        return false;
+      }
+      if (!paiementFlexible.mode_paiement_acompte) {
+        alert('Le mode de paiement de l\'acompte est requis', {
+          type: 'warning',
+          title: 'Configuration incomplète'
+        });
+        return false;
+      }
+    }
+
+    if (type_paiement === 'echeance' && !date_finale_paiement) {
+      alert('La date d\'échéance est requise', {
+        type: 'warning',
+        title: 'Configuration incomplète'
+      });
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent, statut: 'brouillon' | 'validee' = 'brouillon') => {
     e.preventDefault();
     
@@ -329,6 +402,11 @@ export const FactureForm: React.FC = () => {
       return;
     }
 
+    // Validation de la configuration du paiement flexible
+    if (!validerConfigurationPaiement()) {
+      return;
+    }
+
     setSubmitting(true);
 
     const currentDevise = getCurrentDevise();
@@ -349,6 +427,26 @@ export const FactureForm: React.FC = () => {
     const totalTVA_MGA = convertirVersMGA(formData.facture.total_tva, currentDevise);
     const totalTTC_MGA = convertirVersMGA(formData.facture.total_ttc, currentDevise);
 
+    // Préparer les données de paiement flexible
+    const donneesPaiementFlexible: any = {
+      type_paiement: paiementFlexible.type_paiement
+    };
+
+    if (paiementFlexible.type_paiement === 'flexible') {
+      donneesPaiementFlexible.date_finale_paiement = paiementFlexible.date_finale_paiement;
+      donneesPaiementFlexible.montant_minimum_paiement = safeToFixed(
+        convertirVersMGA(paiementFlexible.montant_minimum_paiement, currentDevise)
+      );
+      donneesPaiementFlexible.penalite_retard = paiementFlexible.penalite_retard;
+    } else if (paiementFlexible.type_paiement === 'acompte') {
+      donneesPaiementFlexible.montant_acompte = safeToFixed(
+        convertirVersMGA(paiementFlexible.montant_acompte, currentDevise)
+      );
+      donneesPaiementFlexible.mode_paiement_acompte = paiementFlexible.mode_paiement_acompte;
+    } else if (paiementFlexible.type_paiement === 'echeance') {
+      donneesPaiementFlexible.date_finale_paiement = paiementFlexible.date_finale_paiement;
+    }
+
     const payload = {
       date: formData.facture.date,
       type_facture: formData.facture.type_facture,
@@ -361,10 +459,12 @@ export const FactureForm: React.FC = () => {
       total_ht: safeToFixed(totalHT_MGA),
       total_tva: safeToFixed(totalTVA_MGA),
       total_ttc: safeToFixed(totalTTC_MGA),
-      lignes: lignesPourBackend
+      lignes: lignesPourBackend,
+      // Ajouter les données de paiement flexible
+      ...donneesPaiementFlexible
     };
 
-    console.log('📤 Données envoyées à l\'API (prix convertis en MGA):', payload);
+    console.log('📤 Données envoyées à l\'API (avec paiement flexible):', payload);
 
     try {
       const nouvelleFacture = await comptabiliteApi.createFacture(payload);
@@ -442,6 +542,14 @@ export const FactureForm: React.FC = () => {
           remise: 0
         }
       ]
+    });
+    setPaiementFlexible({
+      type_paiement: 'comptant',
+      date_finale_paiement: '',
+      montant_minimum_paiement: 0,
+      penalite_retard: 0,
+      montant_acompte: 0,
+      mode_paiement_acompte: 'virement'
     });
     setShowValidation(false);
     setFactureCreee(null);
@@ -552,6 +660,132 @@ export const FactureForm: React.FC = () => {
         </div>
       </div>
 
+      {/* Section Configuration Paiement Flexible */}
+      <div className="facture-paiement-section">
+        <h3 className="facture-section-title">Configuration du Paiement</h3>
+        <div className="facture-paiement-grid">
+          <div className="facture-field">
+            <label className="facture-label">Type de paiement</label>
+            <select
+              value={paiementFlexible.type_paiement}
+              onChange={(e) => handlePaiementFlexibleChange('type_paiement', e.target.value)}
+              className="facture-select"
+              disabled={showValidation}
+            >
+              <option value="comptant">💳 Paiement comptant (immédiat)</option>
+              <option value="flexible">🔄 Paiement flexible (échelonné)</option>
+              <option value="acompte">💰 Acompte (partiel + solde)</option>
+              <option value="echeance">📅 Échéance (paiement unique)</option>
+            </select>
+          </div>
+
+          {/* Configuration pour paiement flexible */}
+          {paiementFlexible.type_paiement === 'flexible' && (
+            <>
+              <div className="facture-field">
+                <label className="facture-label">Date finale de paiement</label>
+                <input
+                  type="date"
+                  value={paiementFlexible.date_finale_paiement}
+                  onChange={(e) => handlePaiementFlexibleChange('date_finale_paiement', e.target.value)}
+                  className="facture-input"
+                  disabled={showValidation}
+                  min={formData.facture.date}
+                />
+              </div>
+              <div className="facture-field">
+                <label className="facture-label">Montant minimum par paiement ({currentDevise})</label>
+                <input
+                  type="number"
+                  value={paiementFlexible.montant_minimum_paiement}
+                  onChange={(e) => handlePaiementFlexibleChange('montant_minimum_paiement', Number(e.target.value))}
+                  className="facture-input"
+                  disabled={showValidation}
+                  min="0"
+                  step="1000"
+                />
+              </div>
+              <div className="facture-field">
+                <label className="facture-label">Pénalité de retard (%)</label>
+                <input
+                  type="number"
+                  value={paiementFlexible.penalite_retard}
+                  onChange={(e) => handlePaiementFlexibleChange('penalite_retard', Number(e.target.value))}
+                  className="facture-input"
+                  disabled={showValidation}
+                  min="0"
+                  max="20"
+                  step="0.5"
+                />
+              </div>
+            </>
+          )}
+
+          {/* Configuration pour acompte */}
+          {paiementFlexible.type_paiement === 'acompte' && (
+            <>
+              <div className="facture-field">
+                <label className="facture-label">Montant d'acompte ({currentDevise})</label>
+                <input
+                  type="number"
+                  value={paiementFlexible.montant_acompte}
+                  onChange={(e) => handlePaiementFlexibleChange('montant_acompte', Number(e.target.value))}
+                  className="facture-input"
+                  disabled={showValidation}
+                  min="0"
+                  max={formData.facture.total_ttc}
+                  step="1000"
+                />
+                <small className="facture-help-text">
+                  {paiementFlexible.montant_acompte > 0 && (
+                    <>Soit {((paiementFlexible.montant_acompte / formData.facture.total_ttc) * 100).toFixed(1)}% du total</>
+                  )}
+                </small>
+              </div>
+              <div className="facture-field">
+                <label className="facture-label">Mode de paiement acompte</label>
+                <select
+                  value={paiementFlexible.mode_paiement_acompte}
+                  onChange={(e) => handlePaiementFlexibleChange('mode_paiement_acompte', e.target.value)}
+                  className="facture-select"
+                  disabled={showValidation}
+                >
+                  <option value="virement">Virement</option>
+                  <option value="cheque">Chèque</option>
+                  <option value="espece">Espèce</option>
+                  <option value="carte">Carte</option>
+                </select>
+              </div>
+            </>
+          )}
+
+          {/* Configuration pour échéance */}
+          {paiementFlexible.type_paiement === 'echeance' && (
+            <div className="facture-field">
+              <label className="facture-label">Date d'échéance</label>
+              <input
+                type="date"
+                value={paiementFlexible.date_finale_paiement}
+                onChange={(e) => handlePaiementFlexibleChange('date_finale_paiement', e.target.value)}
+                className="facture-input"
+                disabled={showValidation}
+                min={formData.facture.date}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Résumé du type de paiement */}
+        <div className="facture-paiement-resume">
+          <div className={`facture-paiement-badge facture-paiement-${paiementFlexible.type_paiement}`}>
+            {paiementFlexible.type_paiement === 'comptant' && '💳 Paiement immédiat à la validation'}
+            {paiementFlexible.type_paiement === 'flexible' && '🔄 Paiements échelonnés acceptés'}
+            {paiementFlexible.type_paiement === 'acompte' && `💰 Acompte de ${paiementFlexible.montant_acompte} ${currentDevise}`}
+            {paiementFlexible.type_paiement === 'echeance' && '📅 Paiement unique à échéance'}
+          </div>
+        </div>
+      </div>
+
       <div className="facture-details">
         <div className="facture-field">
           <label className="facture-label">Devise</label>
@@ -659,6 +893,26 @@ export const FactureForm: React.FC = () => {
         devise={currentDevise}
         taux_change={formData.facture.taux_change || 1.0}
       />
+
+      {/* Section pour les informations de paiement flexible */}
+      <div className="facture-paiement-resume-section">
+        <h3 className="facture-section-title">Configuration du Paiement</h3>
+        <div className={`facture-paiement-badge facture-paiement-${paiementFlexible.type_paiement}`}>
+          {paiementFlexible.type_paiement === 'comptant' && '💳 Paiement immédiat à la validation'}
+          {paiementFlexible.type_paiement === 'flexible' && `🔄 Paiements échelonnés jusqu'au ${new Date(paiementFlexible.date_finale_paiement).toLocaleDateString('fr-FR')}`}
+          {paiementFlexible.type_paiement === 'acompte' && `💰 Acompte de ${paiementFlexible.montant_acompte.toLocaleString('fr-FR')} ${currentDevise} requis`}
+          {paiementFlexible.type_paiement === 'echeance' && `📅 Paiement unique le ${new Date(paiementFlexible.date_finale_paiement).toLocaleDateString('fr-FR')}`}
+        </div>
+        
+        {paiementFlexible.type_paiement === 'acompte' && paiementFlexible.montant_acompte > 0 && formData.facture.total_ttc > 0 && (
+          <div className="facture-acompte-details">
+            <small>
+              Solde à payer: {(formData.facture.total_ttc - paiementFlexible.montant_acompte).toLocaleString('fr-FR')} {currentDevise}
+              ({(((formData.facture.total_ttc - paiementFlexible.montant_acompte) / formData.facture.total_ttc) * 100).toFixed(1)}% du total)
+            </small>
+          </div>
+        )}
+      </div>
 
       <div className="facture-actions">
         {!showValidation ? (
