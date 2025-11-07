@@ -19,6 +19,7 @@ export const paiementApi = {
     const data = await res.json();
     return Array.isArray(data.data) ? data.data.map(parsePaiement) : [];
   },
+  
 
   // Récupérer les paiements d'une facture
   getPaiementsByFacture: async (numero_facture: number): Promise<Paiement[]> => {

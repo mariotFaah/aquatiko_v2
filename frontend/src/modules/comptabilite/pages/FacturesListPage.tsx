@@ -233,10 +233,7 @@ export const FacturesListPage: React.FC = () => {
             { key: 'all', label: '📋 Toutes' },
             { key: 'validee', label: '✅ Validées' },
             { key: 'brouillon', label: '📝 Brouillons' },
-            { key: 'annulee', label: '❌ Annulées' },
-            { key: 'payee', label: '💰 Payées' },
-            { key: 'partiellement_payee', label: '🔄 Partielles' },
-            { key: 'en_retard', label: '⏰ En retard' }
+            { key: 'annulee', label: '❌ Annulées' }
           ].map(({ key, label }) => (
             <button
               key={key}
@@ -392,12 +389,6 @@ export const FacturesListPage: React.FC = () => {
                           ❌ Annuler
                         </button>
                       )}
-                      <Link
-                        to={`/comptabilite/factures/${facture.numero_facture}/paiements`}
-                        className="factures-action-link factures-action-payment"
-                      >
-                        💳 Payer
-                      </Link>
                     </div>
                   </td>
                 </tr>

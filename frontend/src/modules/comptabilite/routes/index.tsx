@@ -20,6 +20,7 @@ import EcheancesPage from '../pages/EcheancesPage';
 import CompteResultatPage from '../pages/CompteResultatPage';
 import TresoreriePage from '../pages/TresoreriePage';
 import DeclarationTVAPage from '../pages/DeclarationTVAPage';
+import SuiviPaiementsPage from '../pages/SuiviPaiementsPage';
 
 // Page placeholder restante
 const GrandLivrePage = () => (
@@ -110,7 +111,10 @@ export const comptabiliteRoutes: RouteObject[] = [
         path: 'echeances',
         element: <EcheancesPage />,
       },
-      
+      {
+        path: 'suivi-paiements',
+        element: <SuiviPaiementsPage />,
+      },
       // Rapports financiers - MAINTENANT AVEC LES VRAIES PAGES
       {
         path: 'rapports',

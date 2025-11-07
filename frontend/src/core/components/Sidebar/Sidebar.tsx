@@ -69,6 +69,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
         { name: 'Bilan', path: '/comptabilite/bilan', icon: '📊' },
         { name: 'Declaration TVA', path:'/comptabilite/tva', icon:'🧾'},
         { name: 'Taux Change', path: '/comptabilite/taux-change', icon: '💹' },
+        {name: 'Suivi Paiements', path: '/comptabilite/suivi-paiements', icon: '📋' }
       ],
     },
     {
