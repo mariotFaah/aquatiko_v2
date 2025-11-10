@@ -21,7 +21,7 @@ interface FormDataState {
     id_tiers: number;
     echeance: string;
     reglement: 'virement' | 'cheque' | 'espece' | 'carte';
-    statut: 'brouillon' | 'validee' | 'annulee';
+    statut: Facture['statut'];
     notes: string;
   };
   lignes: Array<{

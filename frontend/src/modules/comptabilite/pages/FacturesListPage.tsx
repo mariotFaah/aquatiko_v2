@@ -203,18 +203,7 @@ export const FacturesListPage: React.FC = () => {
 
   return (
     <div className="factures-list-page">
-      <div className="factures-header">
-        <div>
-          <h1 className="factures-title">Gestion des Factures</h1>
-          <p className="factures-subtitle">Créez et gérez vos factures, proformas et avoirs</p>
-        </div>
-        <Link
-          to="/comptabilite/factures/nouvelle"
-          className="factures-new-button"
-        >
-          + Nouvelle Facture
-        </Link>
-      </div>
+      
 
       {/* Filtres et Recherche */}
       <div className="factures-filters">
@@ -262,6 +251,12 @@ export const FacturesListPage: React.FC = () => {
           ))}
         </div>
       </div>
+      <Link
+          to="/comptabilite/factures/nouvelle"
+          className="factures-new-button"
+        >
+          + Nouvelle Facture
+        </Link>
 
       {/* Tableau des factures */}
       <div className="factures-table-container">
