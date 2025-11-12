@@ -1,23 +1,26 @@
 // src/modules/comptabilite/controllers/EmailController.js
 import EmailService from '../services/EmailService.js';
 
-class EmailController {
+export class EmailController {
   constructor() {
     this.emailService = new EmailService();
   }
 
   async envoyerRelance(req, res) {
     try {
+      console.log('📧 Requête relance reçue:', req.body);
+      
       const { numero_facture, email_client, nom_client, montant, jours_retard, message_personnalise } = req.body;
 
+      // Validation des données requises
       if (!numero_facture || !email_client || !nom_client || !montant) {
         return res.status(400).json({
           success: false,
-          message: 'Données manquantes pour l\'envoi de relance'
+          message: 'Données manquantes: numero_facture, email_client, nom_client et montant sont requis'
         });
       }
 
-      const result = await this.emailService.envoyerRelance({
+      const resultat = await this.emailService.envoyerRelance({
         numero_facture,
         email_client,
         nom_client,
@@ -28,12 +31,12 @@ class EmailController {
 
       res.json({
         success: true,
-        message: `Relance envoyée à ${nom_client} (${email_client})`,
-        data: result
+        message: 'Relance envoyée avec succès',
+        data: resultat
       });
 
     } catch (error) {
-      console.error('Erreur envoi relance:', error);
+      console.error('❌ Erreur EmailController.envoyerRelance:', error);
       res.status(500).json({
         success: false,
         message: error.message
@@ -43,25 +46,27 @@ class EmailController {
 
   async envoyerRelancesGroupees(req, res) {
     try {
+      console.log('📧 Requête relances groupées reçue:', req.body.factures?.length, 'factures');
+      
       const { factures } = req.body;
 
-      if (!factures || !Array.isArray(factures) || factures.length === 0) {
+      if (!factures || !Array.isArray(factures)) {
         return res.status(400).json({
           success: false,
-          message: 'Liste de factures manquante ou vide'
+          message: 'Tableau de factures requis'
         });
       }
 
-      const result = await this.emailService.envoyerRelancesGroupees(factures);
+      const resultat = await this.emailService.envoyerRelancesGroupees(factures);
 
       res.json({
         success: true,
-        message: `${result.reussis}/${result.total} relance(s) envoyée(s) avec succès`,
-        data: result
+        message: `Relances groupées envoyées: ${resultat.reussis}/${resultat.total} réussies`,
+        data: resultat
       });
 
     } catch (error) {
-      console.error('Erreur envoi relances groupées:', error);
+      console.error('❌ Erreur EmailController.envoyerRelancesGroupees:', error);
       res.status(500).json({
         success: false,
         message: error.message
@@ -69,23 +74,18 @@ class EmailController {
     }
   }
 
-  async testEmail(req, res) {
+  async testerConfiguration(req, res) {
     try {
-      const result = await this.emailService.envoyerRelance({
-        numero_facture: 999,
-        email_client: 'test@aquatiko.mg',
-        nom_client: 'Client Test',
-        montant: 100000,
-        jours_retard: 30
-      });
-
+      const resultat = await this.emailService.testConfiguration();
+      
       res.json({
         success: true,
-        message: 'Email de test envoyé avec succès',
-        data: result
+        message: 'Configuration email testée avec succès',
+        data: resultat
       });
 
     } catch (error) {
+      console.error('❌ Erreur test configuration email:', error);
       res.status(500).json({
         success: false,
         message: error.message
@@ -94,4 +94,5 @@ class EmailController {
   }
 }
 
+// ✅ EXPORT CORRECT
 export default EmailController;

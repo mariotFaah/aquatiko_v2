@@ -1,25 +1,29 @@
 // src/modules/comptabilite/services/EmailService.js
+// 1CFTXE7KMWLKNNZ5GPAV5P4M
+import nodemailer from 'nodemailer';
+
 class EmailService {
   constructor() {
-    // Configuration SMTP (à adapter selon votre serveur email)
+    // Configuration SMTP
     this.config = {
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
+      host: process.env.SMTP_HOST || 'smtp.sendgrid.net',
       port: process.env.SMTP_PORT || 587,
       secure: false,
       auth: {
-        user: process.env.SMTP_USER || 'lyamkim3@gmail.com',
-        pass: process.env.SMTP_PASS || 'mitia2018'
+        user: process.env.SMTP_USER || 'apikey',
+        pass: process.env.SENDGRID_API_KEY 
       }
     };
+
+    this.transporter = nodemailer.createTransport(this.config);
   }
 
   async envoyerRelance(relanceData) {
     try {
       const { numero_facture, email_client, nom_client, montant, jours_retard, message_personnalise } = relanceData;
 
-      // Template d'email de relance
       const sujet = this.genererSujetRelance(numero_facture, jours_retard);
-      const message = this.genererMessageRelance({
+      const messageHTML = this.genererMessageRelance({
         numero_facture,
         nom_client,
         montant,
@@ -27,32 +31,30 @@ class EmailService {
         message_personnalise
       });
 
-      // Simulation d'envoi d'email
-      console.log('📧 ENVOI RELANCE EMAIL:');
+      console.log('🚀 ENVOI RÉEL VIA SENDGRID:');
       console.log('À:', email_client);
       console.log('Sujet:', sujet);
-      console.log('Message:', message);
-      console.log('---');
 
-      // Dans un environnement de production, vous utiliseriez nodemailer ou un service d'email
-      // const transporter = nodemailer.createTransport(this.config);
-      // await transporter.sendMail({
-      //   from: '"Aquatiko" <comptabilite@aquatiko.mg>',
-      //   to: email_client,
-      //   subject: sujet,
-      //   html: message
-      // });
+      // ENVOI RÉEL D'EMAIL
+      const resultat = await this.transporter.sendMail({
+        from: '"OMNISERVE EXPERTS" <mariotfanantenana@gmail.com>', // ← L'email que vous avez vérifié
+        to: email_client,
+        subject: sujet,
+        html: messageHTML
+      });
 
-      // Pour le moment, on simule un envoi réussi
+      console.log('✅ EMAIL ENVOYÉ AVEC SUCCÈS!');
+      console.log('Message ID:', resultat.messageId);
+      
       return {
         success: true,
-        message_id: `relance-${numero_facture}-${Date.now()}`,
+        message_id: resultat.messageId,
         destinataire: email_client,
         timestamp: new Date().toISOString()
       };
 
     } catch (error) {
-      console.error('Erreur envoi email:', error);
+      console.error('❌ Erreur envoi email SendGrid:', error);
       throw new Error(`Échec envoi email: ${error.message}`);
     }
   }
@@ -169,7 +171,5 @@ class EmailService {
   }
 }
 
+// ✅ EXPORT UNIQUE
 export default EmailService;
-
-
-export { EmailService };

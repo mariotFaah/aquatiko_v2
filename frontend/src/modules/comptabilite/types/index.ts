@@ -15,6 +15,7 @@ export interface PaiementFlexibleConfig {
 export interface LigneFacture {
   id_ligne?: number;
   numero_facture?: number;
+  id_tiers?:number;
   code_article: string;
   description: string;
   quantite: number;
@@ -422,7 +423,80 @@ export interface AlerteFinanciere {
 }
 
 
+// Ajoutez cette interface dans votre fichier types
+export interface TauxChange {
+  id_taux?: number;
+  devise_source: string;
+  devise_cible: string;
+  taux: number;
+  date_effet: string;
+  actif: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
 
+// Si vous avez besoin de types pour la conversion
+export interface ConversionDevise {
+  montant_original: number;
+  montant_converti: number;
+  devise_source: string;
+  devise_cible: string;
+  taux_applique: number;
+  date_conversion: string;
+}
+
+// Ajoutez ces interfaces
+export interface TauxReelTime {
+  USD: number;
+  EUR: number;
+  date: string;
+  base: string;
+}
+
+export interface ComparisonData {
+  paire: string;
+  tauxLocal: number;
+  tauxReel: number;
+  ecart: number;
+  pourcentageEcart: number;
+}
+
+// Types pour les relances email
+export interface RelanceData {
+  numero_facture: number;
+  email_client: string;
+  nom_client: string;
+  montant: number;
+  jours_retard: number;
+  message_personnalise?: string;
+}
+
+export interface RelanceResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    message_id: string;
+    destinataire: string;
+    timestamp: string;
+  };
+}
+
+export interface RelancesGroupeesResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    total: number;
+    reussis: number;
+    echecs: number;
+    details: Array<{
+      facture: number;
+      client: string;
+      success: boolean;
+      message_id?: string;
+      error?: string;
+    }>;
+  };
+}
 
 // TYPE UTILITAIRE POUR LES FORMULAIRES
 export type FormMode = 'create' | 'edit' | 'view';

@@ -155,61 +155,72 @@ export class JournalService {
   }
 
   async genererEcriturePaiement(paiement) {
-    try {
-      console.log('💰 Génération écriture pour paiement:', paiement.id_paiement);
-      
-      const date = new Date();
-      const prefix = `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}`;
+  try {
+    console.log('💰 Génération écriture pour paiement:', paiement.id_paiement);
+    
+    const date = new Date();
+    const prefix = `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}`;
 
-      const compte = await this.getCompteByModePaiement(paiement.mode_paiement);
-      
-      const ecriture = {
-        numero_ecriture: `${prefix}-PAY-${paiement.id_paiement}`,
-        date: paiement.date_paiement,
-        journal: 'banque',
-        compte: compte,
-        libelle: `Paiement ${paiement.reference || paiement.id_paiement} - ${paiement.mode_paiement}`,
-        debit: paiement.montant,
-        credit: 0,
-        devise: paiement.devise,
-        taux_change: paiement.taux_change,
-        reference: `PAY-${paiement.id_paiement}`
-      };
+    const compte = await this.getCompteByModePaiement(paiement.mode_paiement);
+    
+   
+    const journal = compte === '530000' ? 'caisse' : 'banque';
+    
+    const ecriture = {
+      numero_ecriture: `${prefix}-PAY-${paiement.id_paiement}`,
+      date: paiement.date_paiement,
+      journal: journal,  
+      compte: compte,
+      libelle: `Paiement ${paiement.reference || paiement.id_paiement} - ${paiement.mode_paiement}`,
+      debit: paiement.montant,
+      credit: 0,
+      devise: paiement.devise,
+      taux_change: paiement.taux_change,
+      reference: `PAY-${paiement.id_paiement}`
+    };
 
-      const result = await this.ecritureRepo.create(ecriture);
-      console.log(`✅ Écriture paiement créée: ${ecriture.numero_ecriture}`);
-      return result;
-      
-    } catch (error) {
-      console.error('❌ Erreur génération écriture paiement:', error);
-      throw error;
-    }
+    const result = await this.ecritureRepo.create(ecriture);
+    console.log(`✅ Écriture paiement créée: ${ecriture.numero_ecriture} (journal: ${journal}, compte: ${compte})`);
+    return result;
+    
+  } catch (error) {
+    console.error('❌ Erreur génération écriture paiement:', error);
+    throw error;
   }
+}
 
   async getCompteByModePaiement(mode_paiement) {
-    try {
-      const mapping = {
-        'espece': 'caisse',
-        'virement': 'banque',
-        'cheque': 'banque', 
-        'carte': 'banque'
-      };
-      
-      const categorie = mapping[mode_paiement] || 'banque';
-      const compte = await this.planComptableRepo.findByCategorie(categorie);
-      
-      if (!compte) {
-        console.warn(`⚠️ Compte non trouvé pour catégorie: ${categorie}, utilisation du fallback 512000`);
-        return '512000';
-      }
-      
-      return compte.numero_compte;
-      
-    } catch (error) {
-      console.error('❌ Erreur récupération compte paiement:', error);
+  try {
+    console.log(`🔍 DEBUG getCompteByModePaiement: mode=${mode_paiement}`);
+    
+    const mapping = {
+      'espece': 'caisse',      // sans accent
+      'espèce': 'caisse',      // avec accent ✅ CORRECTION
+      'virement': 'banque',
+      'cheque': 'banque', 
+      'chèque': 'banque',      // avec accent
+      'carte': 'banque'
+    };
+    
+    const categorie = mapping[mode_paiement] || 'banque';
+    console.log(`🔍 DEBUG: categorie recherchée = ${categorie}`);
+    
+    const compte = await this.planComptableRepo.findByCategorie(categorie);
+    console.log(`🔍 DEBUG: compte trouvé =`, compte ? compte.numero_compte : 'NULL');
+    
+    if (!compte) {
+      console.warn(`⚠️ Compte non trouvé pour catégorie: ${categorie}, utilisation du fallback 512000`);
       return '512000';
     }
+    
+    console.log(`🔍 DEBUG: retourne compte ${compte.numero_compte}`);
+    return compte.numero_compte;
+    
+  } catch (error) {
+    console.error('❌ Erreur récupération compte paiement:', error);
+    return '512000';
   }
+}
 
   async verifierConfiguration() {
     try {

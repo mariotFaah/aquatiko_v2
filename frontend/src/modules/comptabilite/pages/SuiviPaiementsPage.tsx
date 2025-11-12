@@ -7,6 +7,8 @@ import { useAlertDialog } from '../../../core/hooks/useAlertDialog';
 import AlertDialog from '../../../core/components/AlertDialog/AlertDialog';
 import './SuiviPaiementsPage.css';
 import { CompleterPaiementModal } from '../components/CompleterPaiementModal';
+import { emailApi } from '../services/emailApi';
+
 
 export const SuiviPaiementsPage: React.FC = () => {
   const [factures, setFactures] = useState<Facture[]>([]);
@@ -48,6 +50,61 @@ export const SuiviPaiementsPage: React.FC = () => {
       setLoading(false);
     }
   };
+
+  // 🎯 FONCTIONS POUR LES BOUTONS - VERSION CORRIGÉE
+const handleRelancer = async (facture: Facture) => {
+  try {
+    const result = await emailApi.envoyerRelance(facture, 
+      `Rappel concernant votre facture #${facture.numero_facture}. Merci de régulariser votre situation.`
+    );
+    
+    alert(result.message, {
+      type: 'success',
+      title: 'Relance envoyée'
+    });
+  } catch (error) {
+    // ✅ CORRECTION : Gestion sécurisée du type error
+    const errorMessage = error instanceof Error 
+      ? error.message 
+      : 'Erreur inconnue lors de l\'envoi de la relance';
+    
+    alert(`Erreur lors de l'envoi de la relance: ${errorMessage}`, {
+      type: 'error',
+      title: 'Erreur'
+    });
+  }
+};
+
+const handleAppeler = (facture: Facture) => {
+  // Simulation d'appel téléphonique
+  alert(`Appel en cours vers le client ${facture.nom_tiers}...\nFacture #${facture.numero_facture} - ${formaterMontant(facture.montant_restant)} MGA`, {
+    type: 'info',
+    title: '📞 Appel téléphonique'
+  });
+};
+
+const handleRappelFlexible = async (facture: Facture) => {
+  try {
+    const result = await emailApi.envoyerRelance(facture,
+      `Rappel pour votre paiement flexible. Prochaine échéance: ${facture.date_finale_paiement ? new Date(facture.date_finale_paiement).toLocaleDateString('fr-FR') : 'Non définie'}. Montant minimum: ${formaterMontant(facture.montant_minimum_paiement)} MGA.`
+    );
+    
+    alert(result.message, {
+      type: 'success',
+      title: 'Rappel flexible envoyé'
+    });
+  } catch (error) {
+    // ✅ CORRECTION : Gestion sécurisée du type error
+    const errorMessage = error instanceof Error 
+      ? error.message 
+      : 'Erreur inconnue lors de l\'envoi du rappel';
+    
+    alert(`Erreur lors de l'envoi du rappel: ${errorMessage}`, {
+      type: 'error',
+      title: 'Erreur'
+    });
+  }
+};
 
   // 🎯 FONCTIONS MODAL
   const ouvrirModalPaiement = (facture: Facture) => {
@@ -436,12 +493,16 @@ export const SuiviPaiementsPage: React.FC = () => {
                   <td>
                     <div className="cell-rappel">
                       <div className="dernier-rappel">Jamais relancé</div>
-                      <button className="btn-relancer">📧 Relancer</button>
+                      <button className="btn-relancer" onClick={() => handleRelancer(facture)}>
+                        📧 Relancer
+                      </button>
                     </div>
                   </td>
                   <td>
                     <div className="cell-actions-urgentes">
-                      <button className="btn-appeler">📞 Appeler</button>
+                      <button className="btn-appeler" onClick={() => handleAppeler(facture)}>
+                        📞 Appeler
+                      </button>
                       <button 
                         onClick={() => ouvrirModalPaiement(facture)}
                         className="btn-payer-urgence"
@@ -565,7 +626,7 @@ export const SuiviPaiementsPage: React.FC = () => {
                         💳 Payer
                       </button>
                       {joursRestants <= 7 && (
-                        <button className="btn-rappel-flexible">
+                        <button className="btn-rappel-flexible" onClick={() => handleRappelFlexible(facture)}>
                           🔔 Rappel
                         </button>
                       )}

@@ -1,10 +1,32 @@
 # Ignorer les dossiers node_modules
 node_modules/
-backend/node_modules/
-frontend/node_modules/
+*/node_modules/
+**/node_modules/
+
+# Ignorer les fichiers d'environnement
+.env
+.env.*
+!.env.example
 
 # Ignorer les fichiers temporaires
-.env
 .DS_Store
 dist/
 build/
+*.log
+*.tmp
+.cache/
+
+# Ignorer les dossiers de dépendances
+.pnp/
+.yarn/
+
+# Ignorer les fichiers de configuration locale
+*.local
+
+# Ignorer les dossiers de coverage
+coverage/
+*.lcov
+
+# Ignorer les dossiers de déploiement
+.vercel/
+.netlify/

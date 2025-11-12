@@ -31,6 +31,8 @@ async findAll() {
         'f.montant_minimum_paiement',
         'f.penalite_retard',
         // TIERS
+        'f.id_tiers',
+        't.email',
         't.nom as nom_tiers',
         't.type_tiers'
       )

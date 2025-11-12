@@ -399,26 +399,52 @@ export class FacturationService {
   
 
   // Récupérer une facture complète avec ses lignes
-  async getFactureComplete(numero_facture) {
-    try {
-      const facture = await this.factureRepository.findById(numero_facture);
-      
-      if (!facture) {
-        throw new Error('Facture non trouvée');
-      }
-
-      const lignes = await this.ligneFactureRepository.findByFacture(numero_facture);
-
-      return {
-        ...facture,
-        lignes
-      };
-
-    } catch (error) {
-      console.error('Erreur FacturationService.getFactureComplete:', error);
-      throw new Error(`Erreur lors de la récupération de la facture: ${error.message}`);
+  async getFactureComplete(numeroFacture) {
+  try {
+    const facture = await this.factureRepository.findById(numeroFacture);
+    if (!facture) {
+      throw new Error('Facture non trouvée');
     }
+
+    // Récupérer les lignes de facture
+    const lignes = await this.ligneFactureRepository.findByFacture(numeroFacture);
+    
+    // Récupérer les informations du tiers
+    let infosTiers = {};
+    if (facture.id_tiers) {
+      try {
+        const tiers = await this.tiersRepository.findById(facture.id_tiers);
+        if (tiers) {
+          infosTiers = {
+            nom_tiers: tiers.nom,
+            email: tiers.email,
+            telephone: tiers.telephone,
+            adresse: tiers.adresse,
+            type_tiers: tiers.type_tiers
+          };
+        }
+      } catch (error) {
+        console.warn(`⚠️ Tiers ${facture.id_tiers} non trouvé pour facture ${numeroFacture}`);
+      }
+    }
+
+    // Récupérer les paiements
+    const paiements = await this.paiementRepository.findByFacture(numeroFacture);
+
+    return {
+      ...facture,
+      ...infosTiers,
+      lignes,
+      paiements,
+      montant_paye: paiements.reduce((total, p) => total + parseFloat(p.montant || 0), 0),
+      montant_restant: parseFloat(facture.total_ttc || 0) - paiements.reduce((total, p) => total + parseFloat(p.montant || 0), 0)
+    };
+
+  } catch (error) {
+    console.error('❌ Erreur récupération facture complète:', error);
+    throw error;
   }
+}
 
   // Récupérer une facture (alias de getFactureById pour compatibilité)
   async getFacture(numero_facture) {
@@ -431,14 +457,48 @@ export class FacturationService {
   }
 
   // Récupérer toutes les factures
-  async getFactures() {
-    try {
-      return await this.factureRepository.findAll();
-    } catch (error) {
-      console.error('Erreur FacturationService.getFactures:', error);
-      throw new Error('Erreur lors de la récupération des factures');
-    }
+ async getFactures() {
+  try {
+    const factures = await this.factureRepository.findAll();
+    
+    // Joindre les informations des tiers
+    const facturesAvecTiers = await Promise.all(
+      factures.map(async (facture) => {
+        if (facture.id_tiers) {
+          try {
+            const tiers = await this.tiersRepository.findById(facture.id_tiers);
+            return {
+              ...facture,
+              nom_tiers: tiers?.nom || 'Tiers inconnu',
+              email: tiers?.email || null,
+              // Ajouter d'autres champs du tiers si nécessaire
+              telephone: tiers?.telephone || null,
+              adresse: tiers?.adresse || null
+            };
+          } catch (error) {
+            console.warn(`⚠️ Impossible de récupérer le tiers ${facture.id_tiers} pour la facture ${facture.numero_facture}`);
+            return {
+              ...facture,
+              nom_tiers: 'Tiers inconnu',
+              email: null
+            };
+          }
+        }
+        return {
+          ...facture,
+          nom_tiers: 'Tiers non spécifié', 
+          email: null
+        };
+      })
+    );
+
+    return facturesAvecTiers;
+  } catch (error) {
+    console.error('❌ Erreur récupération factures:', error);
+    throw error;
   }
+}
+
 
   // Récupérer une facture par ID
   async getFactureById(numero_facture) {

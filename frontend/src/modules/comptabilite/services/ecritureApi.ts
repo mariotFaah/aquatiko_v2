@@ -1,8 +1,7 @@
-// src/modules/comptabilite/services/ecritureApi.ts - VERSION CORRIGÉE AVEC PARSING
+// src/modules/comptabilite/services/ecritureApi.ts - VERSION CORRIGÉE
 import type { EcritureComptable } from '../types';
 
 const API_BASE_URL = 'http://localhost:3001/api/comptabilite';
-//const API_BASE_URL = ' https://sentence-hands-therapy-surely.trycloudflare.com/api/comptabilite';
 
 // Fonction pour parser les montants string en number
 const parseMontants = (ecritures: any[]): EcritureComptable[] => {
@@ -21,8 +20,10 @@ export const ecritureApi = {
     journal?: string 
   }): Promise<EcritureComptable[]> => {
     const params = new URLSearchParams();
-    if (filters?.date_debut) params.append('date_debut', filters.date_debut);
-    if (filters?.date_fin) params.append('date_fin', filters.date_fin);
+    
+    // ✅ CORRECTION : Mapping correct des paramètres
+    if (filters?.date_debut) params.append('debut', filters.date_debut);    // "debut" au lieu de "date_debut"
+    if (filters?.date_fin) params.append('fin', filters.date_fin);          // "fin" au lieu de "date_fin"
     if (filters?.journal) params.append('journal', filters.journal);
     
     const queryString = params.toString();
@@ -30,6 +31,8 @@ export const ecritureApi = {
       ? `${API_BASE_URL}/ecritures?${queryString}` 
       : `${API_BASE_URL}/ecritures`;
 
+    console.log(`🔄 Appel API: ${url}`); // Debug
+    
     const res = await fetch(url);
     
     if (!res.ok) {
@@ -37,11 +40,15 @@ export const ecritureApi = {
     }
     
     const data = await res.json();
+    console.log('📊 Données brutes reçues:', data); // Debug
     
-    if (Array.isArray(data.data)) {
-      return parseMontants(data.data);
+    if (data.success && Array.isArray(data.data)) {
+      const ecrituresParsees = parseMontants(data.data);
+      console.log('✅ Écritures parsées:', ecrituresParsees.length, 'éléments');
+      return ecrituresParsees;
     }
     
+    console.warn('⚠️ Aucune donnée valide reçue');
     return [];
   }
 };

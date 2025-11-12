@@ -71,3 +71,5 @@ export default defineConfig([
   },
 ])
 ```
+
+curl -s "https://api.freecurrencyapi.com/v1/currencies?apikey=fca_live_uJsRjEQiQ94QDBDz81wSyMe6JbWuFdpk4eeD1Zyw" | jq '.'

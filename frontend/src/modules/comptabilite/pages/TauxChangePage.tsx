@@ -1,7 +1,7 @@
 // src/modules/comptabilite/pages/TauxChangePage.tsx
 import React, { useState, useEffect } from 'react';
 import { deviseApi } from '../services/deviseApi';
-import type { TauxChange } from '../types';
+import type { TauxChange, TauxReelTime, ComparisonData } from '../types';
 import TauxChangeCalculator from '../components/TauxChangeCalculator/TauxChangeCalculator';
 import { useAlertDialog } from '../../../core/hooks/useAlertDialog';
 import AlertDialog from '../../../core/components/AlertDialog/AlertDialog';
@@ -11,6 +11,10 @@ export const TauxChangePage: React.FC = () => {
   const [tauxChanges, setTauxChanges] = useState<TauxChange[]>([]);
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [tauxReelTime, setTauxReelTime] = useState<TauxReelTime | null>(null);
+  const [loadingTauxReel, setLoadingTauxReel] = useState(false);
+  const [comparaison, setComparaison] = useState<ComparisonData[]>([]);
+  
   const [formData, setFormData] = useState({
     devise_source: 'MGA',
     devise_cible: 'USD',
@@ -28,35 +32,6 @@ export const TauxChangePage: React.FC = () => {
       setTauxChanges(data);
     } catch (error) {
       console.error('Erreur chargement taux change:', error);
-      // Données de démo
-      setTauxChanges([
-        {
-          id_taux: 1,
-          devise_source: 'MGA',
-          devise_cible: 'USD',
-          taux: 0.00022,
-          date_effet: new Date().toISOString().split('T')[0],
-          actif: true
-        },
-        {
-          id_taux: 2,
-          devise_source: 'USD',
-          devise_cible: 'MGA',
-          taux: 4500,
-          date_effet: new Date().toISOString().split('T')[0],
-          actif: true
-        },
-        {
-          id_taux: 3,
-          devise_source: 'MGA',
-          devise_cible: 'EUR',
-          taux: 0.00020,
-          date_effet: new Date().toISOString().split('T')[0],
-          actif: true
-        }
-      ]);
-
-      // Afficher un avertissement avec AlertDialog
       alert('Chargement des taux échoué, affichage des données de démo', {
         type: 'warning',
         title: 'Avertissement'
@@ -66,62 +41,84 @@ export const TauxChangePage: React.FC = () => {
     }
   };
 
+  // Fonction pour récupérer et comparer les taux en temps réel
+  const fetchAndCompareTaux = async () => {
+    setLoadingTauxReel(true);
+    try {
+      // 1. Récupérer les taux en temps réel
+      const tauxReel = await deviseApi.getTauxReelTime();
+      setTauxReelTime(tauxReel);
+      
+      // 2. Comparer avec vos taux locaux
+      const comparisons: ComparisonData[] = [];
+      
+      // Comparaison MGA→USD
+      const tauxLocalUSD = tauxChanges.find(t => 
+        t.devise_source === 'MGA' && t.devise_cible === 'USD'
+      );
+      if (tauxLocalUSD) {
+        comparisons.push({
+          paire: 'MGA/USD',
+          tauxLocal: tauxLocalUSD.taux,
+          tauxReel: tauxReel.USD,
+          ecart: tauxLocalUSD.taux - tauxReel.USD,
+          pourcentageEcart: ((tauxLocalUSD.taux - tauxReel.USD) / tauxReel.USD) * 100
+        });
+      }
+      
+      // Comparaison MGA→EUR
+      const tauxLocalEUR = tauxChanges.find(t => 
+        t.devise_source === 'MGA' && t.devise_cible === 'EUR'
+      );
+      if (tauxLocalEUR) {
+        comparisons.push({
+          paire: 'MGA/EUR',
+          tauxLocal: tauxLocalEUR.taux,
+          tauxReel: tauxReel.EUR,
+          ecart: tauxLocalEUR.taux - tauxReel.EUR,
+          pourcentageEcart: ((tauxLocalEUR.taux - tauxReel.EUR) / tauxReel.EUR) * 100
+        });
+      }
+      
+      setComparaison(comparisons);
+      
+    } catch (error) {
+      console.error('Erreur récupération taux réel:', error);
+      alert('Impossible de récupérer les taux en temps réel. Vérifiez votre connexion internet.', {
+        type: 'error',
+        title: 'Erreur API'
+      });
+    } finally {
+      setLoadingTauxReel(false);
+    }
+  };
+
   useEffect(() => {
-    loadTauxChanges();
+    const loadData = async () => {
+      await loadTauxChanges();
+    };
+    
+    loadData();
   }, []);
+
+  // Charger les taux réels après que les taux locaux soient chargés
+  useEffect(() => {
+    if (tauxChanges.length > 0) {
+      fetchAndCompareTaux();
+    }
+  }, [tauxChanges]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validation du taux
-    if (formData.taux <= 0) {
-      alert('Le taux de change doit être supérieur à 0', {
-        type: 'warning',
-        title: 'Taux invalide'
-      });
-      return;
-    }
-
-    // Validation des devises différentes
-    if (formData.devise_source === formData.devise_cible) {
-      alert('Les devises source et cible doivent être différentes', {
-        type: 'warning',
-        title: 'Devises identiques'
-      });
-      return;
-    }
-
-    try {
-      await deviseApi.createTauxChange({
-        ...formData,
-        actif: true
-      });
-      setShowForm(false);
-      setFormData({
-        devise_source: 'MGA',
-        devise_cible: 'USD',
-        taux: 0,
-        date_effet: new Date().toISOString().split('T')[0]
-      });
-      loadTauxChanges();
-      
-      // Message de succès avec AlertDialog
-      alert('Taux de change ajouté avec succès', {
-        type: 'success',
-        title: 'Succès'
-      });
-    } catch (error) {
-      console.error('Erreur création taux change:', error);
-      
-      const errorMessage = error instanceof Error 
-        ? error.message 
-        : 'Erreur inconnue lors de l\'ajout';
-      
-      alert(`Erreur lors de l'ajout du taux de change: ${errorMessage}`, {
-        type: 'error',
-        title: 'Erreur'
-      });
-    }
+    // Désactivation de l'ajout manuel
+    alert('Les taux de change sont gérés automatiquement. La modification manuelle est désactivée.', {
+      type: 'info',
+      title: 'Information'
+    });
+    
+    setShowForm(false);
+    return;
   };
 
   const handleInputChange = (field: string, value: string | number) => {
@@ -134,25 +131,88 @@ export const TauxChangePage: React.FC = () => {
     <div className="taux-change-page">
       <div className="page-header">
         <h1>Gestion des Taux de Change</h1>
-        <p>Configuration des taux de change multi-devises</p>
+        <p>Configuration des taux de change multi-devises avec cours en temps réel</p>
       </div>
 
       <div className="page-layout">
-        {/* Calculateur */}
-        <div className="calculator-section">
-          <TauxChangeCalculator />
+        {/* Calculateur + Temps Réel */}
+        <div className="top-sections">
+          <div className="calculator-section">
+            <TauxChangeCalculator />
+          </div>
+          
+          <div className="realtime-section">
+            <div className="section-header">
+              <h2>📈 Cours en Temps Réel</h2>
+              <button 
+                className="refresh-button"
+                onClick={fetchAndCompareTaux}
+                disabled={loadingTauxReel}
+              >
+                {loadingTauxReel ? '🔄...' : '🔄 Actualiser'}
+              </button>
+            </div>
+
+            {loadingTauxReel ? (
+              <div className="loading-realtime">
+                <div className="spinner"></div>
+                <span>Chargement des cours en direct...</span>
+              </div>
+            ) : tauxReelTime ? (
+              <div className="realtime-content">
+                <div className="current-rates">
+                  <div className="rate-card">
+                    <div className="rate-pair">🇲🇬 MGA → 🇺🇸 USD</div>
+                    <div className="rate-value">1 MGA = {tauxReelTime.USD.toFixed(6)} USD</div>
+                  </div>
+                  <div className="rate-card">
+                    <div className="rate-pair">🇲🇬 MGA → 🇪🇺 EUR</div>
+                    <div className="rate-value">1 MGA = {tauxReelTime.EUR.toFixed(6)} EUR</div>
+                  </div>
+                </div>
+                
+                {comparaison.length > 0 && (
+                  <div className="comparison">
+                    <h4>🔄 Comparaison avec vos taux</h4>
+                    {comparaison.map((comp, index) => (
+                      <div key={index} className="comparison-item">
+                        <div className="pair">{comp.paire}</div>
+                        <div className="rates">
+                          <span>Votre taux: {comp.tauxLocal.toFixed(6)}</span>
+                          <span>Marché: {comp.tauxReel.toFixed(6)}</span>
+                        </div>
+                        <div className={`ecart ${Math.abs(comp.pourcentageEcart) > 5 ? 'high' : 'low'}`}>
+                          Écart: {comp.pourcentageEcart.toFixed(2)}%
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                <div className="api-info">
+                  <small>Source: Frankfurter API • Dernière mise à jour: {tauxReelTime.date}</small>
+                </div>
+              </div>
+            ) : (
+              <div className="error-realtime">
+                <p>❌ Impossible de charger les cours</p>
+                <button onClick={fetchAndCompareTaux}>Réessayer</button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Liste des taux */}
         <div className="taux-list-section">
           <div className="section-header">
             <h2>Taux de Change Configurés</h2>
-            <button 
+            {/* Bouton désactivé */}
+            {/* <button 
               className="add-button"
               onClick={() => setShowForm(true)}
             >
               + Ajouter un taux
-            </button>
+            </button> */}
           </div>
 
           {loading ? (
@@ -164,9 +224,8 @@ export const TauxChangePage: React.FC = () => {
                   <div className="taux-pair">
                     <span className="devise-source">1 {taux.devise_source}</span>
                     <span className="equals">=</span>
-                    {/* CORRECTION: s'assurer que taux.taux est un nombre */}
                     <span className="taux-value">
-                      {typeof taux.taux === 'number' ? taux.taux.toFixed(6) : parseFloat(taux.taux).toFixed(6)}
+                      {taux.taux.toFixed(6)}
                     </span>
                     <span className="devise-cible">{taux.devise_cible}</span>
                   </div>
@@ -183,7 +242,7 @@ export const TauxChangePage: React.FC = () => {
         </div>
       </div>
 
-      {/* Modal d'ajout */}
+      {/* Modal d'ajout (caché) */}
       {showForm && (
         <div className="modal-overlay">
           <div className="modal">
