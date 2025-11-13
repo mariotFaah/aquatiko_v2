@@ -1,6 +1,7 @@
 import type { RouteObject } from 'react-router-dom';
 
 // Pages
+import NavigationGuideTabs from '../components/NavigationGuide'; // Import du layout
 import ImportExportPage from '../pages/ImportExportPage';
 import CommandesListPage from '../pages/CommandesListPage';
 import CommandeFormPage from '../pages/CommandeFormPage';
@@ -13,16 +14,14 @@ import ExpeditionFormPage from '../pages/ExpeditionFormPage';
 import GestionCoutsPage from '../pages/GestionCoutsPage';
 import AnalysesMargePage from '../pages/AnalysesMargePage';
 
-
 export const importExportRoutes: RouteObject[] = [
   {
     path: 'import-export',
-    element: <ImportExportPage />,
+    element: <NavigationGuideTabs />, // Layout principal avec navigation
     children: [
       {
         index: true,
-        // Le contenu du dashboard est maintenant géré par ImportExportPage
-        element: null, 
+        element: <ImportExportPage />, // Page d'accueil avec dashboard
       },
       
       // Gestion des commandes
@@ -41,10 +40,6 @@ export const importExportRoutes: RouteObject[] = [
       {
         path: 'commandes/:id/edit',
         element: <CommandeEditPage />,
-      },
-      {
-        path: 'commandes/:id/detail',
-        element: <CommandeDetailPage />,
       },
       {
         path: 'commandes/:id/marge',

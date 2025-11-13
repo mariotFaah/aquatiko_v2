@@ -4,6 +4,7 @@ import { importExportApi } from '../services/api';
 import type { Commande } from '../types';
 import './ExpeditionsListPage.css';
 
+
 const ExpeditionsListPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [commandes, setCommandes] = useState<Commande[]>([]);
@@ -98,20 +99,7 @@ const ExpeditionsListPage: React.FC = () => {
 
   return (
     <div className="expeditions-container">
-      <div className="page-header">
-        <div className="header-left">
-          <h1>Gestion des Expéditions</h1>
-          <p>Suivi logistique des commandes import/export</p>
-        </div>
-        <div className="header-actions">
-          <button onClick={loadCommandes} className="btn-secondary" title="Rafraîchir">
-            🔄 Actualiser
-          </button>
-          <Link to="/import-export/commandes" className="btn-secondary">
-            📋 Voir les commandes
-          </Link>
-        </div>
-      </div>
+      
 
       {/* Alert pour commandes sans expédition */}
       {commandesSansExpedition.length > 0 && (

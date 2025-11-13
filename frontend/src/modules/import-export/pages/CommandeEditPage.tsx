@@ -7,6 +7,9 @@ import { useAlertDialog } from '../../../core/hooks/useAlertDialog';
 import AlertDialog from '../../../core/components/AlertDialog/AlertDialog';
 import './CommandeFormPage.css';
 
+// Types de statuts selon la documentation
+type StatutCommande = 'brouillon' | 'confirmée' | 'expédiée' | 'livrée' | 'annulée';
+
 const CommandeEditPage: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
@@ -19,12 +22,13 @@ const CommandeEditPage: React.FC = () => {
   // Utilisation du hook AlertDialog
   const { isOpen, message, title, type, alert, close } = useAlertDialog();
 
-  const [formData, setFormData] = useState<CommandeFormData>({
+  const [formData, setFormData] = useState<CommandeFormData & { statut: StatutCommande }>({
     type: 'import',
     client_id: 0,
     fournisseur_id: 0,
     date_commande: new Date().toISOString().split('T')[0],
     devise: 'EUR',
+    statut: 'brouillon',
     lignes: []
   });
 
@@ -59,6 +63,7 @@ const CommandeEditPage: React.FC = () => {
           date_livraison_prevue: commandeData.date_livraison_prevue?.split('T')[0],
           notes: commandeData.notes,
           devise: commandeData.devise,
+          statut: commandeData.statut,
           lignes: []
         });
 
@@ -88,21 +93,20 @@ const CommandeEditPage: React.FC = () => {
   const canEdit = () => {
     if (!commande) return false;
     
-    // Seules les commandes en statut "brouillon" peuvent être modifiées complètement
-    // Les commandes confirmées peuvent avoir des ajustements limités
+    // Toutes les commandes peuvent être modifiées, mais avec des restrictions selon le statut
+    return true;
+  };
+
+  // Vérifier si les lignes peuvent être modifiées
+  const canEditLignes = () => {
+    if (!commande) return false;
+    
+    // Seules les commandes en brouillon ou confirmée peuvent avoir leurs lignes modifiées
     return commande.statut === 'brouillon' || commande.statut === 'confirmée';
   };
 
   // Gestion des changements du formulaire principal
-  const handleInputChange = (field: keyof CommandeFormData, value: any) => {
-    if (!canEdit() && field !== 'notes') {
-      alert('Seules les notes peuvent être modifiées pour une commande confirmée', {
-        type: 'warning',
-        title: 'Modification limitée'
-      });
-      return;
-    }
-    
+  const handleInputChange = (field: keyof (CommandeFormData & { statut: StatutCommande }), value: any) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -111,8 +115,8 @@ const CommandeEditPage: React.FC = () => {
 
   // Gestion des lignes de commande
   const handleLigneChange = (index: number, field: keyof LigneCommandeFormData, value: any) => {
-    if (!canEdit()) {
-      alert('Les lignes de commande ne peuvent être modifiées que pour les commandes en brouillon', {
+    if (!canEditLignes()) {
+      alert('Les lignes de commande ne peuvent être modifiées que pour les commandes en brouillon ou confirmées', {
         type: 'warning',
         title: 'Modification non autorisée'
       });
@@ -130,8 +134,8 @@ const CommandeEditPage: React.FC = () => {
       const article = articles.find(a => a.code_article === value);
       if (article) {
         nouvellesLignes[index].description = article.description;
-        nouvellesLignes[index].prix_unitaire = article.prix_unitaire;
-        nouvellesLignes[index].taux_tva = article.taux_tva;
+        nouvellesLignes[index].prix_unitaire = article.prix_unitaire || 0;
+        nouvellesLignes[index].taux_tva = article.taux_tva || 20;
       }
     }
     
@@ -139,8 +143,8 @@ const CommandeEditPage: React.FC = () => {
   };
 
   const ajouterLigne = () => {
-    if (!canEdit()) {
-      alert('Impossible d\'ajouter des lignes à une commande confirmée', {
+    if (!canEditLignes()) {
+      alert('Impossible d\'ajouter des lignes à cette commande', {
         type: 'warning',
         title: 'Action non autorisée'
       });
@@ -160,8 +164,8 @@ const CommandeEditPage: React.FC = () => {
   };
 
   const supprimerLigne = (index: number) => {
-    if (!canEdit()) {
-      alert('Impossible de supprimer des lignes d\'une commande confirmée', {
+    if (!canEditLignes()) {
+      alert('Impossible de supprimer des lignes de cette commande', {
         type: 'warning',
         title: 'Action non autorisée'
       });
@@ -192,6 +196,25 @@ const CommandeEditPage: React.FC = () => {
     return { totalHT, totalTVA, totalTTC };
   };
 
+  // Validation des données avant soumission
+  const validerFormulaire = (): string | null => {
+    if (!formData.client_id || !formData.fournisseur_id) {
+      return 'Veuillez sélectionner un client et un fournisseur';
+    }
+
+    const lignesValides = lignes.filter(l => l.article_id && l.quantite > 0);
+    if (lignesValides.length === 0) {
+      return 'Veuillez ajouter au moins une ligne de commande valide';
+    }
+
+    // Validation spécifique selon le statut
+    if (formData.statut === 'confirmée' && totalTTC === 0) {
+      return 'Une commande confirmée doit avoir un montant total supérieur à 0';
+    }
+
+    return null;
+  };
+
   // Soumission du formulaire
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -204,18 +227,11 @@ const CommandeEditPage: React.FC = () => {
       return;
     }
 
-    if (!formData.client_id || !formData.fournisseur_id) {
-      alert('Veuillez sélectionner un client et un fournisseur', {
+    const erreurValidation = validerFormulaire();
+    if (erreurValidation) {
+      alert(erreurValidation, {
         type: 'warning',
-        title: 'Champs manquants'
-      });
-      return;
-    }
-
-    if (lignes.length === 0 || lignes.some(l => !l.article_id || l.quantite <= 0)) {
-      alert('Veuillez ajouter au moins une ligne de commande valide', {
-        type: 'warning',
-        title: 'Lignes invalides'
+        title: 'Validation requise'
       });
       return;
     }
@@ -223,17 +239,19 @@ const CommandeEditPage: React.FC = () => {
     setSaving(true);
 
     try {
-      // Pour l'instant, on recrée la commande (à améliorer avec un endpoint PUT)
+      // Préparer les données pour l'API
       const commandeData = {
         ...formData,
         lignes: lignes.filter(l => l.article_id && l.quantite > 0)
       };
 
+      console.log('Données de modification envoyées à l\'API:', commandeData);
+      
       // TODO: Implémenter un vrai endpoint de modification
-      // Pour l'instant, on utilise la création
+      // Pour l'instant, on utilise la création (à remplacer par updateCommande)
       await importExportApi.createCommande(commandeData);
       
-      alert('Commande modifiée avec succès', {
+      alert(`Commande modifiée avec succès avec le statut "${formData.statut}"!`, {
         type: 'success',
         title: 'Succès'
       });
@@ -243,9 +261,12 @@ const CommandeEditPage: React.FC = () => {
         navigate('/import-export/commandes');
       }, 1500);
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erreur modification commande:', error);
-      alert('Erreur lors de la modification de la commande', {
+      
+      // Message d'erreur plus détaillé
+      const errorMessage = error.response?.data?.message || 'Erreur lors de la modification de la commande';
+      alert(errorMessage, {
         type: 'error',
         title: 'Erreur'
       });
@@ -255,6 +276,24 @@ const CommandeEditPage: React.FC = () => {
   };
 
   const { totalHT, totalTVA, totalTTC } = calculerTotaux();
+
+  // Texte du bouton selon le statut
+  const getBoutonText = () => {
+    switch (formData.statut) {
+      case 'brouillon':
+        return 'Enregistrer comme Brouillon';
+      case 'confirmée':
+        return 'Confirmer la Commande';
+      case 'expédiée':
+        return 'Marquer comme Expédiée';
+      case 'livrée':
+        return 'Marquer comme Livrée';
+      case 'annulée':
+        return 'Annuler la Commande';
+      default:
+        return 'Modifier la Commande';
+    }
+  };
 
   if (loading) {
     return (
@@ -295,9 +334,9 @@ const CommandeEditPage: React.FC = () => {
                   {commande.statut}
                 </span>
               </p>
-              {!canEdit() && (
+              {!canEditLignes() && (
                 <p className="text-orange-600 mt-2">
-                  ⚠️ Seules les notes peuvent être modifiées pour cette commande
+                  ⚠️ Seules les informations générales peuvent être modifiées pour cette commande
                 </p>
               )}
             </div>
@@ -320,7 +359,6 @@ const CommandeEditPage: React.FC = () => {
                   onChange={(e) => handleInputChange('type', e.target.value)}
                   className="form-select"
                   required
-                  disabled={!canEdit()}
                 >
                   <option value="import">Import</option>
                   <option value="export">Export</option>
@@ -328,15 +366,37 @@ const CommandeEditPage: React.FC = () => {
               </div>
 
               <div className="form-group">
-                <label className="form-label required">Client</label>
+                <label className="form-label required">Statut</label>
                 <select
-                  value={formData.client_id}
-                  onChange={(e) => handleInputChange('client_id', parseInt(e.target.value))}
+                  value={formData.statut}
+                  onChange={(e) => handleInputChange('statut', e.target.value as StatutCommande)}
                   className="form-select"
                   required
-                  disabled={!canEdit()}
                 >
-                  <option value="0">Sélectionner un client</option>
+                  <option value="brouillon">Brouillon</option>
+                  <option value="confirmée">Confirmée</option>
+                  <option value="expédiée">Expédiée</option>
+                  <option value="livrée">Livrée</option>
+                  <option value="annulée">Annulée</option>
+                </select>
+                <small className="form-hint">
+                  {formData.statut === 'brouillon' && 'La commande est en cours de préparation'}
+                  {formData.statut === 'confirmée' && 'La commande est validée et confirmée'}
+                  {formData.statut === 'expédiée' && 'Les marchandises ont été expédiées'}
+                  {formData.statut === 'livrée' && 'La commande a été livrée au client'}
+                  {formData.statut === 'annulée' && 'La commande a été annulée'}
+                </small>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label required">Client</label>
+                <select
+                  value={formData.client_id || ''}
+                  onChange={(e) => handleInputChange('client_id', parseInt(e.target.value) || 0)}
+                  className="form-select"
+                  required
+                >
+                  <option value="">Sélectionner un client</option>
                   {tiers.filter(t => t.type_tiers === 'client').map(tier => (
                     <option key={tier.id_tiers} value={tier.id_tiers}>
                       {tier.nom}
@@ -348,13 +408,12 @@ const CommandeEditPage: React.FC = () => {
               <div className="form-group">
                 <label className="form-label required">Fournisseur</label>
                 <select
-                  value={formData.fournisseur_id}
-                  onChange={(e) => handleInputChange('fournisseur_id', parseInt(e.target.value))}
+                  value={formData.fournisseur_id || ''}
+                  onChange={(e) => handleInputChange('fournisseur_id', parseInt(e.target.value) || 0)}
                   className="form-select"
                   required
-                  disabled={!canEdit()}
                 >
-                  <option value="0">Sélectionner un fournisseur</option>
+                  <option value="">Sélectionner un fournisseur</option>
                   {tiers.filter(t => t.type_tiers === 'fournisseur').map(tier => (
                     <option key={tier.id_tiers} value={tier.id_tiers}>
                       {tier.nom}
@@ -371,7 +430,6 @@ const CommandeEditPage: React.FC = () => {
                   onChange={(e) => handleInputChange('date_commande', e.target.value)}
                   className="form-input"
                   required
-                  disabled={!canEdit()}
                 />
               </div>
 
@@ -382,7 +440,6 @@ const CommandeEditPage: React.FC = () => {
                   onChange={(e) => handleInputChange('devise', e.target.value)}
                   className="form-select"
                   required
-                  disabled={!canEdit()}
                 >
                   <option value="EUR">EUR - Euro</option>
                   <option value="USD">USD - Dollar US</option>
@@ -419,8 +476,6 @@ const CommandeEditPage: React.FC = () => {
 
               {lignes.map((ligne, index) => {
                 const montantHT = ligne.quantite * ligne.prix_unitaire;
-               // const montantTVA = montantHT * (ligne.taux_tva / 100);
-                //const montantTTC = montantHT + montantTVA;
 
                 return (
                   <div key={index} className="ligne-item">
@@ -429,7 +484,7 @@ const CommandeEditPage: React.FC = () => {
                       onChange={(e) => handleLigneChange(index, 'article_id', e.target.value)}
                       className="ligne-input"
                       required
-                      disabled={!canEdit()}
+                      disabled={!canEditLignes()}
                     >
                       <option value="">Sélectionner un article</option>
                       {articles.map(article => (
@@ -446,44 +501,44 @@ const CommandeEditPage: React.FC = () => {
                       className="ligne-input"
                       placeholder="Description"
                       required
-                      disabled={!canEdit()}
+                      disabled={!canEditLignes()}
                     />
 
                     <input
                       type="number"
                       value={ligne.quantite}
-                      onChange={(e) => handleLigneChange(index, 'quantite', parseFloat(e.target.value))}
+                      onChange={(e) => handleLigneChange(index, 'quantite', parseFloat(e.target.value) || 0)}
                       className="ligne-input"
                       min="0.01"
                       step="0.01"
                       required
-                      disabled={!canEdit()}
+                      disabled={!canEditLignes()}
                     />
 
                     <input
                       type="number"
                       value={ligne.prix_unitaire}
-                      onChange={(e) => handleLigneChange(index, 'prix_unitaire', parseFloat(e.target.value))}
+                      onChange={(e) => handleLigneChange(index, 'prix_unitaire', parseFloat(e.target.value) || 0)}
                       className="ligne-input"
                       min="0"
                       step="0.01"
                       required
-                      disabled={!canEdit()}
+                      disabled={!canEditLignes()}
                     />
 
                     <input
                       type="number"
                       value={ligne.taux_tva}
-                      onChange={(e) => handleLigneChange(index, 'taux_tva', parseFloat(e.target.value))}
+                      onChange={(e) => handleLigneChange(index, 'taux_tva', parseFloat(e.target.value) || 0)}
                       className="ligne-input"
                       min="0"
                       max="100"
                       step="0.1"
                       required
-                      disabled={!canEdit()}
+                      disabled={!canEditLignes()}
                     />
 
-                    <div className="text-sm font-medium">
+                    <div className="montant-ht">
                       {new Intl.NumberFormat('fr-FR', { 
                         style: 'currency', 
                         currency: formData.devise 
@@ -494,7 +549,7 @@ const CommandeEditPage: React.FC = () => {
                       type="button"
                       onClick={() => supprimerLigne(index)}
                       className="btn-supprimer-ligne"
-                      disabled={lignes.length === 1 || !canEdit()}
+                      disabled={lignes.length === 1 || !canEditLignes()}
                     >
                       ✕
                     </button>
@@ -502,7 +557,7 @@ const CommandeEditPage: React.FC = () => {
                 );
               })}
 
-              {canEdit() && (
+              {canEditLignes() && (
                 <button
                   type="button"
                   onClick={ajouterLigne}
@@ -555,15 +610,13 @@ const CommandeEditPage: React.FC = () => {
             <Link to="/import-export/commandes" className="btn-secondary">
               Annuler
             </Link>
-            {canEdit() && (
-              <button 
-                type="submit" 
-                className="btn-primary"
-                disabled={saving}
-              >
-                {saving ? 'Enregistrement...' : 'Modifier la Commande'}
-              </button>
-            )}
+            <button 
+              type="submit" 
+              className={`btn-primary ${formData.statut === 'annulée' ? 'btn-warning' : ''}`}
+              disabled={saving}
+            >
+              {saving ? 'Enregistrement...' : getBoutonText()}
+            </button>
           </div>
         </form>
       </div>

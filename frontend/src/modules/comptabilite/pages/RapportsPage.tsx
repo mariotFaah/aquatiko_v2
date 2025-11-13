@@ -87,7 +87,7 @@ export const RapportsPage: React.FC = () => {
       {/* Sections exactement conformes au cahier des charges */}
       <div className="sections-container">
         
-        {/* SECTION C: SUIVI DES PAIEMENTS (partiels, échéances) */}
+        {/* SECTION C: SUIVI DES PAIEMENTS (partiels, échéances) 
         <div className="section">
           <h2 className="section-title">C. Suivi des Paiements</h2>
           <p className="section-description">Paiements partiels et échéances - Conforme au point C du cahier</p>
@@ -105,7 +105,7 @@ export const RapportsPage: React.FC = () => {
               </Link>
             ))}
           </div>
-        </div>
+        </div> */}
 
         {/* SECTION D: JOURNAUX COMPTABLES (ventes, achats, banque, caisse) */}
         <div className="section">

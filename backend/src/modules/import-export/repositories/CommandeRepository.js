@@ -214,7 +214,7 @@ class CommandeRepository extends BaseRepository {
   }
 
   async updateStatut(id, statut) {
-    const statutsValides = ['en_attente', 'confirmé', 'expédié', 'annulé'];
+    const statutsValides = ['brouillon', 'confirmée', 'expédiée', 'livrée', 'annulée'];
     if (!statutsValides.includes(statut)) {
       throw new Error(`Statut invalide: ${statut}`);
     }

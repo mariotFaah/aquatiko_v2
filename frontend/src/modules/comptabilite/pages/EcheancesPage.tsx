@@ -163,7 +163,7 @@ export const EcheancesPage: React.FC = () => {
     setEnvoiGroupeEnCours(true);
 
     try {
-      const result = await emailApi.envoyerRelancesGroupées(facturesAvecEmail);
+      const result = await emailApi.envoyerRelancesGroupees(facturesAvecEmail);
       
       if (result.success) {
         // Afficher le message de confirmation pour le groupe

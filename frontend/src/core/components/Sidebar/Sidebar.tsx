@@ -62,14 +62,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
         { name: 'Factures', path: '/comptabilite/factures', icon: '🧾' },
         { name: 'Tiers', path: '/comptabilite/tiers', icon: '👥' },
         { name: 'Articles', path: '/comptabilite/articles', icon: '📦' },
-        { name: 'Paiements', path: '/comptabilite/paiements', icon: '💳' },
-        { name: 'Échéances', path: '/comptabilite/echeances', icon: '📅' },
+         {name: 'Suivi Paiements', path: '/comptabilite/suivi-paiements', icon: '📋' },
+       // { name: 'Paiements', path: '/comptabilite/paiements', icon: '💳' },
+        //{ name: 'Échéances', path: '/comptabilite/echeances', icon: '📅' },
         { name: 'Journal', path: '/comptabilite/journal', icon: '📔' },
         { name: 'Balance', path: '/comptabilite/balance', icon: '⚖️' },
         { name: 'Bilan', path: '/comptabilite/bilan', icon: '📊' },
         { name: 'Declaration TVA', path:'/comptabilite/tva', icon:'🧾'},
-        { name: 'Taux Change', path: '/comptabilite/taux-change', icon: '💹' },
-        {name: 'Suivi Paiements', path: '/comptabilite/suivi-paiements', icon: '📋' }
+        { name: 'Taux Change', path: '/comptabilite/taux-change', icon: '💹' }
+       
       ],
     },
     {

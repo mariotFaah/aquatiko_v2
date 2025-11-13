@@ -11,18 +11,26 @@ Permet un suivi complet des commandes clients/fournisseurs, des expéditions et 
 
 ## 📑 Table des Matières
 
-- [Fonctionnalités](#-fonctionnalités)
-- [Installation et Configuration](#-installation-et-configuration)
-- [API Documentation](#-api-documentation)
-- [Structure de la Base de Données](#-structure-de-la-base-de-données)
-- [Exemples d’Utilisation](#-exemples-dutilisation)
-- [Formules de Calcul](#-formules-de-calcul)
-- [Architecture Technique](#-architecture-technique)
-- [Tests et Validation](#-tests-et-validation)
-- [Sécurité et Validation](#-sécurité-et-validation)
-- [Statut du Module](#-statut-du-module)
-- [Développement et Contribution](#-développement-et-contribution)
-- [Support et Maintenance](#-support-et-maintenance)
+- [📦 Module Import/Export - Aquatiko](#-module-importexport---aquatiko)
+  - [🌟 Aperçu](#-aperçu)
+  - [📑 Table des Matières](#-table-des-matières)
+  - [🚀 Fonctionnalités](#-fonctionnalités)
+    - [Gestion des commandes](#gestion-des-commandes)
+    - [Suivi des expéditions](#suivi-des-expéditions)
+    - [Coûts logistiques](#coûts-logistiques)
+    - [Calcul de marges](#calcul-de-marges)
+  - [🛠️ Installation et Configuration](#️-installation-et-configuration)
+    - [Prérequis](#prérequis)
+    - [Installation](#installation)
+  - [🌐 API Documentation](#-api-documentation)
+  - [💾 Structure de la Base de Données](#-structure-de-la-base-de-données)
+    - [Table commandes](#table-commandes)
+  - [📋 Exemples d’Utilisation](#-exemples-dutilisation)
+  - [📐 Formules de Calcul](#-formules-de-calcul)
+  - [🔧 Architecture Technique](#-architecture-technique)
+  - [🧪 Tests et Validation](#-tests-et-validation)
+  - [🔒 Sécurité et Validation](#-sécurité-et-validation)
+  - [👥 Développement et Contribution](#-développement-et-contribution)
 
 ---
 
@@ -312,15 +320,7 @@ Logs centralisés
 
 Gestion des erreurs robuste
 
-🚦 Statut du Module
 
-Gestion commandes : ✅ 100%
-
-Suivi expéditions : ✅ 100%
-
-Coûts logistiques : ✅ 100%
-
-Calcul marges : ✅ 100%
 
 ***Prêt pour production***
 
@@ -349,5 +349,5 @@ Gestion centralisée des erreurs
 
 📞 Support et Maintenance
 
-Pour toute question, contacter l’équipe de développement Aquatiko.
-*© 2025 Aquatiko - Tous droits réservés*
+Pour toute question, contacter l’équipe de développement Omniserve experts.
+*© 2025 Omniserve experts - Tous droits réservés*

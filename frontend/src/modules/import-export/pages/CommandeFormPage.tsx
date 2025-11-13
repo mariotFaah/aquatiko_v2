@@ -18,6 +18,9 @@ interface UnifiedTiers {
   adresse?: string;
 }
 
+// Types de statuts selon la documentation
+type StatutCommande = 'brouillon' | 'confirmée' | 'expédiée' | 'livrée' | 'annulée';
+
 const CommandeFormPage: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -27,13 +30,13 @@ const CommandeFormPage: React.FC = () => {
   // Utilisation du hook AlertDialog
   const { isOpen, message, title, type, alert, close } = useAlertDialog();
   
-  // CORRECTION : Retirer 'statut' car il n'existe pas dans CommandeFormData
-  const [formData, setFormData] = useState<CommandeFormData>({
+  const [formData, setFormData] = useState<CommandeFormData & { statut: StatutCommande }>({
     type: 'import',
     client_id: 0,
     fournisseur_id: 0,
     date_commande: new Date().toISOString().split('T')[0],
     devise: 'EUR',
+    statut: 'brouillon', // Statut sélectionnable par l'utilisateur
     lignes: []
   });
 
@@ -47,7 +50,7 @@ const CommandeFormPage: React.FC = () => {
     }
   ]);
 
-  // Charger les données - VERSION CORRIGÉE
+  // Charger les données
   useEffect(() => {
     loadDonnees();
   }, []);
@@ -87,7 +90,7 @@ const CommandeFormPage: React.FC = () => {
   };
 
   // Gestion des changements du formulaire principal
-  const handleInputChange = (field: keyof CommandeFormData, value: any) => {
+  const handleInputChange = (field: keyof (CommandeFormData & { statut: StatutCommande }), value: any) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -107,8 +110,8 @@ const CommandeFormPage: React.FC = () => {
       const article = articles.find(a => a.code_article === value);
       if (article) {
         nouvellesLignes[index].description = article.description;
-        nouvellesLignes[index].prix_unitaire = article.prix_unitaire;
-        nouvellesLignes[index].taux_tva = article.taux_tva;
+        nouvellesLignes[index].prix_unitaire = article.prix_unitaire || 0;
+        nouvellesLignes[index].taux_tva = article.taux_tva || 20;
       }
     }
     
@@ -134,7 +137,7 @@ const CommandeFormPage: React.FC = () => {
     }
   };
 
-  // Calcul des totaux - VERSION CORRIGÉE (supprimer montantTTC inutilisé)
+  // Calcul des totaux
   const calculerTotaux = () => {
     let totalHT = 0;
     let totalTVA = 0;
@@ -153,22 +156,34 @@ const CommandeFormPage: React.FC = () => {
     return { totalHT, totalTVA, totalTTC };
   };
 
-  // Soumission du formulaire - VERSION CORRIGÉE
+  // Validation des données avant soumission
+  const validerFormulaire = (): string | null => {
+    if (!formData.client_id || !formData.fournisseur_id) {
+      return 'Veuillez sélectionner un client et un fournisseur';
+    }
+
+    const lignesValides = lignes.filter(l => l.article_id && l.quantite > 0);
+    if (lignesValides.length === 0) {
+      return 'Veuillez ajouter au moins une ligne de commande valide';
+    }
+
+    // Validation spécifique selon le statut
+    if (formData.statut === 'confirmée' && totalTTC === 0) {
+      return 'Une commande confirmée doit avoir un montant total supérieur à 0';
+    }
+
+    return null;
+  };
+
+  // Soumission du formulaire
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.client_id || !formData.fournisseur_id) {
-      alert('Veuillez sélectionner un client et un fournisseur', {
+    const erreurValidation = validerFormulaire();
+    if (erreurValidation) {
+      alert(erreurValidation, {
         type: 'warning',
-        title: 'Champs manquants'
-      });
-      return;
-    }
-
-    if (lignes.length === 0 || lignes.some(l => !l.article_id || l.quantite <= 0)) {
-      alert('Veuillez ajouter au moins une ligne de commande valide', {
-        type: 'warning',
-        title: 'Lignes invalides'
+        title: 'Validation requise'
       });
       return;
     }
@@ -176,14 +191,18 @@ const CommandeFormPage: React.FC = () => {
     setLoading(true);
 
     try {
+      // Préparer les données pour l'API
       const commandeData = {
         ...formData,
         lignes: lignes.filter(l => l.article_id && l.quantite > 0)
       };
 
+      console.log('Données envoyées à l\'API:', commandeData);
+      
+      // Appel API avec le statut choisi par l'utilisateur
       await importExportApi.createCommande(commandeData);
       
-      alert('Commande créée avec succès!', {
+      alert(`Commande créée avec succès avec le statut "${formData.statut}"!`, {
         type: 'success',
         title: 'Succès'
       });
@@ -193,9 +212,12 @@ const CommandeFormPage: React.FC = () => {
         navigate('/import-export/commandes');
       }, 1500);
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erreur création commande:', error);
-      alert('Erreur lors de la création de la commande', {
+      
+      // Message d'erreur plus détaillé
+      const errorMessage = error.response?.data?.message || 'Erreur lors de la création de la commande';
+      alert(errorMessage, {
         type: 'error',
         title: 'Erreur'
       });
@@ -206,24 +228,33 @@ const CommandeFormPage: React.FC = () => {
 
   const { totalHT, totalTVA, totalTTC } = calculerTotaux();
 
-  if (loading) {
-    return (
-      <div className="loading-overlay">
-        <div className="loading-spinner"></div>
-      </div>
-    );
-  }
+  // Filtrage des tiers par type
+  const clients = tiers.filter(t => t.type_tiers === 'client');
+  const fournisseurs = tiers.filter(t => t.type_tiers === 'fournisseur');
+
+  // Texte du bouton selon le statut
+  const getBoutonText = () => {
+    switch (formData.statut) {
+      case 'brouillon':
+        return 'Enregistrer comme Brouillon';
+      case 'confirmée':
+        return 'Confirmer la Commande';
+      case 'expédiée':
+        return 'Marquer comme Expédiée';
+      case 'livrée':
+        return 'Marquer comme Livrée';
+      case 'annulée':
+        return 'Annuler la Commande';
+      default:
+        return 'Créer la Commande';
+    }
+  };
 
   return (
     <div className="commande-form-container">
       <div className="commande-form-content">
-        {/* En-tête */}
-        <div className="commande-form-header">
-          <h1 className="commande-form-title">Nouvelle Commande</h1>
-          <p className="commande-form-subtitle">
-            Créer une nouvelle commande d'import ou d'export
-          </p>
-        </div>
+       
+        
 
         <form onSubmit={handleSubmit} className="commande-form">
           {/* Informations générales */}
@@ -244,15 +275,38 @@ const CommandeFormPage: React.FC = () => {
               </div>
 
               <div className="form-group">
-                <label className="form-label required">Client</label>
+                <label className="form-label required">Statut</label>
                 <select
-                  value={formData.client_id}
-                  onChange={(e) => handleInputChange('client_id', parseInt(e.target.value))}
+                  value={formData.statut}
+                  onChange={(e) => handleInputChange('statut', e.target.value as StatutCommande)}
                   className="form-select"
                   required
                 >
-                  <option value="0">Sélectionner un client</option>
-                  {tiers.filter(t => t.type_tiers === 'client').map(tier => (
+                  <option value="brouillon">Brouillon</option>
+                  <option value="confirmée">Confirmée</option>
+                  <option value="expédiée">Expédiée</option>
+                  <option value="livrée">Livrée</option>
+                  <option value="annulée">Annulée</option>
+                </select>
+                <small className="form-hint">
+                  {formData.statut === 'brouillon' && 'La commande est en cours de préparation'}
+                  {formData.statut === 'confirmée' && 'La commande est validée et confirmée'}
+                  {formData.statut === 'expédiée' && 'Les marchandises ont été expédiées'}
+                  {formData.statut === 'livrée' && 'La commande a été livrée au client'}
+                  {formData.statut === 'annulée' && 'La commande a été annulée'}
+                </small>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label required">Client</label>
+                <select
+                  value={formData.client_id || ''}
+                  onChange={(e) => handleInputChange('client_id', parseInt(e.target.value) || 0)}
+                  className="form-select"
+                  required
+                >
+                  <option value="">Sélectionner un client</option>
+                  {clients.map(tier => (
                     <option key={tier.id} value={tier.id}>
                       {tier.nom}
                     </option>
@@ -263,13 +317,13 @@ const CommandeFormPage: React.FC = () => {
               <div className="form-group">
                 <label className="form-label required">Fournisseur</label>
                 <select
-                  value={formData.fournisseur_id}
-                  onChange={(e) => handleInputChange('fournisseur_id', parseInt(e.target.value))}
+                  value={formData.fournisseur_id || ''}
+                  onChange={(e) => handleInputChange('fournisseur_id', parseInt(e.target.value) || 0)}
                   className="form-select"
                   required
                 >
-                  <option value="0">Sélectionner un fournisseur</option>
-                  {tiers.filter(t => t.type_tiers === 'fournisseur').map(tier => (
+                  <option value="">Sélectionner un fournisseur</option>
+                  {fournisseurs.map(tier => (
                     <option key={tier.id} value={tier.id}>
                       {tier.nom}
                     </option>
@@ -301,8 +355,6 @@ const CommandeFormPage: React.FC = () => {
                   <option value="MGA">MGA - Ariary Malgache</option>
                 </select>
               </div>
-
-
             </div>
           </div>
 
@@ -352,7 +404,7 @@ const CommandeFormPage: React.FC = () => {
                     <input
                       type="number"
                       value={ligne.quantite}
-                      onChange={(e) => handleLigneChange(index, 'quantite', parseFloat(e.target.value))}
+                      onChange={(e) => handleLigneChange(index, 'quantite', parseFloat(e.target.value) || 0)}
                       className="ligne-input"
                       min="0.01"
                       step="0.01"
@@ -362,7 +414,7 @@ const CommandeFormPage: React.FC = () => {
                     <input
                       type="number"
                       value={ligne.prix_unitaire}
-                      onChange={(e) => handleLigneChange(index, 'prix_unitaire', parseFloat(e.target.value))}
+                      onChange={(e) => handleLigneChange(index, 'prix_unitaire', parseFloat(e.target.value) || 0)}
                       className="ligne-input"
                       min="0"
                       step="0.01"
@@ -372,7 +424,7 @@ const CommandeFormPage: React.FC = () => {
                     <input
                       type="number"
                       value={ligne.taux_tva}
-                      onChange={(e) => handleLigneChange(index, 'taux_tva', parseFloat(e.target.value))}
+                      onChange={(e) => handleLigneChange(index, 'taux_tva', parseFloat(e.target.value) || 0)}
                       className="ligne-input"
                       min="0"
                       max="100"
@@ -380,7 +432,7 @@ const CommandeFormPage: React.FC = () => {
                       required
                     />
 
-                    <div className="text-sm font-medium">
+                    <div className="montant-ht">
                       {new Intl.NumberFormat('fr-FR', { 
                         style: 'currency', 
                         currency: formData.devise 
@@ -452,10 +504,10 @@ const CommandeFormPage: React.FC = () => {
             </Link>
             <button 
               type="submit" 
-              className="btn-primary"
+              className={`btn-primary ${formData.statut === 'annulée' ? 'btn-warning' : ''}`}
               disabled={loading}
             >
-              {loading ? 'Création en cours...' : 'Créer la Commande'}
+              {loading ? 'Création en cours...' : getBoutonText()}
             </button>
           </div>
         </form>

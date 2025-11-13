@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { importExportApi } from '../services/api';
 import type { Commande } from '../types';
-import './CommandesListPage.css'; // Import du CSS
+import './CommandesListPage.css'; 
 
 const CommandesListPage: React.FC = () => {
   const [commandes, setCommandes] = useState<Commande[]>([]);
@@ -55,13 +55,11 @@ const CommandesListPage: React.FC = () => {
 
   return (
     <div className="commandes-container">
+
       <div className="commandes-content">
         {/* En-tête */}
         <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Commandes Import/Export</h1>
-            <p className="text-gray-600">Gestion des opérations internationales</p>
-          </div>
+          
           <Link
             to="/import-export/commandes/nouvelle"
             className="btn-nouvelle-commande"
@@ -156,6 +154,14 @@ const CommandesListPage: React.FC = () => {
                         className="btn-action btn-modifier"
                       >
                         Modifier
+                      </Link>
+                     
+                      <Link 
+                        to={`/import-export/commandes/${commande.id}/expedition`}
+                        className="btn-action"
+                        title="Gérer l'expédition"
+                      >
+                        🚚
                       </Link>
                     </div>
                   </td>
