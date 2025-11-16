@@ -3,6 +3,8 @@ import { ContactRepository } from '../repositories/ContactRepository.js';
 import { DevisRepository } from '../repositories/DevisRepository.js';
 import { ContratRepository } from '../repositories/ContratRepository.js';
 import { ActiviteRepository } from '../repositories/ActiviteRepository.js';
+import { ComptabiliteIntegrationService } from './ComptabiliteIntegrationService.js';
+import { ImportExportIntegrationService } from './ImportExportIntegrationService.js';
 
 export class ClientService {
   constructor() {
@@ -11,6 +13,8 @@ export class ClientService {
     this.devisRepository = new DevisRepository();
     this.contratRepository = new ContratRepository();
     this.activiteRepository = new ActiviteRepository();
+    this.comptabiliteIntegration = new ComptabiliteIntegrationService();
+    this.importExportIntegration = new ImportExportIntegrationService();
   }
 
   async getAllClients() {
@@ -30,12 +34,18 @@ export class ClientService {
         throw new Error('Client non trouvé');
       }
 
-      // Récupérer les statistiques
+      // Récupérer les statistiques complètes
       const stats = await this.clientRepository.getClientStats(id_tiers);
+      const statsImportExport = await this.importExportIntegration.getStatsImportExportByClient(id_tiers);
+      const chiffreAffaires = await this.comptabiliteIntegration.getChiffreAffairesByClient(id_tiers);
       
       return {
         ...client,
-        stats
+        stats: {
+          ...stats,
+          ...statsImportExport,
+          chiffre_affaires_comptabilite: chiffreAffaires
+        }
       };
     } catch (error) {
       console.error('Erreur ClientService.getClientDetails:', error);
@@ -45,7 +55,6 @@ export class ClientService {
 
   async updateClientCRM(id_tiers, crmData) {
     try {
-      // Vérifier que le client existe
       const existingClient = await this.clientRepository.findByIdWithDetails(id_tiers);
       if (!existingClient) {
         throw new Error('Client non trouvé');
@@ -92,6 +101,31 @@ export class ClientService {
     } catch (error) {
       console.error('Erreur ClientService.getClientsByCategorie:', error);
       throw new Error('Erreur lors du filtrage des clients par catégorie');
+    }
+  }
+
+  async getActivitesConsolidees(id_tiers) {
+    try {
+      // Récupérer les activités de tous les modules
+      const activitesCRM = await this.activiteRepository.findByClient(id_tiers);
+      const facturesComptabilite = await this.comptabiliteIntegration.getFacturesImpayeesByClient(id_tiers);
+      const paiementsComptabilite = await this.comptabiliteIntegration.getPaiementsByClient(id_tiers);
+      const commandesImportExport = await this.importExportIntegration.getCommandesByClient(id_tiers);
+      const expeditionsImportExport = await this.importExportIntegration.getExpeditionsByClient(id_tiers);
+      
+      // Fusionner toutes les activités
+      const toutesActivites = [
+        ...activitesCRM.map(a => ({ ...a, type: 'crm', source: 'activite' })),
+        ...facturesComptabilite,
+        ...paiementsComptabilite,
+        ...commandesImportExport,
+        ...expeditionsImportExport
+      ].sort((a, b) => new Date(b.date_activite) - new Date(a.date_activite));
+      
+      return toutesActivites;
+    } catch (error) {
+      console.error('Erreur ClientService.getActivitesConsolidees:', error);
+      throw new Error('Erreur lors de la récupération des activités consolidées');
     }
   }
 }

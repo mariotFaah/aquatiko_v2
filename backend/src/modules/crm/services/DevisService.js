@@ -95,6 +95,43 @@ export class DevisService {
       throw new Error('Erreur lors du filtrage des devis par statut');
     }
   }
+
+  // À créer : src/modules/crm/services/DevisService.js
+async transformerDevisEnContrat(id_devis, donneesContrat) {
+  try {
+    const devis = await this.devisRepository.findById(id_devis);
+    
+    if (!devis) {
+      throw new Error('Devis non trouvé');
+    }
+    
+    if (devis.statut !== 'accepte') {
+      throw new Error('Seuls les devis acceptés peuvent être transformés en contrat');
+    }
+    
+    // Générer numéro contrat
+    const dernierContrat = await this.contratRepository.findLast();
+    const nouveauNumero = this.genererNumeroContrat(dernierContrat);
+    
+    const contratData = {
+      numero_contrat: nouveauNumero,
+      tiers_id: devis.tiers_id,
+      devis_id: id_devis,
+      type_contrat: donneesContrat.type_contrat || 'maintenance',
+      date_debut: donneesContrat.date_debut || new Date(),
+      date_fin: donneesContrat.date_fin,
+      montant_ht: devis.montant_ht,
+      periodicite: donneesContrat.periodicite,
+      description: donneesContrat.description,
+      conditions: devis.conditions
+    };
+    
+    return await this.contratRepository.create(contratData);
+  } catch (error) {
+    console.error('Erreur transformation devis en contrat:', error);
+    throw error;
+  }
+}
 }
 
 export default DevisService;

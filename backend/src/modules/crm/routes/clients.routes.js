@@ -10,6 +10,7 @@ router.get('/categorie/:categorie', clientController.getClientsByCategorie);
 router.get('/:id', clientController.getClientDetails);
 router.put('/:id/crm', clientController.updateClientCRM);
 router.get('/:id/activites', clientController.getClientActivites);
+router.get('/:id/activites-consolidees', clientController.getClientActivitesConsolidees);
 router.get('/:id/devis', clientController.getClientDevis);
 router.get('/:id/contrats', clientController.getClientContrats);
 

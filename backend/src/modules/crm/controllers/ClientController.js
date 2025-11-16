@@ -92,6 +92,17 @@ export class ClientController {
       errorResponse(res, error.message, 500);
     }
   };
+
+  getClientActivitesConsolidees = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const activites = await this.clientService.getActivitesConsolidees(parseInt(id));
+      successResponse(res, activites, 'Activités consolidées récupérées avec succès');
+    } catch (error) {
+      console.error('Erreur ClientController.getClientActivitesConsolidees:', error);
+      errorResponse(res, error.message, 500);
+    }
+  };
 }
 
 export default ClientController;
