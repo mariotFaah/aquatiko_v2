@@ -62,15 +62,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
         { name: 'Factures', path: '/comptabilite/factures', icon: '🧾' },
         { name: 'Tiers', path: '/comptabilite/tiers', icon: '👥' },
         { name: 'Articles', path: '/comptabilite/articles', icon: '📦' },
-         {name: 'Suivi Paiements', path: '/comptabilite/suivi-paiements', icon: '📋' },
-       // { name: 'Paiements', path: '/comptabilite/paiements', icon: '💳' },
-        //{ name: 'Échéances', path: '/comptabilite/echeances', icon: '📅' },
+        { name: 'Suivi Paiements', path: '/comptabilite/suivi-paiements', icon: '📋' },
         { name: 'Journal', path: '/comptabilite/journal', icon: '📔' },
         { name: 'Balance', path: '/comptabilite/balance', icon: '⚖️' },
         { name: 'Bilan', path: '/comptabilite/bilan', icon: '📊' },
-        { name: 'Declaration TVA', path:'/comptabilite/tva', icon:'🧾'},
+        { name: 'Declaration TVA', path: '/comptabilite/tva', icon: '🧾' },
         { name: 'Taux Change', path: '/comptabilite/taux-change', icon: '💹' }
-       
       ],
     },
     {
@@ -92,8 +89,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
       badge: '12',
       children: [
         { name: 'Vue générale', path: '/crm', icon: '📈' },
-        { name: 'Clients', path: '/crm/clients', icon: '👤' },
+        { name: 'Clients', path: '/crm/clients', icon: '👥' },
         { name: 'Devis', path: '/crm/devis', icon: '📄' },
+        { name: 'Contrats', path: '/crm/contrats', icon: '📑' },
+        { name: 'Activités', path: '/crm/activites', icon: '📋' },
+        { name: 'Contacts', path: '/crm/contacts', icon: '👤' },
+        { name: 'Relances', path: '/crm/relances', icon: '🔔' },
       ],
     },
   ];
@@ -108,7 +109,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
           {isOpen && (
             <div className="sidebar-brand">
               <div className="brand-logo">🌊</div>
-              <h1 className="sidebar-title">OMNISERVE EXPERTS </h1>
+              <h1 className="sidebar-title">OMNISERVE EXPERTS</h1>
             </div>
           )}
           
@@ -191,7 +192,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
               <div className="user-profile">
                 <div className="user-avatar">AK</div>
                 <div className="user-info">
-                  <div className="user-name">OMNISERVE EXPERTS  Team</div>
+                  <div className="user-name">OMNISERVE EXPERTS Team</div>
                   <div className="user-role">Administrateur</div>
                 </div>
               </div>

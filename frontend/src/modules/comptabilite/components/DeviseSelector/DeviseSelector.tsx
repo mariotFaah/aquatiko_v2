@@ -23,8 +23,20 @@ export const DeviseSelector: React.FC<DeviseSelectorProps> = ({
     const loadDevises = async () => {
       setLoading(true);
       try {
-        const devisesDisponibles = await deviseApi.getDevisesDisponibles();
-        setDevises(devisesDisponibles);
+        // Use the existing API to get rates and infer currency codes.
+        // We defensively extract 3-letter uppercase codes from any string fields in the returned objects.
+        const taux = await deviseApi.getTauxChange();
+        const inferred = new Set<string>(['MGA', 'USD', 'EUR']);
+        if (Array.isArray(taux)) {
+          taux.forEach((t: any) => {
+            Object.values(t).forEach((v: any) => {
+              if (typeof v === 'string' && /^[A-Z]{3}$/.test(v)) {
+                inferred.add(v);
+              }
+            });
+          });
+        }
+        setDevises(Array.from(inferred));
       } catch (error) {
         console.error('Erreur chargement devises:', error);
       } finally {
