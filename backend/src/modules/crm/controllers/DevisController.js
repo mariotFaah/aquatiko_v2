@@ -91,6 +91,24 @@ export class DevisController {
       errorResponse(res, error.message, 500);
     }
   };
+
+  // Dans DevisController.js
+transformerEnContrat = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const donneesContrat = req.body;
+    
+    const contrat = await this.devisService.transformerDevisEnContrat(
+      parseInt(id), 
+      donneesContrat
+    );
+    
+    successResponse(res, contrat, 'Devis transformé en contrat avec succès');
+  } catch (error) {
+    console.error('Erreur transformation devis en contrat:', error);
+    errorResponse(res, error.message, 400);
+  }
+};
 }
 
 export default DevisController;

@@ -19,7 +19,13 @@ export class ClientService {
 
   async getAllClients() {
     try {
-      return await this.clientRepository.findAllWithCRM();
+      const clients = await this.clientRepository.findAllWithCRM();
+      
+      // S'assurer que l'ID est correctement retourné
+      return clients.map(client => ({
+        id: client.id_tiers,  // ← CORRECTION ICI
+        ...client
+      }));
     } catch (error) {
       console.error('Erreur ClientService.getAllClients:', error);
       throw new Error('Erreur lors de la récupération des clients');
@@ -34,13 +40,19 @@ export class ClientService {
         throw new Error('Client non trouvé');
       }
 
+      // CORRECTION : S'assurer que l'ID est retourné
+      const clientAvecId = {
+        id: client.id_tiers,  // ← CORRECTION ICI
+        ...client
+      };
+
       // Récupérer les statistiques complètes
       const stats = await this.clientRepository.getClientStats(id_tiers);
       const statsImportExport = await this.importExportIntegration.getStatsImportExportByClient(id_tiers);
       const chiffreAffaires = await this.comptabiliteIntegration.getChiffreAffairesByClient(id_tiers);
       
       return {
-        ...client,
+        ...clientAvecId,
         stats: {
           ...stats,
           ...statsImportExport,
@@ -60,7 +72,13 @@ export class ClientService {
         throw new Error('Client non trouvé');
       }
 
-      return await this.clientRepository.updateCRMData(id_tiers, crmData);
+      const updatedClient = await this.clientRepository.updateCRMData(id_tiers, crmData);
+      
+      // CORRECTION : Retourner avec l'ID correct
+      return {
+        id: updatedClient.id_tiers,
+        ...updatedClient
+      };
     } catch (error) {
       console.error('Erreur ClientService.updateClientCRM:', error);
       throw new Error(`Erreur lors de la mise à jour du client: ${error.message}`);
@@ -97,7 +115,13 @@ export class ClientService {
   async getClientsByCategorie(categorie) {
     try {
       const clients = await this.clientRepository.findAllWithCRM();
-      return clients.filter(client => client.categorie === categorie);
+      const filteredClients = clients.filter(client => client.categorie === categorie);
+      
+      // CORRECTION : S'assurer que l'ID est retourné
+      return filteredClients.map(client => ({
+        id: client.id_tiers,
+        ...client
+      }));
     } catch (error) {
       console.error('Erreur ClientService.getClientsByCategorie:', error);
       throw new Error('Erreur lors du filtrage des clients par catégorie');

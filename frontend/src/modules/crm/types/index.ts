@@ -55,6 +55,9 @@ export interface Contact {
 export interface Devis {
   id_devis: number;
   numero_devis: string;
+  client_email: string;
+  client_adresse: string;
+  client_telephone: string;
   tiers_id: number;
   client_nom?: string;
   date_devis: string;
@@ -199,6 +202,7 @@ export interface RelanceStats {
 export interface ActiviteConsolidee {
   id_activite?: number;
   type_activite: string;
+  priorite?: string;
   sujet: string;
   description?: string;
   date_activite: string;

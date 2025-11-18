@@ -1,379 +1,509 @@
 /* src/modules/crm/components/forms/DevisForm.css */
-.devis-form-page {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
+
+/* Variables de couleurs Microsoft */
+:root {
+  --ms-primary: #0078d4;
+  --ms-primary-dark: #106ebe;
+  --ms-primary-light: #deecf9;
+  --ms-surface: #ffffff;
+  --ms-surface-alt: #faf9f8;
+  --ms-border: #edebe9;
+  --ms-border-focus: #0078d4;
+  --ms-text-primary: #323130;
+  --ms-text-secondary: #605e5c;
+  --ms-text-disabled: #a19f9d;
+  --ms-error: #d13438;
+  --ms-error-bg: #fdf6f6;
+  --ms-success: #107c10;
+  --ms-shadow: 0 1.6px 3.6px 0 rgba(0, 0, 0, 0.132), 0 0.3px 0.9px 0 rgba(0, 0, 0, 0.108);
 }
 
-.devis-form {
-  background: white;
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.form-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-}
-
-.form-section {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  padding: 20px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  border: 1px solid #e9ecef;
-}
-
-.form-section.full-width {
-  grid-template-columns: 1fr;
-}
-
-.form-section h3 {
-  grid-column: 1 / -1;
-  margin: 0 0 15px 0;
-  color: #2c3e50;
-  font-size: 1.1em;
-  border-bottom: 1px solid #dee2e6;
-  padding-bottom: 10px;
-}
-
-.section-header {
-  grid-column: 1 / -1;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-.section-header h3 {
-  margin: 0;
-  border: none;
+/* Container principal */
+.ms-form-container {
+  background: var(--ms-surface);
+  min-height: 100vh;
   padding: 0;
 }
 
-.btn-add-line {
-  background: #28a745;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9em;
-}
-
-.btn-add-line:hover {
-  background: #218838;
-}
-
-.form-row {
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-}
-
-.form-group {
+/* En-tête du formulaire */
+.ms-form-header {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--ms-border);
+  background: var(--ms-surface);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
-.form-group label {
+.ms-header-left {
+  flex: 1;
+}
+
+.ms-form-title {
+  font-size: 24px;
   font-weight: 600;
-  color: #2c3e50;
-  font-size: 0.9em;
+  color: var(--ms-text-primary);
+  margin: 0 0 12px 0;
+  line-height: 32px;
 }
 
-.form-group input,
-.form-group select,
-.form-group textarea {
-  padding: 10px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 0.9em;
-  transition: border-color 0.3s;
+.ms-header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
 }
 
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-  outline: none;
-  border-color: #3498db;
-  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+/* Message d'erreur */
+.ms-error-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--ms-error-bg);
+  border: 1px solid var(--ms-error);
+  border-radius: 2px;
+  color: var(--ms-error);
+  font-size: 14px;
 }
 
-.form-group textarea {
-  resize: vertical;
-  min-height: 80px;
+.ms-error-icon {
+  font-size: 16px;
+}
+
+/* Formulaire principal */
+.ms-form {
+  padding: 0;
+}
+
+.ms-form-sections {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px 24px;
+}
+
+/* Sections du formulaire */
+.ms-form-section {
+  background: var(--ms-surface);
+  border: 1px solid var(--ms-border);
+  border-radius: 2px;
+  margin-bottom: 24px;
+  box-shadow: var(--ms-shadow);
+}
+
+.ms-section-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--ms-border);
+  background: var(--ms-surface-alt);
+}
+
+.ms-section-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ms-section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ms-text-primary);
+  margin: 0;
+}
+
+.ms-section-content {
+  padding: 20px;
+}
+
+/* Boutons */
+.ms-btn {
+  padding: 8px 16px;
+  border: 1px solid;
+  border-radius: 2px;
+  font-size: 14px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
   font-family: inherit;
 }
 
-/* Styles pour les lignes de devis */
-.lignes-devis {
-  grid-column: 1 / -1;
-  border: 1px solid #dee2e6;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.ligne-header {
-  display: grid;
-  grid-template-columns: 2fr 80px 120px 100px 120px 60px;
-  gap: 10px;
-  padding: 12px 15px;
-  background: #34495e;
+.ms-btn-primary {
+  background: var(--ms-primary);
   color: white;
-  font-weight: 600;
-  font-size: 0.9em;
+  border-color: var(--ms-primary);
 }
 
-.ligne-devis {
+.ms-btn-primary:hover:not(:disabled) {
+  background: var(--ms-primary-dark);
+  border-color: var(--ms-primary-dark);
+}
+
+.ms-btn-secondary {
+  background: transparent;
+  color: var(--ms-primary);
+  border-color: var(--ms-primary);
+}
+
+.ms-btn-secondary:hover:not(:disabled) {
+  background: var(--ms-primary-light);
+}
+
+.ms-btn-sm {
+  padding: 6px 12px;
+  font-size: 13px;
+  min-height: 28px;
+}
+
+.ms-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Champs de formulaire */
+.ms-form-row {
   display: grid;
-  grid-template-columns: 2fr 80px 120px 100px 120px 60px;
-  gap: 10px;
-  padding: 15px;
-  border-bottom: 1px solid #e9ecef;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.ms-form-row:last-child {
+  margin-bottom: 0;
+}
+
+.ms-form-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.ms-field-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ms-text-primary);
+  margin-bottom: 4px;
+  display: block;
+}
+
+.ms-required {
+  color: var(--ms-error);
+}
+
+.ms-field-input,
+.ms-field-textarea {
+  padding: 6px 8px;
+  border: 1px solid var(--ms-border);
+  border-radius: 2px;
+  font-size: 14px;
+  color: var(--ms-text-primary);
+  background: var(--ms-surface);
+  transition: all 0.1s ease;
+  min-height: 32px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.ms-field-input:focus,
+.ms-field-textarea:focus {
+  outline: none;
+  border-color: var(--ms-border-focus);
+  box-shadow: 0 0 0 1px var(--ms-border-focus);
+}
+
+.ms-field-textarea {
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+  line-height: 1.5;
+}
+
+.ms-field-sm {
+  min-height: 28px;
+  padding: 4px 6px;
+  font-size: 13px;
+}
+
+.ms-field-number {
+  text-align: right;
+}
+
+/* Champ devise */
+.ms-currency-input {
+  position: relative;
+  display: flex;
   align-items: center;
 }
 
-.ligne-devis:last-child {
+.ms-currency-input .ms-field-input {
+  padding-right: 24px;
+}
+
+.ms-currency-symbol {
+  position: absolute;
+  right: 6px;
+  color: var(--ms-text-secondary);
+  font-size: 13px;
+  pointer-events: none;
+}
+
+/* Lignes de devis */
+.ms-lignes-container {
+  border: 1px solid var(--ms-border);
+  border-radius: 2px;
+  margin-bottom: 20px;
+}
+
+.ms-ligne-header {
+  display: grid;
+  grid-template-columns: 2fr 80px 120px 100px 120px 40px;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--ms-surface-alt);
+  border-bottom: 1px solid var(--ms-border);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ms-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ms-ligne-devis {
+  display: grid;
+  grid-template-columns: 2fr 80px 120px 100px 120px 40px;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--ms-border);
+  align-items: start;
+}
+
+.ms-ligne-devis:last-child {
   border-bottom: none;
 }
 
-.ligne-devis input,
-.ligne-devis select {
-  width: 100%;
-  padding: 8px 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 0.9em;
+.ms-col-description {
+  min-width: 0;
 }
 
-.ligne-devis input:focus,
-.ligne-devis select:focus {
-  outline: none;
-  border-color: #3498db;
+.ms-col-quantite,
+.ms-col-prix,
+.ms-col-tva,
+.ms-col-montant {
+  min-width: 0;
 }
 
-.col-prix {
-  position: relative;
+.ms-col-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.col-prix .currency {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #6c757d;
-  font-size: 0.8em;
-}
-
-.montant-ht {
-  font-weight: 600;
-  color: #2c3e50;
-}
-
-.btn-delete {
-  background: #dc3545;
-  color: white;
+.ms-btn-delete {
+  background: none;
   border: none;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
+  color: var(--ms-error);
+  font-size: 18px;
   cursor: pointer;
+  width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2em;
-  line-height: 1;
+  border-radius: 2px;
+  transition: all 0.1s ease;
 }
 
-.btn-delete:hover {
-  background: #c82333;
+.ms-btn-delete:hover {
+  background: var(--ms-error-bg);
 }
 
-/* Section totaux */
-.totaux-section {
-  grid-column: 1 / -1;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 10px;
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 2px solid #dee2e6;
-}
-
-.total-line {
-  display: flex;
-  justify-content: space-between;
-  width: 300px;
-  padding: 8px 0;
-}
-
-.total-label {
+.ms-montant-value {
+  font-size: 13px;
   font-weight: 600;
-  color: #2c3e50;
+  color: var(--ms-text-primary);
+  white-space: nowrap;
 }
 
-.total-value {
-  font-weight: 700;
-  color: #2c3e50;
+/* Résumé financier */
+.ms-financial-summary {
+  border-top: 2px solid var(--ms-border);
+  padding-top: 16px;
+  margin-top: 16px;
 }
 
-.total-ttc {
-  font-size: 1.2em;
-  color: #27ae60;
-}
-
-/* Actions du formulaire */
-.form-actions {
+.ms-financial-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 30px;
-  padding-top: 20px;
-  border-top: 1px solid #eee;
+  padding: 8px 0;
 }
 
-.action-buttons {
-  display: flex;
-  gap: 15px;
-}
-
-.btn-cancel,
-.btn-save-draft,
-.btn-submit,
-.btn-secondary {
-  padding: 12px 24px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 0.9em;
+.ms-financial-label {
+  font-size: 14px;
+  color: var(--ms-text-secondary);
   font-weight: 500;
-  transition: all 0.3s;
 }
 
-.btn-secondary {
-  background: #6c757d;
-  color: white;
-  text-decoration: none;
-  display: inline-block;
-  text-align: center;
+.ms-financial-value {
+  font-size: 14px;
+  color: var(--ms-text-primary);
+  font-weight: 500;
 }
 
-.btn-secondary:hover {
-  background: #5a6268;
+.ms-financial-total {
+  border-top: 1px solid var(--ms-border);
+  margin-top: 4px;
+  padding-top: 12px;
 }
 
-.btn-cancel {
-  background: #6c757d;
-  color: white;
+.ms-financial-total .ms-financial-label {
+  font-weight: 600;
+  color: var(--ms-text-primary);
 }
 
-.btn-cancel:hover {
-  background: #5a6268;
+.ms-financial-total .ms-financial-value {
+  font-weight: 600;
+  color: var(--ms-primary);
+  font-size: 16px;
 }
 
-.btn-save-draft {
-  background: #6c757d;
-  color: white;
-}
-
-.btn-save-draft:hover:not(:disabled) {
-  background: #5a6268;
-}
-
-.btn-submit {
-  background: #28a745;
-  color: white;
-}
-
-.btn-submit:hover:not(:disabled) {
-  background: #218838;
-}
-
-.btn-save-draft:disabled,
-.btn-submit:disabled {
-  background: #a0a0a0;
-  cursor: not-allowed;
+/* Loading */
+.ms-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 16px;
+  color: var(--ms-text-secondary);
 }
 
 /* Responsive */
 @media (max-width: 1024px) {
-  .ligne-header,
-  .ligne-devis {
-    grid-template-columns: 1fr 80px 100px 80px 100px 50px;
-    font-size: 0.8em;
-  }
-  
-  .col-description {
-    min-width: 150px;
+  .ms-ligne-header,
+  .ms-ligne-devis {
+    grid-template-columns: 1fr 80px 100px 80px 100px 40px;
+    gap: 8px;
+    padding: 8px 12px;
   }
 }
 
 @media (max-width: 768px) {
-  .form-section {
-    grid-template-columns: 1fr;
+  .ms-form-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+    padding: 16px;
   }
   
-  .form-row {
-    grid-template-columns: 1fr;
+  .ms-header-actions {
+    justify-content: flex-end;
   }
   
-  .ligne-header,
-  .ligne-devis {
-    grid-template-columns: 1fr;
-    gap: 8px;
+  .ms-form-sections {
+    padding: 0 16px 16px;
   }
   
-  .ligne-header {
+  .ms-form-row {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .ms-section-content {
+    padding: 16px;
+  }
+  
+  .ms-section-title-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .ms-ligne-header {
     display: none;
   }
   
-  .ligne-devis {
-    position: relative;
-    padding: 15px;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    margin-bottom: 10px;
+  .ms-ligne-devis {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 16px;
+    border: 1px solid var(--ms-border);
+    border-radius: 2px;
+    margin-bottom: 12px;
   }
   
-  .col-description::before { content: "Description: "; font-weight: 600; }
-  .col-quantite::before { content: "Quantité: "; font-weight: 600; }
-  .col-prix::before { content: "Prix unitaire: "; font-weight: 600; }
-  .col-tva::before { content: "TVA: "; font-weight: 600; }
-  .col-montant::before { content: "Montant HT: "; font-weight: 600; }
-  
-  .col-actions {
-    position: absolute;
-    top: 10px;
-    right: 10px;
+  .ms-ligne-devis:last-child {
+    margin-bottom: 0;
   }
   
-  .form-actions {
+  .ms-col-description::before {
+    content: "Description";
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ms-text-secondary);
+    display: block;
+    margin-bottom: 4px;
+  }
+  
+  .ms-col-quantite::before {
+    content: "Quantité";
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ms-text-secondary);
+    display: block;
+    margin-bottom: 4px;
+  }
+  
+  .ms-col-prix::before {
+    content: "Prix unitaire HT";
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ms-text-secondary);
+    display: block;
+    margin-bottom: 4px;
+  }
+  
+  .ms-col-tva::before {
+    content: "TVA";
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ms-text-secondary);
+    display: block;
+    margin-bottom: 4px;
+  }
+  
+  .ms-col-montant::before {
+    content: "Montant HT";
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ms-text-secondary);
+    display: block;
+    margin-bottom: 4px;
+  }
+  
+  .ms-col-actions {
+    justify-content: flex-start;
+    margin-top: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ms-form-header {
+    padding: 12px;
+  }
+  
+  .ms-form-title {
+    font-size: 20px;
+  }
+  
+  .ms-header-actions {
     flex-direction: column;
-    gap: 15px;
-    align-items: stretch;
   }
   
-  .action-buttons {
-    flex-direction: column;
-  }
-  
-  .devis-form {
-    padding: 20px;
-  }
-  
-  .totaux-section {
-    align-items: stretch;
-  }
-  
-  .total-line {
-    width: auto;
+  .ms-btn {
+    width: 100%;
   }
 }

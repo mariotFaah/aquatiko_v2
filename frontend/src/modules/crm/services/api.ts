@@ -125,6 +125,12 @@ export const crmApi = {
     return data.data;
   },
 
+  getDevisByStatut: async (statut: string): Promise<Devis[]> => {
+    const res = await fetch(`${API_BASE_URL}/devis/statut/${statut}`);
+    const data: ApiResponse<Devis[]> = await res.json();
+    return Array.isArray(data.data) ? data.data : [];
+  },
+
   // ---- Contrats API ----
   getContrats: async (): Promise<Contrat[]> => {
     const res = await fetch(`${API_BASE_URL}/contrats`);

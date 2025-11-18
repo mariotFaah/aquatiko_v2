@@ -1,8 +1,10 @@
 import { DevisRepository } from '../repositories/DevisRepository.js';
+import { ContratRepository } from '../repositories/ContratRepository.js';
 
 export class DevisService {
   constructor() {
     this.devisRepository = new DevisRepository();
+    this.contratRepository = new ContratRepository(); // ← AJOUT IMPORTANT
   }
 
   async getAllDevis() {
@@ -36,7 +38,20 @@ export class DevisService {
         throw new Error('Le client et la date sont obligatoires');
       }
 
-      return await this.devisRepository.create(devisData);
+      // Calcul automatique du TTC avec TVA à 20%
+      const tvaRate = 0.20;
+      const montantHT = parseFloat(devisData.montant_ht) || 0;
+      const montantTTC = montantHT * (1 + tvaRate);
+
+      // S'assurer que les données incluent le TTC calculé
+      const devisDataComplet = {
+        ...devisData,
+        montant_ht: montantHT,
+        montant_ttc: montantTTC,
+        statut: devisData.statut || 'brouillon'
+      };
+
+      return await this.devisRepository.create(devisDataComplet);
     } catch (error) {
       console.error('Erreur DevisService.createDevis:', error);
       throw new Error(`Erreur lors de la création du devis: ${error.message}`);
@@ -49,6 +64,13 @@ export class DevisService {
       const existingDevis = await this.devisRepository.findById(id_devis);
       if (!existingDevis) {
         throw new Error('Devis non trouvé');
+      }
+
+      // Recalculer TTC si montant HT modifié
+      if (devisData.montant_ht !== undefined) {
+        const tvaRate = 0.20;
+        const montantHT = parseFloat(devisData.montant_ht);
+        devisData.montant_ttc = montantHT * (1 + tvaRate);
       }
 
       return await this.devisRepository.update(id_devis, devisData);
@@ -96,8 +118,7 @@ export class DevisService {
     }
   }
 
-  // À créer : src/modules/crm/services/DevisService.js
-async transformerDevisEnContrat(id_devis, donneesContrat) {
+  async transformerDevisEnContrat(id_devis, donneesContrat) {
   try {
     const devis = await this.devisRepository.findById(id_devis);
     
@@ -117,20 +138,50 @@ async transformerDevisEnContrat(id_devis, donneesContrat) {
       numero_contrat: nouveauNumero,
       tiers_id: devis.tiers_id,
       devis_id: id_devis,
-      type_contrat: donneesContrat.type_contrat || 'maintenance',
+      type_contrat: donneesContrat.type_contrat || 'Maintenance',
       date_debut: donneesContrat.date_debut || new Date(),
       date_fin: donneesContrat.date_fin,
+      statut: 'actif',
       montant_ht: devis.montant_ht,
-      periodicite: donneesContrat.periodicite,
-      description: donneesContrat.description,
-      conditions: devis.conditions
+      montant_ttc: devis.montant_ttc,
+      periodicite: donneesContrat.periodicite || 'ponctuel',
+      description: donneesContrat.description || devis.objet,
+      conditions: donneesContrat.conditions || devis.conditions
     };
     
-    return await this.contratRepository.create(contratData);
+    const contrat = await this.contratRepository.create(contratData);
+    
+    // CORRECTION : Utiliser un statut existant dans l'ENUM
+    await this.devisRepository.update(id_devis, { 
+      statut: 'accepte' // Garder 'accepte' au lieu de 'transforme_contrat'
+    });
+    
+    return contrat;
   } catch (error) {
     console.error('Erreur transformation devis en contrat:', error);
     throw error;
   }
+}
+
+  // Méthode pour générer le numéro de contrat
+
+genererNumeroContrat(dernierContrat) {
+  if (!dernierContrat || !dernierContrat.numero_contrat) {
+    return 'CONT-2024-001';
+  }
+  
+  const dernierNumero = dernierContrat.numero_contrat;
+  const match = dernierNumero.match(/CONT-(\d{4})-(\d+)/);
+  
+  if (match) {
+    const annee = match[1];
+    const numero = parseInt(match[2]) + 1;
+    return `CONT-${annee}-${numero.toString().padStart(3, '0')}`;
+  }
+  
+  // Fallback - utiliser l'ID si pas de format reconnu
+  const nouvelId = dernierContrat.id_contrat ? parseInt(dernierContrat.id_contrat) + 1 : 1;
+  return `CONT-2024-${nouvelId.toString().padStart(3, '0')}`;
 }
 }
 

@@ -1,357 +1,453 @@
 /* src/modules/crm/pages/DevisDetailPage.css */
-.devis-detail-container {
-  padding: 1.5rem;
-  max-width: 100%;
+
+/* Variables de couleurs Microsoft */
+:root {
+  --ms-primary: #0078d4;
+  --ms-primary-dark: #106ebe;
+  --ms-primary-light: #deecf9;
+  --ms-surface: #ffffff;
+  --ms-surface-alt: #faf9f8;
+  --ms-border: #edebe9;
+  --ms-border-focus: #0078d4;
+  --ms-text-primary: #323130;
+  --ms-text-secondary: #605e5c;
+  --ms-text-disabled: #a19f9d;
+  --ms-error: #d13438;
+  --ms-error-bg: #fdf6f6;
+  --ms-success: #107c10;
+  --ms-warning: #ffb900;
+  --ms-shadow: 0 1.6px 3.6px 0 rgba(0, 0, 0, 0.132), 0 0.3px 0.9px 0 rgba(0, 0, 0, 0.108);
 }
 
-/* Header Card */
-.devis-header-card {
-  background-color: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
+/* Container principal */
+.ms-page-container {
+  background: var(--ms-surface);
+  min-height: 100vh;
+  padding: 0;
 }
 
-.devis-header-content {
+/* Header de page */
+.ms-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--ms-border);
+  background: var(--ms-surface);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.ms-header-left {
+  flex: 1;
+}
+
+.ms-back-button {
+  background: none;
+  border: none;
+  color: var(--ms-primary);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 0;
+  margin-bottom: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ms-back-button:hover {
+  text-decoration: underline;
+}
+
+.ms-page-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--ms-text-primary);
+  margin: 0 0 4px 0;
+  line-height: 32px;
+}
+
+.ms-page-subtitle {
+  font-size: 14px;
+  color: var(--ms-text-secondary);
+}
+
+.ms-header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+/* Layout principal */
+.ms-detail-layout {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 24px;
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Sections */
+.ms-detail-section {
+  background: var(--ms-surface);
+  border: 1px solid var(--ms-border);
+  border-radius: 2px;
+  box-shadow: var(--ms-shadow);
+  margin-bottom: 20px;
+}
+
+.ms-detail-section:last-child {
+  margin-bottom: 0;
+}
+
+.ms-section-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--ms-border);
+  background: var(--ms-surface-alt);
+}
+
+.ms-section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ms-text-primary);
+  margin: 0;
+}
+
+.ms-section-content {
+  padding: 20px;
+}
+
+/* Grille de propriétés */
+.ms-property-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ms-property {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
 }
 
-.devis-title-section {
+.ms-property-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ms-text-secondary);
+  flex-shrink: 0;
+  margin-right: 16px;
+}
+
+.ms-property-value {
+  font-size: 14px;
+  color: var(--ms-text-primary);
+  text-align: right;
+  word-break: break-word;
   flex: 1;
 }
 
-.devis-title-row {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 0.5rem;
+.ms-link {
+  color: var(--ms-primary);
+  text-decoration: none;
 }
 
-.devis-title {
-  font-size: 1.875rem;
-  font-weight: bold;
-  color: #1f2937;
-  margin: 0;
+.ms-link:hover {
+  text-decoration: underline;
 }
 
-.devis-objet {
-  font-size: 1.125rem;
-  color: #6b7280;
-  margin: 0;
+/* Sections de description */
+.ms-description-section {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--ms-border);
 }
 
-.devis-montant-section {
-  text-align: right;
-}
-
-.devis-montant-ht {
-  font-size: 1.875rem;
-  font-weight: bold;
-  color: #1f2937;
-}
-
-.devis-montant-label {
-  font-size: 0.875rem;
-  color: #6b7280;
-}
-
-/* Main Grid */
-.devis-detail-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.5rem;
-}
-
-@media (min-width: 1024px) {
-  .devis-detail-grid {
-    grid-template-columns: 2fr 1fr;
-  }
-}
-
-.devis-main-content {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.devis-sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-/* Info Cards */
-.devis-info-card {
-  background-color: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  padding: 1.5rem;
-}
-
-.devis-info-title {
-  font-size: 1.125rem;
+.ms-description-label {
+  font-size: 14px;
   font-weight: 600;
-  color: #1f2937;
-  margin: 0 0 1rem 0;
-}
-
-.devis-info-content {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.info-row {
-  color: #374151;
-}
-
-.info-label {
-  font-weight: 500;
-  color: #1f2937;
-}
-
-/* Details Grid */
-.devis-details-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-@media (min-width: 640px) {
-  .devis-details-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-.detail-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.detail-label {
-  font-weight: 500;
-  color: #1f2937;
-  font-size: 0.875rem;
-}
-
-.detail-value {
-  color: #374151;
-}
-
-/* Notes Sections */
-.devis-notes-section {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid #e5e7eb;
-}
-
-.notes-label {
-  font-weight: 500;
-  color: #1f2937;
+  color: var(--ms-text-secondary);
   display: block;
-  margin-bottom: 0.5rem;
+  margin-bottom: 8px;
 }
 
-.notes-content {
-  color: #374151;
+.ms-description-content {
+  font-size: 14px;
+  color: var(--ms-text-primary);
   line-height: 1.5;
   margin: 0;
+  white-space: pre-wrap;
 }
 
-/* Financial Summary */
-.financial-summary {
+/* Résumé financier */
+.ms-financial-summary {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 12px;
 }
 
-.financial-row {
+.ms-financial-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 0;
+  padding: 8px 0;
 }
 
-.financial-row.total-row {
-  border-top: 1px solid #e5e7eb;
-  padding-top: 0.75rem;
-  margin-top: 0.25rem;
+.ms-financial-row:not(:last-child) {
+  border-bottom: 1px solid var(--ms-border);
 }
 
-.financial-label {
-  color: #6b7280;
+.ms-financial-label {
+  font-size: 14px;
+  color: var(--ms-text-secondary);
 }
 
-.financial-value {
+.ms-financial-value {
+  font-size: 14px;
+  color: var(--ms-text-primary);
   font-weight: 500;
-  color: #1f2937;
 }
 
-.total-label {
-  color: #1f2937;
+.ms-financial-total {
+  border-top: 2px solid var(--ms-border);
+  margin-top: 4px;
+  padding-top: 12px;
+}
+
+.ms-financial-total .ms-financial-label {
   font-weight: 600;
+  color: var(--ms-text-primary);
 }
 
-.total-value {
-  color: #1f2937;
-  font-weight: 700;
-  font-size: 1.125rem;
+.ms-financial-total .ms-financial-value {
+  font-weight: 600;
+  color: var(--ms-primary);
+  font-size: 16px;
 }
 
 /* Actions */
-.actions-grid {
+.ms-actions-grid {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 12px;
 }
 
-.actions-group {
+.ms-actions-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 8px;
 }
 
-/* Buttons */
-.btn {
-  padding: 0.75rem 1rem;
-  border: none;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  font-weight: 500;
+/* Boutons */
+.ms-btn {
+  padding: 8px 16px;
+  border: 1px solid;
+  border-radius: 2px;
+  font-size: 14px;
+  font-weight: 400;
   cursor: pointer;
-  text-align: center;
-  transition: all 0.2s;
-  text-decoration: none;
-  display: inline-block;
-}
-
-.btn-primary {
-  background-color: #4f46e5;
-  color: white;
-}
-
-.btn-primary:hover {
-  background-color: #4338ca;
-}
-
-.btn-success {
-  background-color: #059669;
-  color: white;
-}
-
-.btn-success:hover {
-  background-color: #047857;
-}
-
-.btn-danger {
-  background-color: #dc2626;
-  color: white;
-}
-
-.btn-danger:hover {
-  background-color: #b91c1c;
-}
-
-.btn-secondary {
-  background-color: #6b7280;
-  color: white;
-}
-
-.btn-secondary:hover {
-  background-color: #374151;
-}
-
-.btn-outline-danger {
-  background-color: transparent;
-  color: #dc2626;
-  border: 1px solid #dc2626;
-}
-
-.btn-outline-danger:hover {
-  background-color: #fef2f2;
-}
-
-/* Status Badges */
-.statut-badge {
+  transition: all 0.1s ease;
+  min-height: 32px;
   display: inline-flex;
   align-items: center;
-  padding: 0.375rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
+  justify-content: center;
+  text-decoration: none;
+  font-family: inherit;
+}
+
+.ms-btn-primary {
+  background: var(--ms-primary);
+  color: white;
+  border-color: var(--ms-primary);
+}
+
+.ms-btn-primary:hover:not(:disabled) {
+  background: var(--ms-primary-dark);
+  border-color: var(--ms-primary-dark);
+}
+
+.ms-btn-secondary {
+  background: transparent;
+  color: var(--ms-primary);
+  border-color: var(--ms-primary);
+}
+
+.ms-btn-secondary:hover:not(:disabled) {
+  background: var(--ms-primary-light);
+}
+
+.ms-btn-success {
+  background: var(--ms-success);
+  color: white;
+  border-color: var(--ms-success);
+}
+
+.ms-btn-success:hover:not(:disabled) {
+  background: #0d6b0d;
+  border-color: #0d6b0d;
+}
+
+.ms-btn-danger {
+  background: var(--ms-error);
+  color: white;
+  border-color: var(--ms-error);
+}
+
+.ms-btn-danger:hover:not(:disabled) {
+  background: #c02a2a;
+  border-color: #c02a2a;
+}
+
+.ms-btn-outline {
+  background: transparent;
+}
+
+.ms-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Badges */
+.ms-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 2px;
+  font-size: 11px;
   font-weight: 600;
+  line-height: 1;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.statut-accepte {
-  background-color: #d1fae5;
-  color: #065f46;
+.ms-badge-success {
+  background: #dff6dd;
+  color: #107c10;
 }
 
-.statut-envoye {
-  background-color: #dbeafe;
-  color: #1e40af;
+.ms-badge-warning {
+  background: #fff4ce;
+  color: #8a6d00;
 }
 
-.statut-brouillon {
-  background-color: #f3f4f6;
-  color: #374151;
+.ms-badge-error {
+  background: #fde7e9;
+  color: #d13438;
 }
 
-.statut-refuse {
-  background-color: #fecaca;
-  color: #dc2626;
+.ms-badge-neutral {
+  background: #f3f2f1;
+  color: #605e5c;
 }
 
-.statut-expire {
-  background-color: #fed7aa;
-  color: #ea580c;
+/* Jours restants */
+.ms-jours-restants {
+  font-size: 12px;
+  color: var(--ms-warning);
+  font-weight: 600;
+  margin-left: 8px;
 }
 
-/* States */
-.loading-state {
+/* États d'erreur */
+.ms-error-state {
+  text-align: center;
+  padding: 60px 24px;
+  color: var(--ms-text-secondary);
+}
+
+.ms-error-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.ms-error-state h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ms-text-primary);
+  margin: 0 0 8px 0;
+}
+
+.ms-error-state p {
+  font-size: 14px;
+  margin: 0 0 20px 0;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Loading */
+.ms-loading {
   display: flex;
   justify-content: center;
-  padding: 2rem;
-  color: #6b7280;
-}
-
-.error-state {
-  color: #dc2626;
-  padding: 1rem;
-  background-color: #fef2f2;
-  border-radius: 0.375rem;
-  margin: 1rem;
+  align-items: center;
+  height: 200px;
+  font-size: 16px;
+  color: var(--ms-text-secondary);
 }
 
 /* Responsive */
-@media (max-width: 768px) {
-  .devis-header-content {
-    flex-direction: column;
-    gap: 1rem;
+@media (max-width: 1024px) {
+  .ms-detail-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 20px;
   }
+  
+  .ms-detail-sidebar {
+    order: -1;
+  }
+}
 
-  .devis-montant-section {
+@media (max-width: 768px) {
+  .ms-page-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+    padding: 16px;
+  }
+  
+  .ms-header-actions {
+    justify-content: flex-start;
+  }
+  
+  .ms-detail-layout {
+    padding: 16px;
+  }
+  
+  .ms-section-content {
+    padding: 16px;
+  }
+  
+  .ms-property {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .ms-property-value {
     text-align: left;
   }
-
-  .devis-title-row {
+  
+  .ms-actions-group {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
   }
+}
 
-  .devis-details-grid {
-    grid-template-columns: 1fr;
+@media (max-width: 480px) {
+  .ms-detail-layout {
+    padding: 12px;
   }
-
-  .financial-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.25rem;
+  
+  .ms-section-header {
+    padding: 12px 16px;
+  }
+  
+  .ms-section-content {
+    padding: 12px;
+  }
+  
+  .ms-btn {
+    width: 100%;
   }
 }

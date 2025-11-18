@@ -1,6 +1,6 @@
 // src/modules/crm/pages/DevisListPage.tsx
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { crmApi } from '../services/api';
 import type { Devis, DevisStats } from '../types';
 import './DevisListPage.css';
@@ -11,6 +11,8 @@ const DevisListPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statutFilter, setStatutFilter] = useState<string>('tous');
+  const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadDevis();
@@ -25,7 +27,9 @@ const DevisListPage: React.FC = () => {
       if (statutFilter === 'tous') {
         data = await crmApi.getDevis();
       } else {
-        data = await crmApi.getDevisByStatut(statutFilter);
+        // Implémentation temporaire - filtrer côté client
+        const allDevis = await crmApi.getDevis();
+        data = allDevis.filter(devis => devis.statut === statutFilter);
       }
       
       setDevis(data);
@@ -46,143 +50,264 @@ const DevisListPage: React.FC = () => {
     }
   };
 
-  const getStatutColor = (statut: string) => {
+  const getStatutBadge = (statut: string) => {
     switch (statut) {
-      case 'accepte': return 'statut-accepte';
-      case 'envoye': return 'statut-envoye';
-      case 'brouillon': return 'statut-brouillon';
-      case 'refuse': return 'statut-refuse';
-      case 'expire': return 'statut-expire';
-      default: return 'statut-brouillon';
+      case 'accepte':
+        return { label: 'Accepté', class: 'ms-badge-success' };
+      case 'envoye':
+        return { label: 'Envoyé', class: 'ms-badge-warning' };
+      case 'brouillon':
+        return { label: 'Brouillon', class: 'ms-badge-neutral' };
+      case 'refuse':
+        return { label: 'Refusé', class: 'ms-badge-error' };
+      case 'expire':
+        return { label: 'Expiré', class: 'ms-badge-error' };
+      default:
+        return { label: statut, class: 'ms-badge-neutral' };
     }
   };
 
-  if (loading) return <div className="loading-state">Chargement...</div>;
-  if (error) return <div className="error-state">Erreur: {error}</div>;
+  const formatMontant = (montant: number) => {
+    return new Intl.NumberFormat('fr-FR', {
+      style: 'currency',
+      currency: 'EUR'
+    }).format(montant);
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('fr-FR');
+  };
+
+  const getJoursRestants = (dateValidite?: string) => {
+    if (!dateValidite) return null;
+    
+    const aujourdhui = new Date();
+    const validite = new Date(dateValidite);
+    const diffTime = validite.getTime() - aujourdhui.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    return diffDays;
+  };
+
+  const filteredDevis = devis.filter(devis => {
+    const matchesSearch = 
+      devis.numero_devis.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      devis.client_nom?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      devis.objet?.toLowerCase().includes(searchTerm.toLowerCase());
+
+    return matchesSearch;
+  });
+
+  if (loading && devis.length === 0) {
+    return (
+      <div className="ms-page-container">
+        <div className="ms-loading">Chargement des devis...</div>
+      </div>
+    );
+  }
 
   return (
-    <div className="devis-list-container">
-      {/* Stats Grid */}
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-label">Total Devis</div>
-          <div className="stat-value stat-total">{devis.length}</div>
-        </div>
-        
-        <div className="stat-card">
-          <div className="stat-label">Devis Acceptés</div>
-          <div className="stat-value stat-accepte">
-            {stats?.par_statut?.find(s => s.statut === 'accepte')?.count || 0}
+    <div className="ms-page-container">
+      {/* Header de page */}
+      <div className="ms-page-header">
+        <div className="ms-header-left">
+          <h1 className="ms-page-title">Devis</h1>
+          <div className="ms-page-subtitle">
+            {filteredDevis.length} devis{filteredDevis.length !== 1 ? 's' : ''} trouvé{filteredDevis.length !== 1 ? 's' : ''}
           </div>
         </div>
-        
-        <div className="stat-card">
-          <div className="stat-label">Devis Envoyés</div>
-          <div className="stat-value stat-envoye">
-            {stats?.par_statut?.find(s => s.statut === 'envoye')?.count || 0}
+        <div className="ms-header-actions">
+          <Link to="/crm/devis/nouveau" className="ms-btn ms-btn-primary">
+            Nouveau devis
+          </Link>
+        </div>
+      </div>
+
+      {/* Statistiques */}
+      <div className="ms-stats-grid">
+        <div className="ms-stat-card">
+          <div className="ms-stat-icon">📊</div>
+          <div className="ms-stat-content">
+            <div className="ms-stat-value">{devis.length}</div>
+            <div className="ms-stat-label">Total devis</div>
           </div>
         </div>
-        
-        <div className="stat-card">
-          <div className="stat-label">Chiffre d'Affaires</div>
-          <div className="stat-value stat-ca">
-            {stats?.total_chiffre_affaires ? 
-              new Intl.NumberFormat('fr-MG', { style: 'currency', currency: 'MGA' }).format(stats.total_chiffre_affaires)
-              : '0 Ar'
-            }
+
+        <div className="ms-stat-card">
+          <div className="ms-stat-icon">✅</div>
+          <div className="ms-stat-content">
+            <div className="ms-stat-value ms-stat-success">
+              {stats?.par_statut?.find(s => s.statut === 'accepte')?.count || 0}
+            </div>
+            <div className="ms-stat-label">Acceptés</div>
+          </div>
+        </div>
+
+        <div className="ms-stat-card">
+          <div className="ms-stat-icon">📤</div>
+          <div className="ms-stat-content">
+            <div className="ms-stat-value ms-stat-warning">
+              {stats?.par_statut?.find(s => s.statut === 'envoye')?.count || 0}
+            </div>
+            <div className="ms-stat-label">Envoyés</div>
+          </div>
+        </div>
+
+        <div className="ms-stat-card">
+          <div className="ms-stat-icon">💰</div>
+          <div className="ms-stat-content">
+            <div className="ms-stat-value ms-stat-primary">
+              {stats?.total_chiffre_affaires ? 
+                formatMontant(stats.total_chiffre_affaires)
+                : formatMontant(0)
+              }
+            </div>
+            <div className="ms-stat-label">Chiffre d'affaires</div>
           </div>
         </div>
       </div>
 
-      {/* Liste des devis */}
-      <div className="devis-list-main">
-        <div className="devis-list-header">
-          <div className="devis-header-main">
-            <div className="devis-title-section">
-              <h1>Devis</h1>
-              <p className="devis-subtitle">Gestion des propositions commerciales</p>
-            </div>
-            <div className="devis-controls">
-              <select
-                value={statutFilter}
-                onChange={(e) => setStatutFilter(e.target.value)}
-                className="filter-select"
-              >
-                <option value="tous">Tous les statuts</option>
-                <option value="brouillon">Brouillon</option>
-                <option value="envoye">Envoyé</option>
-                <option value="accepte">Accepté</option>
-                <option value="refuse">Refusé</option>
-                <option value="expire">Expiré</option>
-              </select>
-              <button className="new-devis-btn">
-                Nouveau devis
-              </button>
-            </div>
-          </div>
+      {/* Barre d'outils */}
+      <div className="ms-toolbar">
+        <div className="ms-search-box">
+          <input
+            type="text"
+            placeholder="Rechercher un devis..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="ms-search-input"
+          />
+          <span className="ms-search-icon">🔍</span>
         </div>
 
-        <div className="devis-table-container">
-          <table className="devis-table">
-            <thead>
-              <tr>
-                <th>Devis</th>
-                <th>Client</th>
-                <th>Date</th>
-                <th>Montant HT</th>
-                <th>Statut</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {devis.map((devis) => (
-                <tr key={devis.id_devis}>
-                  <td>
-                    <div className="devis-info">
-                      <h3>{devis.numero_devis}</h3>
-                      <div className="devis-description">
-                        {devis.objet}
+        <div className="ms-filter-group">
+          <select
+            value={statutFilter}
+            onChange={(e) => setStatutFilter(e.target.value)}
+            className="ms-filter-select"
+          >
+            <option value="tous">Tous les statuts</option>
+            <option value="brouillon">Brouillons</option>
+            <option value="envoye">Envoyés</option>
+            <option value="accepte">Acceptés</option>
+            <option value="refuse">Refusés</option>
+            <option value="expire">Expirés</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Message d'erreur */}
+      {error && (
+        <div className="ms-error-message">
+          <span className="ms-error-icon">⚠</span>
+          {error}
+        </div>
+      )}
+
+      {/* Liste des devis */}
+      <div className="ms-list-container">
+        {filteredDevis.length > 0 ? (
+          <div className="ms-list">
+            {filteredDevis.map((devis) => {
+              const statut = getStatutBadge(devis.statut);
+              const joursRestants = getJoursRestants(devis.date_validite);
+              
+              return (
+                <div key={devis.id_devis} className="ms-list-item">
+                  <div className="ms-list-item-content">
+                    <div className="ms-list-item-header">
+                      <div className="ms-list-item-title-section">
+                        <h3 className="ms-list-item-title">
+                          {devis.numero_devis}
+                        </h3>
+                        <div className="ms-list-item-subtitle">
+                          {devis.client_nom || 'Client inconnu'}
+                        </div>
+                        {devis.objet && (
+                          <div className="ms-list-item-description">
+                            {devis.objet}
+                          </div>
+                        )}
+                      </div>
+                      <div className="ms-list-item-actions">
+                        <span className="ms-list-item-montant">
+                          {formatMontant(devis.montant_ht)}
+                        </span>
+                        <button
+                          onClick={() => navigate(`/crm/devis/${devis.id_devis}`)}
+                          className="ms-btn ms-btn-secondary ms-btn-sm"
+                        >
+                          Voir
+                        </button>
                       </div>
                     </div>
-                  </td>
-                  <td className="client-name">
-                    {devis.client_nom || 'Client inconnu'}
-                  </td>
-                  <td className="devis-date">
-                    {new Date(devis.date_devis).toLocaleDateString('fr-FR')}
-                  </td>
-                  <td className="devis-montant">
-                    {new Intl.NumberFormat('fr-MG', { style: 'currency', currency: 'MGA' }).format(devis.montant_ht)}
-                  </td>
-                  <td>
-                    <span className={`statut-badge ${getStatutColor(devis.statut)}`}>
-                      {devis.statut}
-                    </span>
-                  </td>
-                  <td>
-                    <div className="actions-container">
-                      <Link
-                        to={`/crm/devis/${devis.id_devis}`}
-                        className="action-link"
-                      >
-                        Voir
-                      </Link>
-                      <button className="action-button">
-                        Modifier
-                      </button>
+
+                    <div className="ms-list-item-details">
+                      <div className="ms-detail-row">
+                        <div className="ms-detail-group">
+                          <span className="ms-detail-label">Date</span>
+                          <span className="ms-detail-value">
+                            {formatDate(devis.date_devis)}
+                          </span>
+                        </div>
+                        {devis.date_validite && (
+                          <div className="ms-detail-group">
+                            <span className="ms-detail-label">Validité</span>
+                            <span className="ms-detail-value">
+                              {formatDate(devis.date_validite)}
+                              {joursRestants !== null && joursRestants > 0 && (
+                                <span className="ms-jours-restants">
+                                  ({joursRestants} jour{joursRestants !== 1 ? 's' : ''})
+                                </span>
+                              )}
+                            </span>
+                          </div>
+                        )}
+                        <div className="ms-detail-group">
+                          <span className="ms-detail-label">Statut</span>
+                          <span className={`ms-badge ${statut.class}`}>
+                            {statut.label}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="ms-detail-row">
+                        <div className="ms-detail-group">
+                          <span className="ms-detail-label">Montant TTC</span>
+                          <span className="ms-detail-value">
+                            {formatMontant(devis.montant_ttc)}
+                          </span>
+                        </div>
+                        <div className="ms-detail-group">
+                          <span className="ms-detail-label">Dernière modification</span>
+                          <span className="ms-detail-value">
+                            {formatDate(devis.updated_at)}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          
-          {devis.length === 0 && (
-            <div className="empty-state">
-              Aucun devis trouvé
-            </div>
-          )}
-        </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="ms-empty-state">
+            <div className="ms-empty-icon">📄</div>
+            <h3 className="ms-empty-title">Aucun devis trouvé</h3>
+            <p className="ms-empty-description">
+              {searchTerm || statutFilter !== 'tous' 
+                ? 'Aucun devis ne correspond à vos critères de recherche.' 
+                : 'Commencez par créer votre premier devis.'
+              }
+            </p>
+            {!searchTerm && statutFilter === 'tous' && (
+              <Link to="/crm/devis/nouveau" className="ms-btn ms-btn-primary">
+                Créer un devis
+              </Link>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

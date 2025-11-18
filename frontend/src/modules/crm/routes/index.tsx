@@ -45,10 +45,11 @@ const CRMRoutes: React.FC = () => {
       <Route path="devis/:id/modifier" element={<DevisForm  />} />
       
       {/* Routes Contrats */}
-      <Route path="contrats" element={<ContratsListPage />} />
-      <Route path="contrats/nouveau" element={<ContratForm />} />
-      <Route path="contrats/:id" element={<ContratDetailPage />} />
-      <Route path="contrats/:id/modifier" element={<ContratForm/>} />
+      <Route path="/contrats" element={<ContratsListPage />} />
+      <Route path="/contrats/nouveau" element={<ContratForm />} />
+      <Route path="/contrats/:id" element={<ContratDetailPage />} />
+      <Route path="/contrats/:id/modifier" element={<ContratForm />} />
+      
       
       {/* Routes Activités */}
       <Route path="activites" element={<ActivitesListPage />} />

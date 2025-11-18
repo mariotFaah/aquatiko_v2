@@ -12,5 +12,7 @@ router.get('/:id', devisController.getDevisById);
 router.post('/', devisController.createDevis);
 router.put('/:id', devisController.updateDevis);
 router.patch('/:id/statut', devisController.updateDevisStatut);
+// Dans devis.routes.js
+router.post('/:id/transformer-contrat', devisController.transformerEnContrat);
 
 export default router;

@@ -31,23 +31,29 @@ const CRMPage: React.FC = () => {
     try {
       setLoading(true);
       
-      // Chargement parallèle des données avec utilisation explicite des types
-      const [clientsData, devisData, relancesData, devisStatsData, relanceStatsData, activitiesData] = await Promise.all([
+      const [clientsData, devisData, relancesData, devisStatsData, relanceStatsData] = await Promise.all([
         crmApi.getClients(),
         crmApi.getDevis(),
         crmApi.getRelances(),
         crmApi.getDevisStats(),
-        crmApi.getRelancesStats(),
-        crmApi.getClientActivitesConsolidees(1) // Client 1 pour démonstration
+        crmApi.getRelancesStats()
       ]);
 
-      // Utilisation explicite de tous les types importés
-      setClients(clientsData as Client[]);
-      setDevis(devisData as Devis[]);
-      setRelances(relancesData as Relance[]);
-      setDevisStats(devisStatsData as DevisStats);
-      setRelanceStats(relanceStatsData as RelanceStats);
-      setRecentActivities((activitiesData as ActiviteConsolidee[]).slice(0, 5));
+      setClients(clientsData);
+      setDevis(devisData);
+      setRelances(relancesData);
+      setDevisStats(devisStatsData);
+      setRelanceStats(relanceStatsData);
+
+      // Charger les activités récentes pour le premier client
+      if (clientsData.length > 0) {
+        try {
+          const activitiesData = await crmApi.getClientActivitesConsolidees(clientsData[0].id_tiers);
+          setRecentActivities(activitiesData.slice(0, 5));
+        } catch (error) {
+          console.error('Erreur chargement activités:', error);
+        }
+      }
       
     } catch (error) {
       console.error('Erreur chargement dashboard CRM:', error);
@@ -56,7 +62,6 @@ const CRMPage: React.FC = () => {
     }
   };
 
-  // Fonction utilitaire pour trouver les clients avec le plus de devis
   const getTopClients = (clients: Client[]): Client[] => {
     return clients
       .filter(client => client.stats && client.stats.total_devis > 0)
@@ -64,7 +69,6 @@ const CRMPage: React.FC = () => {
       .slice(0, 3);
   };
 
-  // Fonction pour trouver les devis urgents (expirant bientôt)
   const getDevisUrgents = (devis: Devis[]): Devis[] => {
     const today = new Date();
     const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
@@ -76,7 +80,6 @@ const CRMPage: React.FC = () => {
     });
   };
 
-  // Fonction pour trouver les relances prioritaires
   const getRelancesPrioritaires = (relances: Relance[]): Relance[] => {
     return relances.filter(relance => 
       relance.statut === 'en_attente' && 
@@ -84,30 +87,49 @@ const CRMPage: React.FC = () => {
     ).slice(0, 3);
   };
 
-  // Navigation handlers avec utilisation des types
-  const handleCreateDevis = () => {
-    navigate('/crm/devis/nouveau');
+  const formatMontant = (montant: number) => {
+    return new Intl.NumberFormat('fr-FR', {
+      style: 'currency',
+      currency: 'EUR'
+    }).format(montant);
   };
 
-  const handleCreateClient = () => {
-    navigate('/crm/clients/nouveau');
+  const getStatutBadge = (statut: string) => {
+    switch (statut) {
+      case 'accepte':
+        return { label: 'Accepté', class: 'ms-badge-success' };
+      case 'envoye':
+        return { label: 'Envoyé', class: 'ms-badge-warning' };
+      case 'brouillon':
+        return { label: 'Brouillon', class: 'ms-badge-neutral' };
+      case 'realise':
+        return { label: 'Réalisé', class: 'ms-badge-success' };
+      case 'planifie':
+        return { label: 'Planifié', class: 'ms-badge-warning' };
+      case 'en_attente':
+        return { label: 'En attente', class: 'ms-badge-warning' };
+      default:
+        return { label: statut, class: 'ms-badge-neutral' };
+    }
   };
 
-  const handleViewClient = (client: Client) => {
-    navigate(`/crm/clients/${client.id_tiers}`);
-  };
-
-  const handleViewDevis = (devis: Devis) => {
-    navigate(`/crm/devis/${devis.id_devis}`);
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case 'appel': return '📞';
+      case 'email': return '✉️';
+      case 'reunion': return '👥';
+      case 'visite': return '🏢';
+      case 'facture': return '🧾';
+      case 'commande': return '📦';
+      case 'paiement': return '💰';
+      default: return '📝';
+    }
   };
 
   if (loading) {
     return (
-      <div className="crm-container">
-        <div className="crm-loading">
-          <div className="loading-spinner"></div>
-          <p>Chargement du tableau de bord CRM...</p>
-        </div>
+      <div className="ms-page-container">
+        <div className="ms-loading">Chargement du tableau de bord...</div>
       </div>
     );
   }
@@ -117,329 +139,301 @@ const CRMPage: React.FC = () => {
   const relancesPrioritaires = getRelancesPrioritaires(relances);
 
   return (
-    <div className="crm-container">
-      {/* En-tête */}
-      <div className="crm-header">
-        <div className="crm-header-content">
-          <h1 className="crm-title">Tableau de Bord CRM</h1>
-          <p className="crm-subtitle">
-            Gestion complète de la relation client - Vue 360°
-          </p>
+    <div className="ms-page-container">
+      {/* Header de page */}
+      <div className="ms-page-header">
+        <div className="ms-header-left">
+          <h1 className="ms-page-title">Tableau de bord CRM</h1>
+          <div className="ms-page-subtitle">
+            Vue d'ensemble de votre relation client
+          </div>
         </div>
-        <div className="crm-actions">
-          <button className="btn btn-primary" onClick={handleCreateDevis}>
-            <i className="icon-plus"></i>
-            Nouveau Devis
-          </button>
-          <button className="btn btn-secondary" onClick={handleCreateClient}>
-            <i className="icon-users"></i>
-            Nouveau Client
-          </button>
+        <div className="ms-header-actions">
+          <Link to="/crm/devis/nouveau" className="ms-btn ms-btn-primary">
+            Nouveau devis
+          </Link>
+          <Link to="/crm/clients/nouveau" className="ms-btn ms-btn-secondary">
+            Nouveau client
+          </Link>
         </div>
       </div>
 
       {/* Métriques principales */}
-      <div className="crm-metrics-grid">
-        <div className="metric-card">
-          <div className="metric-icon clients">
-            <i className="icon-user"></i>
-          </div>
-          <div className="metric-content">
-            <h3 className="metric-value">{clients.length}</h3>
-            <p className="metric-label">Clients Actifs</p>
-            <div className="metric-trend">
-              <span className="trend-up">+{clients.filter(c => c.categorie === 'client').length} clients</span>
+      <div className="ms-stats-grid">
+        <div className="ms-stat-card">
+          <div className="ms-stat-icon">👥</div>
+          <div className="ms-stat-content">
+            <div className="ms-stat-value">{clients.length}</div>
+            <div className="ms-stat-label">Clients actifs</div>
+            <div className="ms-stat-detail">
+              {clients.filter(c => c.categorie === 'client').length} clients
             </div>
           </div>
         </div>
 
-        <div className="metric-card">
-          <div className="metric-icon devis">
-            <i className="icon-file"></i>
-          </div>
-          <div className="metric-content">
-            <h3 className="metric-value">{devis.length}</h3>
-            <p className="metric-label">Devis en Cours</p>
-            <div className="metric-breakdown">
-              {devisStats.par_statut?.map((item, index) => (
-                <span key={index} className={`statut-badge statut-${item.statut}`}>
-                  {item.count} {item.statut}
-                </span>
-              ))}
+        <div className="ms-stat-card">
+          <div className="ms-stat-icon">📄</div>
+          <div className="ms-stat-content">
+            <div className="ms-stat-value">{devis.length}</div>
+            <div className="ms-stat-label">Devis en cours</div>
+            <div className="ms-stat-detail">
+              {devisStats.par_statut?.find(s => s.statut === 'envoye')?.count || 0} envoyés
             </div>
           </div>
         </div>
 
-        <div className="metric-card">
-          <div className="metric-icon relances">
-            <i className="icon-bell"></i>
-          </div>
-          <div className="metric-content">
-            <h3 className="metric-value">{relances.length}</h3>
-            <p className="metric-label">Relances Actives</p>
-            <div className="metric-detail">
-              <span className="relance-en-attente">
-                {relanceStats.par_statut?.en_attente || 0} en attente
-              </span>
+        <div className="ms-stat-card">
+          <div className="ms-stat-icon">🔔</div>
+          <div className="ms-stat-content">
+            <div className="ms-stat-value">{relances.length}</div>
+            <div className="ms-stat-label">Relances</div>
+            <div className="ms-stat-detail">
+              {relanceStats.par_statut?.en_attente || 0} en attente
             </div>
           </div>
         </div>
 
-        <div className="metric-card">
-          <div className="metric-icon activites">
-            <i className="icon-activity"></i>
-          </div>
-          <div className="metric-content">
-            <h3 className="metric-value">{recentActivities.length}</h3>
-            <p className="metric-label">Activités Récentes</p>
-            <div className="metric-subtext">
-              Dernières 24h
+        <div className="ms-stat-card">
+          <div className="ms-stat-icon">💰</div>
+          <div className="ms-stat-content">
+            <div className="ms-stat-value ms-stat-primary">
+              {formatMontant(devisStats.total_chiffre_affaires || 0)}
+            </div>
+            <div className="ms-stat-label">Chiffre d'affaires</div>
+            <div className="ms-stat-detail">
+              Devis acceptés
             </div>
           </div>
         </div>
       </div>
 
       {/* Contenu principal */}
-      <div className="crm-content-grid">
-        {/* Section activités récentes */}
-        <div className="content-card">
-          <div className="card-header">
-            <h3 className="card-title">Activités Récentes</h3>
-            <Link to="/crm/activites" className="card-link">
+      <div className="ms-dashboard-grid">
+        {/* Activités récentes */}
+        <div className="ms-dashboard-card">
+          <div className="ms-card-header">
+            <h2 className="ms-card-title">Activités récentes</h2>
+            <Link to="/crm/activites" className="ms-card-link">
               Voir tout
             </Link>
           </div>
-          <div className="card-content">
+          <div className="ms-card-content">
             {recentActivities.length > 0 ? (
-              <div className="activities-list">
-                {recentActivities.map((activity, index) => (
-                  <div key={index} className="activity-item">
-                    <div className="activity-icon">
-                      <i className={`icon-${activity.type_activite || 'default'}`}></i>
-                    </div>
-                    <div className="activity-content">
-                      <div className="activity-title">{activity.sujet}</div>
-                      <div className="activity-meta">
-                        <span className="activity-type">{activity.type_activite}</span>
-                        <span className="activity-date">
-                          {new Date(activity.date_activite).toLocaleDateString()}
-                        </span>
-                        {activity.montant && (
-                          <span className="activity-montant">
-                            {activity.montant.toLocaleString()} {activity.devise}
-                          </span>
-                        )}
+              <div className="ms-activities-list">
+                {recentActivities.map((activity, index) => {
+                  const statut = getStatutBadge(activity.statut);
+                  return (
+                    <div key={index} className="ms-activity-item">
+                      <div className="ms-activity-icon">
+                        {getTypeIcon(activity.type_activite)}
                       </div>
+                      <div className="ms-activity-content">
+                        <div className="ms-activity-title">{activity.sujet}</div>
+                        <div className="ms-activity-meta">
+                          <span className="ms-activity-type">{activity.type_activite}</span>
+                          <span className="ms-activity-date">
+                            {new Date(activity.date_activite).toLocaleDateString('fr-FR')}
+                          </span>
+                        </div>
+                      </div>
+                      <span className={`ms-badge ${statut.class}`}>
+                        {statut.label}
+                      </span>
                     </div>
-                    <div className={`activity-statut statut-${activity.statut}`}>
-                      {activity.statut}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
-              <div className="empty-state">
+              <div className="ms-empty-state">
                 <p>Aucune activité récente</p>
               </div>
             )}
           </div>
         </div>
 
-        {/* Section clients importants */}
-        <div className="content-card">
-          <div className="card-header">
-            <h3 className="card-title">Clients Importants</h3>
-            <Link to="/crm/clients" className="card-link">
+        {/* Clients importants */}
+        <div className="ms-dashboard-card">
+          <div className="ms-card-header">
+            <h2 className="ms-card-title">Clients importants</h2>
+            <Link to="/crm/clients" className="ms-card-link">
               Voir tout
             </Link>
           </div>
-          <div className="card-content">
+          <div className="ms-card-content">
             {topClients.length > 0 ? (
-              <div className="clients-list">
-                {topClients.map((client: Client) => (
+              <div className="ms-clients-list">
+                {topClients.map((client) => (
                   <div 
                     key={client.id_tiers} 
-                    className="client-item"
-                    onClick={() => handleViewClient(client)}
+                    className="ms-client-item"
+                    onClick={() => navigate(`/crm/clients/${client.id_tiers}`)}
                   >
-                    <div className="client-avatar">
+                    <div className="ms-client-avatar">
                       {client.nom.charAt(0).toUpperCase()}
                     </div>
-                    <div className="client-info">
-                      <div className="client-name">{client.nom}</div>
-                      <div className="client-stats">
-                        {client.stats?.total_devis || 0} devis • 
-                        {client.stats?.total_contrats || 0} contrats
+                    <div className="ms-client-info">
+                      <div className="ms-client-name">
+                        {client.raison_sociale || client.nom}
+                      </div>
+                      <div className="ms-client-stats">
+                        {client.stats?.total_devis || 0} devis • {client.stats?.total_contrats || 0} contrats
                       </div>
                     </div>
-                    <div className="client-ca">
+                    <div className="ms-client-ca">
                       {client.chiffre_affaires_annuel ? 
-                        `${(client.chiffre_affaires_annuel / 1000000).toFixed(1)}M` : 
-                        'N/A'
+                        `${(client.chiffre_affaires_annuel / 1000).toFixed(0)}K` : 
+                        '-'
                       }
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="empty-state">
+              <div className="ms-empty-state">
                 <p>Aucun client important</p>
               </div>
             )}
           </div>
         </div>
-      </div>
 
-      {/* Deuxième ligne de contenu */}
-      <div className="crm-content-grid">
-        {/* Section devis urgents */}
-        <div className="content-card urgent-card">
-          <div className="card-header">
-            <h3 className="card-title">Devis à Traiter</h3>
-            <span className="badge badge-warning">
+        {/* Devis urgents */}
+        <div className="ms-dashboard-card ms-urgent-card">
+          <div className="ms-card-header">
+            <h2 className="ms-card-title">Devis à traiter</h2>
+            <span className="ms-badge ms-badge-warning">
               {devisUrgents.length} urgents
             </span>
           </div>
-          <div className="card-content">
+          <div className="ms-card-content">
             {devisUrgents.length > 0 ? (
-              <div className="devis-list">
-                {devisUrgents.map((devis: Devis) => (
+              <div className="ms-devis-list">
+                {devisUrgents.map((devis) => (
                   <div 
                     key={devis.id_devis} 
-                    className="devis-item"
-                    onClick={() => handleViewDevis(devis)}
+                    className="ms-devis-item"
+                    onClick={() => navigate(`/crm/devis/${devis.id_devis}`)}
                   >
-                    <div className="devis-info">
-                      <div className="devis-numero">{devis.numero_devis}</div>
-                      <div className="devis-client">{devis.client_nom}</div>
-                      <div className="devis-montant">
-                        {devis.montant_ht.toLocaleString()} € HT
+                    <div className="ms-devis-info">
+                      <div className="ms-devis-numero">{devis.numero_devis}</div>
+                      <div className="ms-devis-client">{devis.client_nom}</div>
+                      <div className="ms-devis-montant">
+                        {formatMontant(devis.montant_ht)}
                       </div>
                     </div>
-                    <div className="devis-date">
-                      Expire le {new Date(devis.date_validite!).toLocaleDateString()}
+                    <div className="ms-devis-date">
+                      Expire le {new Date(devis.date_validite!).toLocaleDateString('fr-FR')}
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="empty-state">
+              <div className="ms-empty-state">
                 <p>Aucun devis urgent</p>
               </div>
             )}
           </div>
         </div>
 
-        {/* Section relances prioritaires */}
-        <div className="content-card urgent-relances">
-          <div className="card-header">
-            <h3 className="card-title">Relances Prioritaires</h3>
-            <span className="badge badge-warning">
+        {/* Relances prioritaires */}
+        <div className="ms-dashboard-card ms-urgent-card">
+          <div className="ms-card-header">
+            <h2 className="ms-card-title">Relances prioritaires</h2>
+            <span className="ms-badge ms-badge-warning">
               {relancesPrioritaires.length} requises
             </span>
           </div>
-          <div className="card-content">
+          <div className="ms-card-content">
             {relancesPrioritaires.length > 0 ? (
-              <div className="relances-list">
-                {relancesPrioritaires.map((relance: Relance) => (
-                  <div key={relance.id_relance} className="relance-item">
-                    <div className="relance-type">{relance.type_relance}</div>
-                    <div className="relance-objet">{relance.objet}</div>
-                    <div className="relance-client">{relance.client?.nom}</div>
-                    <div className="relance-date">
-                      {new Date(relance.date_relance).toLocaleDateString()}
+              <div className="ms-relances-list">
+                {relancesPrioritaires.map((relance) => (
+                  <div key={relance.id_relance} className="ms-relance-item">
+                    <div className="ms-relance-header">
+                      <span className="ms-relance-type">{relance.type_relance}</span>
+                      <span className="ms-relance-canal">{relance.canal}</span>
+                    </div>
+                    <div className="ms-relance-objet">{relance.objet}</div>
+                    <div className="ms-relance-client">{relance.client?.nom}</div>
+                    <div className="ms-relance-date">
+                      {new Date(relance.date_relance).toLocaleDateString('fr-FR')}
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="empty-state">
+              <div className="ms-empty-state">
                 <p>Aucune relance prioritaire</p>
               </div>
             )}
-            <div className="relance-actions">
+            <div className="ms-relance-actions">
               <button 
-                className="btn btn-warning"
+                className="ms-btn ms-btn-warning"
                 onClick={async () => {
                   try {
                     await crmApi.genererRelancesAutomatiques();
-                    loadDashboardData(); // Recharger les données
+                    loadDashboardData();
                   } catch (error) {
                     console.error('Erreur génération relances:', error);
                   }
                 }}
               >
-                <i className="icon-zap"></i>
-                Générer Relances Auto
+                Générer relances automatiques
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Section navigation rapide */}
-      <div className="content-card">
-        <div className="card-header">
-          <h3 className="card-title">Navigation Rapide</h3>
+      {/* Navigation rapide */}
+      <div className="ms-dashboard-card">
+        <div className="ms-card-header">
+          <h2 className="ms-card-title">Navigation rapide</h2>
         </div>
-        <div className="card-content">
-          <div className="quick-nav-grid">
-            <Link to="/crm/clients" className="nav-card">
-              <div className="nav-icon">
-                <i className="icon-users"></i>
-              </div>
-              <div className="nav-content">
-                <h4>Clients</h4>
+        <div className="ms-card-content">
+          <div className="ms-quick-nav-grid">
+            <Link to="/crm/clients" className="ms-nav-card">
+              <div className="ms-nav-icon">👥</div>
+              <div className="ms-nav-content">
+                <h3>Clients</h3>
                 <p>Gestion des fiches clients</p>
               </div>
             </Link>
 
-            <Link to="/crm/devis" className="nav-card">
-              <div className="nav-icon">
-                <i className="icon-file-text"></i>
-              </div>
-              <div className="nav-content">
-                <h4>Devis</h4>
+            <Link to="/crm/devis" className="ms-nav-card">
+              <div className="ms-nav-icon">📄</div>
+              <div className="ms-nav-content">
+                <h3>Devis</h3>
                 <p>Création et suivi des devis</p>
               </div>
             </Link>
 
-            <Link to="/crm/contrats" className="nav-card">
-              <div className="nav-icon">
-                <i className="icon-contract"></i>
-              </div>
-              <div className="nav-content">
-                <h4>Contrats</h4>
-                <p>Gestion des contrats de prestation</p>
+            <Link to="/crm/contrats" className="ms-nav-card">
+              <div className="ms-nav-icon">📑</div>
+              <div className="ms-nav-content">
+                <h3>Contrats</h3>
+                <p>Gestion des contrats</p>
               </div>
             </Link>
 
-            <Link to="/crm/relances" className="nav-card">
-              <div className="nav-icon">
-                <i className="icon-bell"></i>
-              </div>
-              <div className="nav-content">
-                <h4>Relances</h4>
-                <p>Suivi des relances commerciales</p>
+            <Link to="/crm/relances" className="ms-nav-card">
+              <div className="ms-nav-icon">🔔</div>
+              <div className="ms-nav-content">
+                <h3>Relances</h3>
+                <p>Suivi des relances</p>
               </div>
             </Link>
 
-            <Link to="/crm/activites" className="nav-card">
-              <div className="nav-icon">
-                <i className="icon-activity"></i>
-              </div>
-              <div className="nav-content">
-                <h4>Activités</h4>
+            <Link to="/crm/activites" className="ms-nav-card">
+              <div className="ms-nav-icon">📅</div>
+              <div className="ms-nav-content">
+                <h3>Activités</h3>
                 <p>Historique des interactions</p>
               </div>
             </Link>
 
-            <Link to="/crm/rapports" className="nav-card">
-              <div className="nav-icon">
-                <i className="icon-bar-chart"></i>
-              </div>
-              <div className="nav-content">
-                <h4>Rapports</h4>
+            <Link to="/crm/rapports" className="ms-nav-card">
+              <div className="ms-nav-icon">📊</div>
+              <div className="ms-nav-content">
+                <h3>Rapports</h3>
                 <p>Statistiques et analyses</p>
               </div>
             </Link>
