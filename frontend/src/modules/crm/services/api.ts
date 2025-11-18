@@ -389,6 +389,35 @@ getContratsByStatut: async (statut: string): Promise<Contrat[]> => {
   const data: ApiResponse<Contrat[]> = await res.json();
   return Array.isArray(data.data) ? data.data : [];
 },
+
+// Ajoutez ces fonctions dans votre fichier api.ts
+
+// ---- Clients API ----
+createClient: async (clientData: Partial<Client>): Promise<Client> => {
+  const res = await fetch(`${API_BASE_URL}/clients`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(clientData),
+  });
+  const data: ApiResponse<Client> = await res.json();
+  if (!res.ok || !data.success) {
+    throw new Error(data.message || 'Erreur lors de la création du client');
+  }
+  return data.data;
+},
+
+updateClient: async (id: number, clientData: Partial<Client>): Promise<Client> => {
+  const res = await fetch(`${API_BASE_URL}/clients/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(clientData),
+  });
+  const data: ApiResponse<Client> = await res.json();
+  if (!res.ok || !data.success) {
+    throw new Error(data.message || 'Erreur lors de la mise à jour du client');
+  }
+  return data.data;
+},
 };
 
 export default crmApi;

@@ -11,6 +11,10 @@ import comptabiliteRoutes from './modules/comptabilite/routes/index.js';
 import importExportRoutes from './modules/import-export/routes/index.js';
 import initCRMModule from './modules/crm/index.js'; 
 
+// ✅ NOUVEAU : Module d'authentification
+import authRoutes from './modules/auth/routes/auth.routes.js';
+
+
 dotenv.config();
 
 const app = express();
@@ -33,18 +37,21 @@ app.get('/api/health', async (req, res) => {
     status: 'OK', 
     timestamp: new Date().toISOString(),
     database: dbStatus ? 'Connected' : 'Disconnected',
-    modules: ['comptabilite', 'import-export', 'crm']  
+    modules: ['comptabilite', 'import-export', 'crm', 'auth']  // ✅ Ajout du module auth
   });
 });
 
-// Routes des modules
+// ✅ NOUVELLE ROUTE AUTH (doit être avant les autres routes protégées)
+app.use('/api/auth', authRoutes);
+
+// Routes des modules existants
 app.use('/api/comptabilite', comptabiliteRoutes);
 app.use('/api/import-export', importExportRoutes);
 
 // ✅ INITIALISATION DU MODULE CRM
 initCRMModule(app);
 
-//  Route 404 avec un chemin explicite
+// Route 404 avec un chemin explicite
 app.use('/:any*', (req, res) => {
   res.status(404).json({
     success: false,
@@ -70,7 +77,8 @@ app.listen(PORT, async () => {
   console.log(`🚀 Serveur backend démarré sur le port ${PORT}`);
   console.log(`📊 URL: http://localhost:${PORT}`);
   console.log(`🔍 Health check: http://localhost:${PORT}/api/health`);
-  console.log(`📦 Modules activés: Comptabilité, Import/Export, CRM`); 
+  console.log(`📦 Modules activés: Comptabilité, Import/Export, CRM, Auth`); // ✅ Ajout du module Auth
+  console.log(`🔐 API Auth disponible: http://localhost:${PORT}/api/auth`);
   
   // Tester la connexion DB
   await testConnection();

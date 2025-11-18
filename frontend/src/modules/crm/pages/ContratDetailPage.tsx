@@ -1,27 +1,9 @@
 // src/modules/crm/pages/ContratDetailPage.tsx
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom'; // Retirer useNavigate si non utilisé
+import { useParams, Link } from 'react-router-dom';
 import crmApi from '../services/api';
 import './ContratDetailPage.css';
-
-// Utiliser le même type que l'API pour éviter les incompatibilités
-interface Contrat {
-  id_contrat: number;
-  numero_contrat: string;
-  tiers_id: number;
-  client_nom: string; // Cette propriété doit exister dans le type Contrat de l'API
-  devis_id?: number;
-  type_contrat: string;
-  date_debut: string;
-  date_fin?: string;
-  statut: 'actif' | 'inactif' | 'resilie' | 'termine';
-  montant_ht: number;
-  periodicite: string;
-  description: string;
-  conditions: string;
-  created_at: string;
-  updated_at: string;
-}
+import type { Contrat } from '../types/index';
 
 const ContratDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -52,7 +34,7 @@ const ContratDetailPage: React.FC = () => {
     
     try {
       await crmApi.updateContratStatut(contrat.id_contrat, nouveauStatut);
-      chargerContrat(contrat.id_contrat); // Recharger les données
+      chargerContrat(contrat.id_contrat);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur lors du changement de statut');
     }
@@ -66,173 +48,323 @@ const ContratDetailPage: React.FC = () => {
     return Math.ceil(difference / (1000 * 3600 * 24));
   };
 
-  // Fonction pour exporter en PDF (placeholder)
   const exporterPDF = () => {
-    // TODO: Implémenter l'export PDF
     alert('Fonctionnalité d\'export PDF à implémenter');
   };
 
-  if (loading) return <div className="loading">Chargement du contrat...</div>;
-  if (error) return <div className="error">Erreur: {error}</div>;
-  if (!contrat) return <div className="error">Contrat non trouvé</div>;
+  if (loading) {
+    return (
+      <div className="ms-crm-loading">
+        <div className="ms-crm-spinner"></div>
+        <span>Chargement du contrat...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="ms-crm-error-state">
+        <div className="ms-crm-error-icon">⚠</div>
+        <h2>Erreur</h2>
+        <p>{error}</p>
+        <Link to="/crm/contrats" className="ms-crm-btn ms-crm-btn-primary">
+          Retour aux contrats
+        </Link>
+      </div>
+    );
+  }
+
+  if (!contrat) {
+    return (
+      <div className="ms-crm-error-state">
+        <div className="ms-crm-error-icon">❌</div>
+        <h2>Contrat non trouvé</h2>
+        <p>Le contrat demandé n'existe pas ou a été supprimé.</p>
+        <Link to="/crm/contrats" className="ms-crm-btn ms-crm-btn-primary">
+          Retour aux contrats
+        </Link>
+      </div>
+    );
+  }
 
   const joursRestants = getJoursRestants(contrat.date_fin);
 
   return (
-    <div className="contrat-detail-page">
-      <div className="page-header">
-        <div className="header-left">
-          <Link to="/crm/contrats" className="back-link">
-            ← Retour aux contrats
+    <div className="ms-crm-container">
+      {/* Header Microsoft Style */}
+      <div className="ms-crm-header">
+        <div className="ms-crm-header-left">
+          <Link to="/crm/contrats" className="ms-crm-back-button">
+            <span className="ms-crm-back-icon">←</span>
+            Retour aux contrats
           </Link>
-          <h1>Contrat {contrat.numero_contrat}</h1>
-          <p className="client-name">{contrat.client_nom}</p>
+          <div className="ms-crm-title-section">
+            <h1 className="ms-crm-page-title">
+              Contrat {contrat.numero_contrat}
+            </h1>
+            <p className="ms-crm-subtitle">{contrat.client_nom}</p>
+          </div>
         </div>
-        <div className="header-actions">
+        
+        <div className="ms-crm-header-actions">
           <Link 
             to={`/crm/contrats/${contrat.id_contrat}/modifier`}
-            className="btn-secondary"
+            className="ms-crm-btn ms-crm-btn-secondary"
           >
             Modifier
           </Link>
           <button 
-            className="btn-primary"
+            className="ms-crm-btn ms-crm-btn-primary"
             onClick={exporterPDF}
           >
+            <span className="ms-crm-icon">📄</span>
             Exporter PDF
           </button>
         </div>
       </div>
 
-      <div className="contrat-content">
-        {/* En-tête du contrat */}
-        <div className="contrat-header">
-          <div className="statut-section">
-            <span className={`statut-badge ${contrat.statut}`}>
-              {contrat.statut}
-            </span>
-            {contrat.date_fin && (
-              <div className="jours-restants">
-                {joursRestants > 0 ? (
-                  <span className="jours-positif">{joursRestants} jours restants</span>
-                ) : (
-                  <span className="jours-negatif">Expiré depuis {Math.abs(joursRestants)} jours</span>
-                )}
-              </div>
-            )}
-          </div>
+      {/* Main Content */}
+      <div className="ms-crm-content">
+        <div className="ms-crm-detail-layout">
           
-          <div className="actions-rapides">
-            <h3>Actions rapides</h3>
-            <div className="actions-buttons">
-              {contrat.statut === 'actif' && (
-                <>
-                  <button 
-                    onClick={() => changerStatut('resilie')}
-                    className="btn-warning"
-                  >
-                    Résilier
-                  </button>
-                  <button 
-                    onClick={() => changerStatut('termine')}
-                    className="btn-info"
-                  >
-                    Marquer terminé
-                  </button>
-                </>
-              )}
-              {contrat.statut === 'inactif' && (
-                <button 
-                  onClick={() => changerStatut('actif')}
-                  className="btn-success"
-                >
-                  Activer
-                </button>
-              )}
-              {(contrat.statut === 'resilie' || contrat.statut === 'termine') && (
-                <button 
-                  onClick={() => changerStatut('actif')}
-                  className="btn-success"
-                >
-                  Réactiver
-                </button>
-              )}
+          {/* Left Column - Main Content */}
+          <div className="ms-crm-detail-main">
+            
+            {/* Status and Quick Actions Card */}
+            <div className="ms-crm-card">
+              <div className="ms-crm-card-header">
+                <h2 className="ms-crm-card-title">État du contrat</h2>
+              </div>
+              <div className="ms-crm-card-content">
+                <div className="ms-crm-status-section">
+                  <div className="ms-crm-status-badge-container">
+                    <span className={`ms-crm-status-badge ms-crm-status-${contrat.statut}`}>
+                      {contrat.statut}
+                    </span>
+                    {contrat.date_fin && (
+                      <div className="ms-crm-days-remaining">
+                        {joursRestants > 0 ? (
+                          <span className="ms-crm-days-positive">
+                            {joursRestants} jour{joursRestants > 1 ? 's' : ''} restant{joursRestants > 1 ? 's' : ''}
+                          </span>
+                        ) : (
+                          <span className="ms-crm-days-negative">
+                            Expiré depuis {Math.abs(joursRestants)} jour{Math.abs(joursRestants) > 1 ? 's' : ''}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="ms-crm-quick-actions">
+                    <h3 className="ms-crm-section-title">Actions rapides</h3>
+                    <div className="ms-crm-action-buttons">
+                      {contrat.statut === 'actif' && (
+                        <>
+                          <button 
+                            onClick={() => changerStatut('resilie')}
+                            className="ms-crm-btn ms-crm-btn-warning"
+                          >
+                            Résilier le contrat
+                          </button>
+                          <button 
+                            onClick={() => changerStatut('termine')}
+                            className="ms-crm-btn ms-crm-btn-info"
+                          >
+                            Marquer comme terminé
+                          </button>
+                        </>
+                      )}
+                      {contrat.statut === 'inactif' && (
+                        <button 
+                          onClick={() => changerStatut('actif')}
+                          className="ms-crm-btn ms-crm-btn-success"
+                        >
+                          Activer le contrat
+                        </button>
+                      )}
+                      {(contrat.statut === 'resilie' || contrat.statut === 'termine') && (
+                        <button 
+                          onClick={() => changerStatut('actif')}
+                          className="ms-crm-btn ms-crm-btn-success"
+                        >
+                          Réactiver le contrat
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
 
-        {/* Informations principales */}
-        <div className="info-grid">
-          <div className="info-card">
-            <h3>Informations du contrat</h3>
-            <div className="info-list">
-              <div className="info-item">
-                <label>Type de contrat:</label>
-                <span>{contrat.type_contrat}</span>
+            {/* Contract Information Card */}
+            <div className="ms-crm-card">
+              <div className="ms-crm-card-header">
+                <h2 className="ms-crm-card-title">Informations du contrat</h2>
               </div>
-              <div className="info-item">
-                <label>Date de début:</label>
-                <span>{new Date(contrat.date_debut).toLocaleDateString('fr-FR')}</span>
-              </div>
-              <div className="info-item">
-                <label>Date de fin:</label>
-                <span>{contrat.date_fin ? new Date(contrat.date_fin).toLocaleDateString('fr-FR') : 'Non définie'}</span>
-              </div>
-              <div className="info-item">
-                <label>Périodicité:</label>
-                <span>{contrat.periodicite}</span>
-              </div>
-              <div className="info-item">
-                <label>Montant HT:</label>
-                <span className="montant">{contrat.montant_ht.toLocaleString('fr-FR')} €</span>
+              <div className="ms-crm-card-content">
+                <div className="ms-crm-info-grid">
+                  <div className="ms-crm-info-group">
+                    <label className="ms-crm-info-label">Type de contrat</label>
+                    <span className="ms-crm-info-value">{contrat.type_contrat}</span>
+                  </div>
+                  <div className="ms-crm-info-group">
+                    <label className="ms-crm-info-label">Date de début</label>
+                    <span className="ms-crm-info-value">
+                      {new Date(contrat.date_debut).toLocaleDateString('fr-FR')}
+                    </span>
+                  </div>
+                  <div className="ms-crm-info-group">
+                    <label className="ms-crm-info-label">Date de fin</label>
+                    <span className="ms-crm-info-value">
+                      {contrat.date_fin 
+                        ? new Date(contrat.date_fin).toLocaleDateString('fr-FR')
+                        : 'Non définie'
+                      }
+                    </span>
+                  </div>
+                  <div className="ms-crm-info-group">
+                    <label className="ms-crm-info-label">Périodicité</label>
+                    <span className="ms-crm-info-value">{contrat.periodicite}</span>
+                  </div>
+                  <div className="ms-crm-info-group">
+                    <label className="ms-crm-info-label">Montant HT</label>
+                    <span className="ms-crm-info-value ms-crm-amount">
+                      {contrat.montant_ht.toLocaleString('fr-FR')} €
+                    </span>
+                  </div>
+                  <div className="ms-crm-info-group">
+                    <label className="ms-crm-info-label">Montant TTC</label>
+                    <span className="ms-crm-info-value ms-crm-amount ms-crm-ttc">
+                      {(contrat.montant_ht * 1.2).toLocaleString('fr-FR')} €
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Description et conditions */}
-          <div className="description-card">
-            <h3>Description</h3>
-            <p>{contrat.description || 'Aucune description'}</p>
-          </div>
-
-          {contrat.conditions && (
-            <div className="conditions-card">
-              <h3>Conditions particulières</h3>
-              <p>{contrat.conditions}</p>
+            {/* Description Card */}
+            <div className="ms-crm-card">
+              <div className="ms-crm-card-header">
+                <h2 className="ms-crm-card-title">Description</h2>
+              </div>
+              <div className="ms-crm-card-content">
+                <div className="ms-crm-description">
+                  {contrat.description || (
+                    <span className="ms-crm-empty-state">Aucune description fournie</span>
+                  )}
+                </div>
+              </div>
             </div>
-          )}
-        </div>
 
-        {/* Liens vers documents associés */}
-        <div className="documents-associes">
-          <h3>Documents associés</h3>
-          <div className="documents-list">
-            {contrat.devis_id && (
-              <Link 
-                to={`/crm/devis/${contrat.devis_id}`}
-                className="document-link"
-              >
-                📋 Devis associé
-              </Link>
+            {/* Conditions Card */}
+            {contrat.conditions && (
+              <div className="ms-crm-card">
+                <div className="ms-crm-card-header">
+                  <h2 className="ms-crm-card-title">Conditions particulières</h2>
+                </div>
+                <div className="ms-crm-card-content">
+                  <div className="ms-crm-conditions">
+                    {contrat.conditions}
+                  </div>
+                </div>
+              </div>
             )}
-            <button className="document-link" onClick={() => alert('Fonctionnalité à implémenter')}>
-              🧾 Factures
-            </button>
-            <button className="document-link" onClick={() => alert('Fonctionnalité à implémenter')}>
-              📊 Rapports d'activité
-            </button>
           </div>
-        </div>
 
-        {/* Métadonnées */}
-        <div className="metadata">
-          <div className="metadata-item">
-            <strong>Créé le:</strong> 
-            {new Date(contrat.created_at).toLocaleString('fr-FR')}
-          </div>
-          <div className="metadata-item">
-            <strong>Modifié le:</strong> 
-            {new Date(contrat.updated_at).toLocaleString('fr-FR')}
+          {/* Right Column - Sidebar */}
+          <div className="ms-crm-detail-sidebar">
+            
+            {/* Associated Documents Card */}
+            <div className="ms-crm-card">
+              <div className="ms-crm-card-header">
+                <h3 className="ms-crm-card-title">Documents associés</h3>
+              </div>
+              <div className="ms-crm-card-content">
+                <div className="ms-crm-documents-list">
+                  {contrat.devis_id && (
+                    <Link 
+                      to={`/crm/devis/${contrat.devis_id}`}
+                      className="ms-crm-document-link"
+                    >
+                      <span className="ms-crm-document-icon">📋</span>
+                      <div className="ms-crm-document-info">
+                        <span className="ms-crm-document-title">Devis associé</span>
+                        <span className="ms-crm-document-subtitle">Document source</span>
+                      </div>
+                    </Link>
+                  )}
+                  <button 
+                    className="ms-crm-document-link"
+                    onClick={() => alert('Fonctionnalité à implémenter')}
+                  >
+                    <span className="ms-crm-document-icon">🧾</span>
+                    <div className="ms-crm-document-info">
+                      <span className="ms-crm-document-title">Factures</span>
+                      <span className="ms-crm-document-subtitle">Documents de paiement</span>
+                    </div>
+                  </button>
+                  <button 
+                    className="ms-crm-document-link"
+                    onClick={() => alert('Fonctionnalité à implémenter')}
+                  >
+                    <span className="ms-crm-document-icon">📊</span>
+                    <div className="ms-crm-document-info">
+                      <span className="ms-crm-document-title">Rapports d'activité</span>
+                      <span className="ms-crm-document-subtitle">Suivi des prestations</span>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Metadata Card */}
+            <div className="ms-crm-card">
+              <div className="ms-crm-card-header">
+                <h3 className="ms-crm-card-title">Métadonnées</h3>
+              </div>
+              <div className="ms-crm-card-content">
+                <div className="ms-crm-metadata">
+                  <div className="ms-crm-metadata-item">
+                    <label className="ms-crm-metadata-label">Créé le</label>
+                    <span className="ms-crm-metadata-value">
+                      {new Date(contrat.created_at).toLocaleString('fr-FR')}
+                    </span>
+                  </div>
+                  <div className="ms-crm-metadata-item">
+                    <label className="ms-crm-metadata-label">Modifié le</label>
+                    <span className="ms-crm-metadata-value">
+                      {new Date(contrat.updated_at).toLocaleString('fr-FR')}
+                    </span>
+                  </div>
+                  <div className="ms-crm-metadata-item">
+                    <label className="ms-crm-metadata-label">Référence</label>
+                    <span className="ms-crm-metadata-value">{contrat.numero_contrat}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Client Information Card */}
+            <div className="ms-crm-card">
+              <div className="ms-crm-card-header">
+                <h3 className="ms-crm-card-title">Client</h3>
+              </div>
+              <div className="ms-crm-card-content">
+                <div className="ms-crm-client-info">
+                  <div className="ms-crm-client-name">{contrat.client_nom}</div>
+                  {contrat.client_email && (
+                    <div className="ms-crm-client-email">{contrat.client_email}</div>
+                  )}
+                  <Link 
+                    to={`/crm/clients/${contrat.tiers_id}`}
+                    className="ms-crm-btn ms-crm-btn-secondary ms-crm-btn-small ms-crm-btn-block"
+                  >
+                    Voir la fiche client
+                  </Link>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

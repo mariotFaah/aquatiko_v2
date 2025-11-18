@@ -85,6 +85,7 @@ export interface Devis {
 export interface Contrat {
   id_contrat: number;
   numero_contrat: string;
+  client_email: string;
   tiers_id: number;
   devis_id?: number;
   type_contrat: string;

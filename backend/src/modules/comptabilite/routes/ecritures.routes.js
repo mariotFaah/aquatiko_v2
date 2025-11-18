@@ -1,20 +1,35 @@
 // src/modules/comptabilite/routes/ecritures.routes.js
 import express from 'express';
 import { EcritureComptableController } from '../controllers/EcritureComptableController.js';
+import authMiddleware from '../../auth/middleware/authMiddleware.js';
 
 const router = express.Router();
 const ecritureController = new EcritureComptableController();
 
-// GET /api/comptabilite/ecritures - Liste toutes les écritures (avec filtres optionnels)
-router.get('/', ecritureController.getAll.bind(ecritureController));
+// ✅ ROUTES PROTÉGÉES - Lecture pour utilisateurs authentifiés
+router.get('/', 
+  authMiddleware.authenticate,
+  authMiddleware.requirePermission('comptabilite', 'read'),
+  ecritureController.getAll.bind(ecritureController)
+);
 
-// GET /api/comptabilite/ecritures/journal/:type - Écritures par journal
-router.get('/journal/:type', ecritureController.getByJournal.bind(ecritureController));
+router.get('/journal/:type', 
+  authMiddleware.authenticate,
+  authMiddleware.requirePermission('comptabilite', 'read'),
+  ecritureController.getByJournal.bind(ecritureController)
+);
 
-// GET /api/comptabilite/ecritures/:id - Détail d'une écriture
-router.get('/:id', ecritureController.getById.bind(ecritureController));
+router.get('/:id', 
+  authMiddleware.authenticate,
+  authMiddleware.requirePermission('comptabilite', 'read'),
+  ecritureController.getById.bind(ecritureController)
+);
 
-// POST /api/comptabilite/ecritures - Créer une écriture manuelle
-router.post('/', ecritureController.create.bind(ecritureController));
+// ✅ ROUTE PROTÉGÉE - Écriture manuelle (comptable et admin seulement)
+router.post('/', 
+  authMiddleware.authenticate,
+  authMiddleware.requirePermission('comptabilite', 'write'),
+  ecritureController.create.bind(ecritureController)
+);
 
 export default router;

@@ -85,6 +85,8 @@ export class ContactRepository {
       throw new Error('Erreur lors de la suppression du contact');
     }
   }
+
+  
 }
 
 export default ContactRepository;

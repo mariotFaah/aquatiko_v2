@@ -1,559 +1,250 @@
-/* FacturesListPage.css - Version simplifiée sans indicateurs */
+/* src/modules/comptabilite/pages/FacturesListPage.css */
 
-.factures-list-page {
-  padding: 20px;
-  max-width: 1400px;
-  margin: 0 auto;
-  background-color: #f8f9fa;
-  min-height: 100vh;
-}
-
-/* Header */
-.factures-header {
+/* Styles spécifiques pour les factures */
+.ms-crm-facture-info {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-  background: white;
-  padding: 25px;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  flex-direction: column;
+  gap: 4px;
 }
 
-.factures-title {
-  color: #2c3e50;
-  font-size: 2.2rem;
-  font-weight: 700;
-  margin: 0 0 8px 0;
-}
-
-.factures-subtitle {
-  color: #7f8c8d;
-  font-size: 1.1rem;
-  margin: 0;
-  font-weight: 400;
-}
-
-.factures-new-button {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 12px 24px;
-  border-radius: 8px;
-  text-decoration: none;
+.ms-crm-facture-number {
+  font-size: 14px;
   font-weight: 600;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-  border: none;
-  cursor: pointer;
-  display: inline-flex;
+  color: #323130;
+}
+
+.ms-crm-facture-devise {
+  font-size: 12px;
+  color: #605e5c;
+  background: #f3f2f1;
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.ms-crm-client-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ms-crm-client-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #323130;
+}
+
+.ms-crm-client-type {
+  font-size: 12px;
+  color: #605e5c;
+}
+
+.ms-crm-echeance-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: #605e5c;
+  margin-top: 4px;
+}
+
+.ms-crm-echeance-label {
+  font-weight: 600;
+}
+
+.ms-crm-echeance-date {
+  color: #323130;
+}
+
+.ms-crm-jours-restants {
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.ms-crm-retard {
+  background: #fef7f7;
+  color: #d13438;
+  border: 1px solid #d13438;
+}
+
+.ms-crm-warning {
+  background: #fff4ce;
+  color: #8a6e00;
+  border: 1px solid #8a6e00;
+}
+
+.ms-crm-normal {
+  background: #dff6dd;
+  color: #107c10;
+  border: 1px solid #107c10;
+}
+
+.ms-crm-date {
+  font-size: 14px;
+  color: #323130;
+  font-weight: 500;
+}
+
+.ms-crm-type-info {
+  display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.factures-new-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-  color: white;
-  text-decoration: none;
+.ms-crm-type-icon {
+  font-size: 16px;
 }
 
-/* Filtres et Recherche */
-.factures-filters {
-  background: white;
-  padding: 25px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  margin-bottom: 25px;
-}
-
-.factures-search {
-  margin-bottom: 20px;
-}
-
-.factures-search-input {
-  width: 100%;
-  max-width: 400px;
-  padding: 12px 16px;
-  border: 2px solid #e9ecef;
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-  background: #f8f9fa;
-}
-
-.factures-search-input:focus {
-  outline: none;
-  border-color: #3498db;
-  background: white;
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-}
-
-.factures-filter-buttons {
+.ms-crm-financial-info {
   display: flex;
-  gap: 10px;
-  margin-bottom: 15px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-end;
 }
 
-.factures-filter-button,
-.factures-type-button {
-  padding: 10px 18px;
-  border: 2px solid #e9ecef;
-  border-radius: 8px;
-  background: white;
-  cursor: pointer;
-  transition: all 0.3s ease;
+.ms-crm-amount {
+  font-size: 14px;
+  font-weight: 600;
+  color: #323130;
+}
+
+.ms-crm-paye {
+  font-size: 12px;
+  color: #107c10;
   font-weight: 500;
-  font-size: 0.9rem;
 }
 
-.factures-filter-button.active,
-.factures-type-button.active {
-  background: #3498db;
-  color: white;
-  border-color: #3498db;
-  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
-}
-
-.factures-filter-button.inactive:hover,
-.factures-type-button.inactive:hover {
-  border-color: #3498db;
-  background: #f8f9fa;
-}
-
-.factures-type-filters {
+.ms-crm-progression {
   display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 120px;
 }
 
-/* Tableau */
-.factures-table-container {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+.ms-crm-progression-bar {
+  flex: 1;
+  height: 6px;
+  background: #f3f2f1;
+  border-radius: 3px;
   overflow: hidden;
 }
 
-.factures-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.95rem;
+.ms-crm-progression-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
 }
 
-.factures-table th {
-  background-color:rgb(74, 74, 228) ;
-  color: white;
-  padding: 16px 12px;
-  text-align: left;
+.ms-crm-complete {
+  background: #107c10;
+}
+
+.ms-crm-partial {
+  background: #0078d4;
+}
+
+.ms-crm-empty {
+  background: #a19f9d;
+}
+
+.ms-crm-progression-text {
+  font-size: 12px;
   font-weight: 600;
-  font-size: 0.9rem;
+  color: #605e5c;
+  min-width: 30px;
+  text-align: right;
+}
+
+.ms-crm-statut-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ms-crm-statut-icon {
+  font-size: 16px;
+}
+
+.ms-crm-row-warning {
+  background: #fff4ce !important;
+  border-left: 3px solid #f2c811;
+}
+
+/* Badges améliorés */
+.ms-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.factures-table th:first-child {
-  border-top-left-radius: 12px;
+.ms-badge-primary {
+  background: #e1f5fe;
+  color: #0099bc;
 }
 
-.factures-table th:last-child {
-  border-top-right-radius: 12px;
+.ms-badge-success {
+  background: #dff6dd;
+  color: #107c10;
 }
 
-.factures-table td {
-  padding: 16px 12px;
-  border-bottom: 1px solid #f1f3f4;
-  vertical-align: top;
+.ms-badge-warning {
+  background: #fff4ce;
+  color: #8a6e00;
 }
 
-.factures-table tr:last-child td {
-  border-bottom: none;
+.ms-badge-error {
+  background: #fef7f7;
+  color: #d13438;
 }
 
-.factures-table tr:hover {
-  background-color: #f8f9fa;
+.ms-badge-info {
+  background: #eef2f8;
+  color: #0078d4;
 }
 
-.factures-row-retard {
-  background-color: #fff5f5 !important;
+.ms-badge-default {
+  background: #f3f2f1;
+  color: #605e5c;
 }
 
-.factures-row-retard:hover {
-  background-color: #ffeaea !important;
-}
-
-/* Cellules spécifiques */
-.factures-cell-nowrap {
-  white-space: nowrap;
-}
-
-.factures-cell-client {
-  min-width: 200px;
-}
-
-.factures-cell-actions {
-  min-width: 180px;
-}
-
-.factures-cell-number {
-  font-weight: 700;
-  color: #2c3e50;
-  font-size: 1.1rem;
-}
-
-.factures-cell-devise {
-  font-size: 0.8rem;
-  color: #7f8c8d;
-  margin-top: 4px;
-}
-
-.factures-cell-client-name {
-  font-weight: 600;
-  color: #2c3e50;
-  margin-bottom: 4px;
-}
-
-.factures-cell-client-details {
-  font-size: 0.85rem;
-  color: #7f8c8d;
-}
-
-.factures-cell-echeance {
-  font-size: 0.8rem;
-  color: #7f8c8d;
-  margin-top: 6px;
-}
-
-.factures-cell-date {
-  color: #5a6c7d;
-  font-weight: 500;
-}
-
-.factures-cell-amount {
-  font-weight: 700;
-  color: #27ae60;
-  font-size: 1.05rem;
-}
-
-.factures-cell-paye {
-  font-size: 0.8rem;
-  color: #7f8c8d;
-  margin-top: 4px;
-}
-
-/* Badges */
-.factures-badge {
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  display: inline-block;
-}
-
-.factures-badge-validee {
-  background: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-}
-
-.factures-badge-brouillon {
-  background: #fff3cd;
-  color: #856404;
-  border: 1px solid #ffeaa7;
-}
-
-.factures-badge-annulee {
-  background: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-}
-
-.factures-badge-partiel {
-  background: #cce7ff;
-  color: #004085;
-  border: 1px solid #b3d7ff;
-}
-
-.factures-badge-payee {
-  background: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-}
-
-.factures-badge-retard {
-  background: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-}
-
-.factures-badge-non-payee {
-  background: #e2e3e5;
-  color: #383d41;
-  border: 1px solid #d6d8db;
-}
-
-.factures-badge-facture {
-  background: #d1ecf1;
-  color: #0c5460;
-  border: 1px solid #bee5eb;
-}
-
-.factures-badge-proforma {
-  background: #fff3cd;
-  color: #856404;
-  border: 1px solid #ffeaa7;
-}
-
-.factures-badge-avoir {
-  background: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-}
-
-/* Badges de paiement */
-.factures-paiement-badge {
-  padding: 5px 10px;
-  border-radius: 15px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  display: inline-block;
-}
-
-.factures-paiement-comptant {
-  background: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-}
-
-.factures-paiement-flexible {
-  background: #fff3cd;
-  color: #856404;
-  border: 1px solid #ffeaa7;
-}
-
-.factures-paiement-acompte {
-  background: #cce7ff;
-  color: #004085;
-  border: 1px solid #b3d7ff;
-}
-
-.factures-paiement-echeance {
-  background: #e2e3e5;
-  color: #383d41;
-  border: 1px solid #d6d8db;
-}
-
-/* Progression */
-.factures-cell-progression {
-  min-width: 120px;
-}
-
-.factures-progression-bar {
-  width: 100%;
-  height: 10px;
-  background: #e9ecef;
-  border-radius: 5px;
-  overflow: hidden;
-  margin-bottom: 6px;
-}
-
-.factures-progression-fill {
-  height: 100%;
-  transition: width 0.5s ease;
-  border-radius: 5px;
-}
-
-.factures-progression-fill.empty {
-  background: #e9ecef;
-}
-
-.factures-progression-fill.partial {
-  background: linear-gradient(90deg, #ffc107, #ffb300);
-}
-
-.factures-progression-fill.complete {
-  background: linear-gradient(90deg, #28a745, #20c997);
-}
-
-.factures-progression-text {
-  font-size: 0.8rem;
-  color: #6c757d;
-  text-align: center;
-  font-weight: 600;
-}
-
-/* Jours restants */
-.factures-jours-restants {
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  margin-left: 8px;
-}
-
-.factures-jours-restants.normal {
-  background: #d4edda;
-  color: #155724;
-}
-
-.factures-jours-restants.warning {
-  background: #fff3cd;
-  color: #856404;
-}
-
-.factures-jours-restants.retard {
-  background: #f8d7da;
-  color: #721c24;
-}
-
-/* Actions */
-.factures-actions {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.factures-action-link {
-  padding: 6px 10px;
-  border-radius: 6px;
-  text-decoration: none;
-  font-size: 0.8rem;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  border: none;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.factures-action-view {
-  background: #17a2b8;
-  color: white;
-}
-
-.factures-action-edit {
-  background: #ffc107;
-  color: #212529;
-}
-
-.factures-action-validate {
-  background: #28a745;
-  color: white;
-}
-
-.factures-action-cancel {
-  background: #dc3545;
-  color: white;
-}
-
-.factures-action-payment {
-  background: #6f42c1;
-  color: white;
-}
-
-.factures-action-link:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  text-decoration: none;
-  color: white;
-}
-
-/* État vide */
-.factures-empty {
-  text-align: center;
-  padding: 60px 20px;
-  color: #6c757d;
-}
-
-.factures-empty-text {
-  font-size: 1.2rem;
-  margin-bottom: 20px;
-  color: #7f8c8d;
-}
-
-.factures-empty-button {
-  background: #3498db;
-  color: white;
-  padding: 12px 24px;
-  border-radius: 8px;
-  text-decoration: none;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  display: inline-block;
-}
-
-.factures-empty-button:hover {
-  background: #2980b9;
-  color: white;
-  text-decoration: none;
-  transform: translateY(-2px);
-}
-
-/* Loading */
-.factures-loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 400px;
-}
-
-.factures-loading-text {
-  font-size: 1.2rem;
-  color: #6c757d;
-}
-
-/* Responsive */
-@media (max-width: 1200px) {
-  .factures-table-container {
-    overflow-x: auto;
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .ms-crm-progression {
+    min-width: 100px;
   }
   
-  .factures-table {
-    min-width: 1000px;
+  .ms-crm-actions-container {
+    flex-direction: column;
+    gap: 4px;
   }
 }
 
 @media (max-width: 768px) {
-  .factures-list-page {
-    padding: 15px;
-  }
-  
-  .factures-header {
+  .ms-crm-filters-bar {
     flex-direction: column;
-    gap: 20px;
-    text-align: center;
+    gap: 12px;
   }
   
-  .factures-filter-buttons,
-  .factures-type-filters {
-    justify-content: center;
-  }
-  
-  .factures-actions {
+  .ms-crm-filters {
     flex-direction: column;
-    gap: 4px;
+    gap: 12px;
   }
   
-  .factures-action-link {
-    justify-content: center;
-    font-size: 0.75rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .factures-filter-buttons,
-  .factures-type-filters {
-    flex-direction: column;
-  }
-  
-  .factures-filter-button,
-  .factures-type-button {
+  .ms-crm-filter-group {
     width: 100%;
-    text-align: center;
+  }
+  
+  .ms-crm-filter-select {
+    width: 100%;
+  }
+  
+  .ms-crm-stats-grid {
+    grid-template-columns: 1fr 1fr;
   }
 }

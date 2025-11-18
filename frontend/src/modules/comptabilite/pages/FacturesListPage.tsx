@@ -38,17 +38,12 @@ export const FacturesListPage: React.FC = () => {
   };
 
   const filteredFactures = factures.filter(facture => {
-    // Filtre par statut
     if (filter !== 'all' && facture.statut !== filter) {
       return false;
     }
-
-    // Filtre par type
     if (typeFilter !== 'all' && facture.type_facture !== typeFilter) {
       return false;
     }
-
-    // Filtre par recherche
     if (searchTerm) {
       const searchLower = searchTerm.toLowerCase();
       return (
@@ -57,72 +52,64 @@ export const FacturesListPage: React.FC = () => {
         (facture as any).numero_tiers?.toString().includes(searchLower)
       );
     }
-
     return true;
   });
 
   const getStatutClass = (statut: string) => {
     const classes = {
-      validee: 'factures-badge-validee',
-      brouillon: 'factures-badge-brouillon',
-      annulee: 'factures-badge-annulee',
-      partiellement_payee: 'factures-badge-partiel',
-      payee: 'factures-badge-payee',
-      en_retard: 'factures-badge-retard',
-      non_payee: 'factures-badge-non-payee'
+      validee: 'ms-badge ms-badge-success',
+      brouillon: 'ms-badge ms-badge-warning',
+      annulee: 'ms-badge ms-badge-error',
+      partiellement_payee: 'ms-badge ms-badge-info',
+      payee: 'ms-badge ms-badge-success',
+      en_retard: 'ms-badge ms-badge-error',
+      non_payee: 'ms-badge ms-badge-warning'
     };
-    return `${classes[statut as keyof typeof classes] || 'factures-badge-default'} factures-badge`;
+    return classes[statut as keyof typeof classes] || 'ms-badge ms-badge-default';
   };
 
   const getTypeClass = (type: string) => {
     const classes = {
-      facture: 'factures-badge-facture',
-      proforma: 'factures-badge-proforma',
-      avoir: 'factures-badge-avoir'
+      facture: 'ms-badge ms-badge-primary',
+      proforma: 'ms-badge ms-badge-info',
+      avoir: 'ms-badge ms-badge-warning'
     };
-    return `${classes[type as keyof typeof classes] || 'factures-badge-default'} factures-badge`;
+    return classes[type as keyof typeof classes] || 'ms-badge ms-badge-default';
   };
 
-  const getPaiementClass = (typePaiement: string = 'comptant') => {
-    const classes = {
-      comptant: 'factures-paiement-comptant',
-      flexible: 'factures-paiement-flexible',
-      acompte: 'factures-paiement-acompte',
-      echeance: 'factures-paiement-echeance'
+  const getStatutIcon = (statut: string) => {
+    const icons: { [key: string]: string } = {
+      validee: '✅',
+      brouillon: '📝',
+      annulee: '❌',
+      partiellement_payee: '🔄',
+      payee: '💰',
+      en_retard: '⏰',
+      non_payee: '💳'
     };
-    return `${classes[typePaiement as keyof typeof classes] || 'factures-paiement-default'} factures-paiement-badge`;
+    return icons[statut] || '📄';
   };
 
-  const getDeviseSymbol = (devise: string = 'MGA') => {
-    const symbols: { [key: string]: string } = {
-      'MGA': 'Ar',
-      'USD': '$',
-      'EUR': '€'
+  const getTypeIcon = (type: string) => {
+    const icons: { [key: string]: string } = {
+      facture: '🧾',
+      proforma: '📋',
+      avoir: '🔄'
     };
-    return symbols[devise] || devise;
+    return icons[type] || '📄';
   };
 
   const getStatutLabel = (statut: string) => {
     const labels: { [key: string]: string } = {
-      validee: '✅ Validée',
-      brouillon: '📝 Brouillon',
-      annulee: '❌ Annulée',
-      partiellement_payee: '🔄 Partiellement payée',
-      payee: '💰 Payée',
-      en_retard: '⏰ En retard',
-      non_payee: '💳 Non payée'
+      validee: 'Validée',
+      brouillon: 'Brouillon',
+      annulee: 'Annulée',
+      partiellement_payee: 'Partiellement payée',
+      payee: 'Payée',
+      en_retard: 'En retard',
+      non_payee: 'Non payée'
     };
     return labels[statut] || statut;
-  };
-
-  const getPaiementLabel = (typePaiement: string = 'comptant') => {
-    const labels: { [key: string]: string } = {
-      comptant: '💳 Comptant',
-      flexible: '🔄 Flexible',
-      acompte: '💰 Acompte',
-      echeance: '📅 Échéance'
-    };
-    return labels[typePaiement] || typePaiement;
   };
 
   const calculerProgressionPaiement = (facture: Facture) => {
@@ -195,216 +182,308 @@ export const FacturesListPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="factures-loading">
-        <div className="factures-loading-text">Chargement des factures...</div>
+      <div className="ms-crm-loading">
+        <div className="ms-crm-spinner"></div>
+        <span>Chargement des factures...</span>
       </div>
     );
   }
 
   return (
-    <div className="factures-list-page">
-      
-
-      {/* Filtres et Recherche */}
-      <div className="factures-filters">
-        <div className="factures-search">
-          <input
-            type="text"
-            placeholder="Rechercher par n° facture, client..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="factures-search-input"
-          />
+    <div className="ms-crm-container">
+      {/* Header Microsoft Style */}
+      <div className="ms-crm-header">
+        <div className="ms-crm-header-left">
+          <div className="ms-crm-title-section">
+            <h1 className="ms-crm-page-title">🧾 Factures</h1>
+            <p className="ms-crm-subtitle">Gestion de votre facturation et suivi des paiements</p>
+          </div>
         </div>
-
-        <div className="factures-filter-buttons">
-          {[
-            { key: 'all', label: '📋 Toutes' },
-            { key: 'validee', label: '✅ Validées' },
-            { key: 'brouillon', label: '📝 Brouillons' },
-            { key: 'annulee', label: '❌ Annulées' }
-          ].map(({ key, label }) => (
-            <button
-              key={key}
-              onClick={() => setFilter(key as any)}
-              className={`factures-filter-button ${filter === key ? 'active' : 'inactive'}`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-
-        <div className="factures-type-filters">
-          {[
-            { key: 'all', label: 'Tous types' },
-            { key: 'facture', label: 'Factures' },
-            { key: 'proforma', label: 'Proformas' },
-            { key: 'avoir', label: 'Avoirs' }
-          ].map(({ key, label }) => (
-            <button
-              key={key}
-              onClick={() => setTypeFilter(key as any)}
-              className={`factures-type-button ${typeFilter === key ? 'active' : 'inactive'}`}
-            >
-              {label}
-            </button>
-          ))}
+        
+        <div className="ms-crm-header-actions">
+          <Link 
+            to="/comptabilite/factures/nouvelle"
+            className="ms-crm-btn ms-crm-btn-primary"
+          >
+            <span className="ms-crm-icon">➕</span>
+            Nouvelle facture
+          </Link>
         </div>
       </div>
-      <Link
-          to="/comptabilite/factures/nouvelle"
-          className="factures-new-button"
-        >
-          + Nouvelle Facture
-        </Link>
 
-      {/* Tableau des factures */}
-      <div className="factures-table-container">
-        <table className="factures-table">
-          <thead>
-            <tr>
-              <th>N° Facture</th>
-              <th className="factures-cell-client">Client/Fournisseur</th>
-              <th>Date</th>
-              <th>Type</th>
-              <th>Paiement</th>
-              <th>Montant TTC</th>
-              <th>Progression</th>
-              <th>Statut</th>
-              <th className="factures-cell-actions">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredFactures.map((facture) => {
-              const progression = calculerProgressionPaiement(facture);
-              const enRetard = estEnRetard(facture);
-              const joursRestants = getJourRestant(facture);
-
-              return (
-                <tr key={facture.numero_facture} className={enRetard ? 'factures-row-retard' : ''}>
-                  <td className="factures-cell-nowrap">
-                    <div className="factures-cell-number">
-                      {facture.numero_facture}
-                    </div>
-                    <div className="factures-cell-devise">
-                      {facture.devise} {getDeviseSymbol(facture.devise)}
-                    </div>
-                  </td>
-                  <td className="factures-cell-client">
-                    <div className="factures-cell-client-name">
-                      {facture.nom_tiers}
-                    </div>
-                    <div className="factures-cell-client-details">
-                      {facture.type_tiers}
-                    </div>
-                    {facture.date_finale_paiement && (
-                      <div className="factures-cell-echeance">
-                        Échéance: {new Date(facture.date_finale_paiement).toLocaleDateString('fr-FR')}
-                        {joursRestants !== null && (
-                          <span className={`factures-jours-restants ${joursRestants < 0 ? 'retard' : joursRestants < 7 ? 'warning' : 'normal'}`}>
-                            {joursRestants < 0 ? `${Math.abs(joursRestants)}j de retard` : `${joursRestants}j restant`}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  </td>
-                  <td className="factures-cell-nowrap">
-                    <div className="factures-cell-date">
-                      {new Date(facture.date).toLocaleDateString('fr-FR')}
-                    </div>
-                  </td>
-                  <td className="factures-cell-nowrap">
-                    <span className={getTypeClass(facture.type_facture)}>
-                      {facture.type_facture}
-                    </span>
-                  </td>
-                  <td className="factures-cell-nowrap">
-                    <span className={getPaiementClass(facture.type_paiement)}>
-                      {getPaiementLabel(facture.type_paiement)}
-                    </span>
-                  </td>
-                  <td className="factures-cell-nowrap">
-                    <div className="factures-cell-amount">
-                      {facture.total_ttc?.toLocaleString('fr-FR', {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
-                      })} {getDeviseSymbol(facture.devise)}
-                    </div>
-                    {(facture.montant_paye || 0) > 0 && (
-                      <div className="factures-cell-paye">
-                        Payé: {(facture.montant_paye || 0).toLocaleString('fr-FR')} {getDeviseSymbol(facture.devise)}
-                      </div>
-                    )}
-                  </td>
-                  <td className="factures-cell-progression">
-                    <div className="factures-progression-bar">
-                      <div 
-                        className={`factures-progression-fill ${progression === 100 ? 'complete' : progression > 0 ? 'partial' : 'empty'}`}
-                        style={{ width: `${progression}%` }}
-                      />
-                    </div>
-                    <div className="factures-progression-text">
-                      {progression.toFixed(0)}%
-                    </div>
-                  </td>
-                  <td className="factures-cell-nowrap">
-                    <span className={getStatutClass(facture.statut)}>
-                      {getStatutLabel(facture.statut)}
-                    </span>
-                  </td>
-                  <td className="factures-cell-nowrap">
-                    <div className="factures-actions">
-                      <Link
-                        to={`/comptabilite/factures/${facture.numero_facture}`}
-                        className="factures-action-link factures-action-view"
-                      >
-                        👁️ Voir
-                      </Link>
-                      {facture.statut === 'brouillon' && (
-                        <>
-                          <Link
-                            to={`/comptabilite/factures/${facture.numero_facture}/edit`}
-                            className="factures-action-link factures-action-edit"
-                          >
-                            ✏️ Modifier
-                          </Link>
-                          <button
-                            onClick={() => facture.numero_facture && handleValiderFacture(facture.numero_facture)}
-                            className="factures-action-link factures-action-validate"
-                          >
-                            ✅ Valider
-                          </button>
-                        </>
-                      )}
-                      {(facture.statut === 'validee' || facture.statut === 'brouillon') && (
-                        <button
-                          onClick={() => facture.numero_facture && handleAnnulerFacture(facture.numero_facture)}
-                          className="factures-action-link factures-action-cancel"
-                        >
-                          ❌ Annuler
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-
-        {filteredFactures.length === 0 && (
-          <div className="factures-empty">
-            <div className="factures-empty-text">
-              {searchTerm || filter !== 'all' || typeFilter !== 'all'
-                ? 'Aucune facture ne correspond aux critères de recherche'
-                : 'Aucune facture trouvée'}
+      {/* Main Content */}
+      <div className="ms-crm-content">
+        
+        {/* Filters and Search Bar */}
+        <div className="ms-crm-filters-bar">
+          <div className="ms-crm-search-box">
+            <span className="ms-crm-search-icon">🔍</span>
+            <input
+              type="text"
+              placeholder="Rechercher par n° facture, client..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="ms-crm-search-input"
+            />
+          </div>
+          
+          <div className="ms-crm-filters">
+            <div className="ms-crm-filter-group">
+              <label className="ms-crm-filter-label">Statut:</label>
+              <select
+                value={filter}
+                onChange={(e) => setFilter(e.target.value as any)}
+                className="ms-crm-filter-select"
+              >
+                <option value="all">📋 Tous les statuts</option>
+                <option value="brouillon">📝 Brouillons</option>
+                <option value="validee">✅ Validées</option>
+                <option value="payee">💰 Payées</option>
+                <option value="partiellement_payee">🔄 Partiellement payées</option>
+                <option value="en_retard">⏰ En retard</option>
+                <option value="annulee">❌ Annulées</option>
+              </select>
             </div>
-            <Link
-              to="/comptabilite/factures/nouvelle"
-              className="factures-empty-button"
-            >
-              Créer votre première facture
-            </Link>
+
+            <div className="ms-crm-filter-group">
+              <label className="ms-crm-filter-label">Type:</label>
+              <select
+                value={typeFilter}
+                onChange={(e) => setTypeFilter(e.target.value as any)}
+                className="ms-crm-filter-select"
+              >
+                <option value="all">📄 Tous les types</option>
+                <option value="facture">🧾 Factures</option>
+                <option value="proforma">📋 Proformas</option>
+                <option value="avoir">🔄 Avoirs</option>
+              </select>
+            </div>
+
+            <div className="ms-crm-stats">
+              <span className="ms-crm-stat-badge">
+                📊 {filteredFactures.length} facture{filteredFactures.length > 1 ? 's' : ''}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Factures Grid */}
+        <div className="ms-crm-card">
+          <div className="ms-crm-table-container">
+            {filteredFactures.length > 0 ? (
+              <table className="ms-crm-table">
+                <thead>
+                  <tr>
+                    <th className="ms-crm-table-header">N° Facture</th>
+                    <th className="ms-crm-table-header">Client/Fournisseur</th>
+                    <th className="ms-crm-table-header">Date</th>
+                    <th className="ms-crm-table-header">Type</th>
+                    <th className="ms-crm-table-header">Montant TTC</th>
+                    <th className="ms-crm-table-header">Progression</th>
+                    <th className="ms-crm-table-header">Statut</th>
+                    <th className="ms-crm-table-header ms-crm-text-center">⚡ Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredFactures.map((facture) => {
+                    const progression = calculerProgressionPaiement(facture);
+                    const enRetard = estEnRetard(facture);
+                    const joursRestants = getJourRestant(facture);
+
+                    return (
+                      <tr key={facture.numero_facture} className={`ms-crm-table-row ${enRetard ? 'ms-crm-row-warning' : ''}`}>
+                        <td className="ms-crm-table-cell">
+                          <div className="ms-crm-facture-info">
+                            <div className="ms-crm-facture-number">
+                              {facture.numero_facture}
+                            </div>
+                            <div className="ms-crm-facture-devise">
+                              {facture.devise}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="ms-crm-table-cell">
+                          <div className="ms-crm-client-info">
+                            <div className="ms-crm-client-name">
+                              {facture.nom_tiers}
+                            </div>
+                            <div className="ms-crm-client-type">
+                              {facture.type_tiers}
+                            </div>
+                            {facture.date_finale_paiement && (
+                              <div className="ms-crm-echeance-info">
+                                <span className="ms-crm-echeance-label">Échéance:</span>
+                                <span className="ms-crm-echeance-date">
+                                  {new Date(facture.date_finale_paiement).toLocaleDateString('fr-FR')}
+                                </span>
+                                {joursRestants !== null && (
+                                  <span className={`ms-crm-jours-restants ${joursRestants < 0 ? 'ms-crm-retard' : joursRestants < 7 ? 'ms-crm-warning' : 'ms-crm-normal'}`}>
+                                    {joursRestants < 0 ? `${Math.abs(joursRestants)}j retard` : `${joursRestants}j restant`}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                        <td className="ms-crm-table-cell">
+                          <div className="ms-crm-date">
+                            {new Date(facture.date).toLocaleDateString('fr-FR')}
+                          </div>
+                        </td>
+                        <td className="ms-crm-table-cell">
+                          <div className="ms-crm-type-info">
+                            <span className="ms-crm-type-icon">
+                              {getTypeIcon(facture.type_facture)}
+                            </span>
+                            <span className={getTypeClass(facture.type_facture)}>
+                              {facture.type_facture}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="ms-crm-table-cell ms-crm-text-right">
+                          <div className="ms-crm-financial-info">
+                            <div className="ms-crm-amount">
+                              {facture.total_ttc?.toLocaleString('fr-FR', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                              })} {facture.devise}
+                            </div>
+                            {(facture.montant_paye || 0) > 0 && (
+                              <div className="ms-crm-paye">
+                                Payé: {(facture.montant_paye || 0).toLocaleString('fr-FR')} {facture.devise}
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                        <td className="ms-crm-table-cell">
+                          <div className="ms-crm-progression">
+                            <div className="ms-crm-progression-bar">
+                              <div 
+                                className={`ms-crm-progression-fill ${progression === 100 ? 'ms-crm-complete' : progression > 0 ? 'ms-crm-partial' : 'ms-crm-empty'}`}
+                                style={{ width: `${progression}%` }}
+                              />
+                            </div>
+                            <div className="ms-crm-progression-text">
+                              {progression.toFixed(0)}%
+                            </div>
+                          </div>
+                        </td>
+                        <td className="ms-crm-table-cell">
+                          <div className="ms-crm-statut-info">
+                            <span className="ms-crm-statut-icon">
+                              {getStatutIcon(facture.statut)}
+                            </span>
+                            <span className={getStatutClass(facture.statut)}>
+                              {getStatutLabel(facture.statut)}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="ms-crm-table-cell ms-crm-text-center">
+                          <div className="ms-crm-actions-container">
+                            <Link
+                              to={`/comptabilite/factures/${facture.numero_facture}`}
+                              className="ms-crm-btn ms-crm-btn-icon ms-crm-btn-view"
+                              title="Voir la facture"
+                            >
+                              👁️
+                            </Link>
+                            {facture.statut === 'brouillon' && (
+                              <>
+                                <Link
+                                  to={`/comptabilite/factures/${facture.numero_facture}/edit`}
+                                  className="ms-crm-btn ms-crm-btn-icon ms-crm-btn-edit"
+                                  title="Modifier la facture"
+                                >
+                                  ✏️
+                                </Link>
+                                <button
+                                  onClick={() => facture.numero_facture && handleValiderFacture(facture.numero_facture)}
+                                  className="ms-crm-btn ms-crm-btn-icon ms-crm-btn-success"
+                                  title="Valider la facture"
+                                >
+                                  ✅
+                                </button>
+                              </>
+                            )}
+                            {(facture.statut === 'validee' || facture.statut === 'brouillon') && (
+                              <button
+                                onClick={() => facture.numero_facture && handleAnnulerFacture(facture.numero_facture)}
+                                className="ms-crm-btn ms-crm-btn-icon ms-crm-btn-danger"
+                                title="Annuler la facture"
+                              >
+                                ❌
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            ) : (
+              <div className="ms-crm-empty-state">
+                <div className="ms-crm-empty-icon">🧾</div>
+                <h3>Aucune facture trouvée</h3>
+                <p>
+                  {searchTerm || filter !== 'all' || typeFilter !== 'all'
+                    ? 'Aucune facture ne correspond à vos critères de recherche.'
+                    : 'Commencez par créer votre première facture.'
+                  }
+                </p>
+                {!searchTerm && filter === 'all' && typeFilter === 'all' && (
+                  <Link 
+                    to="/comptabilite/factures/nouvelle"
+                    className="ms-crm-btn ms-crm-btn-primary"
+                  >
+                    <span className="ms-crm-icon">➕</span>
+                    Créer votre première facture
+                  </Link>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Quick Stats */}
+        {filteredFactures.length > 0 && (
+          <div className="ms-crm-stats-grid">
+            <div className="ms-crm-stat-card">
+              <div className="ms-crm-stat-icon">💰</div>
+              <div className="ms-crm-stat-content">
+                <div className="ms-crm-stat-value">
+                  {factures.filter(f => f.statut === 'payee').length}
+                </div>
+                <div className="ms-crm-stat-label">Payées</div>
+              </div>
+            </div>
+            <div className="ms-crm-stat-card">
+              <div className="ms-crm-stat-icon">⏰</div>
+              <div className="ms-crm-stat-content">
+                <div className="ms-crm-stat-value">
+                  {factures.filter(f => estEnRetard(f)).length}
+                </div>
+                <div className="ms-crm-stat-label">En retard</div>
+              </div>
+            </div>
+            <div className="ms-crm-stat-card">
+              <div className="ms-crm-stat-icon">📝</div>
+              <div className="ms-crm-stat-content">
+                <div className="ms-crm-stat-value">
+                  {factures.filter(f => f.statut === 'brouillon').length}
+                </div>
+                <div className="ms-crm-stat-label">Brouillons</div>
+              </div>
+            </div>
+            <div className="ms-crm-stat-card">
+              <div className="ms-crm-stat-icon">🔄</div>
+              <div className="ms-crm-stat-content">
+                <div className="ms-crm-stat-value">
+                  {factures.filter(f => f.statut === 'partiellement_payee').length}
+                </div>
+                <div className="ms-crm-stat-label">Partielles</div>
+              </div>
+            </div>
           </div>
         )}
       </div>

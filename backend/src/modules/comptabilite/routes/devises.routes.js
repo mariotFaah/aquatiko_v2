@@ -1,15 +1,22 @@
 import express from 'express';
 import { DeviseController } from '../controllers/DeviseController.js';
+import authMiddleware from '../../auth/middleware/authMiddleware.js'; // ✅ Nouveau import
 
 const router = express.Router();
 const deviseController = new DeviseController();
 
-// Routes existantes
+// ✅ ROUTES PUBLIQUES - Conversion et consultation des taux (accessible à tous)
 router.post('/convertir', deviseController.convertir.bind(deviseController));
-router.post('/taux', deviseController.updateTaux.bind(deviseController));
 router.get('/taux', deviseController.getTauxActifs.bind(deviseController));
 
-// Route racine temporaire
+// ✅ ROUTE PROTÉGÉE - Mise à jour des taux (comptable et admin seulement)
+router.post('/taux', 
+  authMiddleware.authenticate,
+  authMiddleware.requirePermission('comptabilite', 'write'),
+  deviseController.updateTaux.bind(deviseController)
+);
+
+// ✅ ROUTE RACINE TEMPORAIRE (publique)
 router.get('/', (req, res) => {
   res.json({
     success: true,
@@ -17,7 +24,11 @@ router.get('/', (req, res) => {
     endpoints: {
       convertir: 'POST /api/comptabilite/devises/convertir',
       taux: 'GET /api/comptabilite/devises/taux',
-      updateTaux: 'POST /api/comptabilite/devises/taux'
+      updateTaux: 'POST /api/comptabilite/devises/taux (authentifié)'
+    },
+    acces: {
+      public: ['conversion', 'consultation taux'],
+      authentifie: ['mise à jour taux (comptable/admin)']
     }
   });
 });

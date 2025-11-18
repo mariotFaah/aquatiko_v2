@@ -150,6 +150,18 @@ export class ContratRepository {
       throw new Error('Erreur lors du calcul des statistiques des contrats');
     }
   }
+
+  // Dans ContratRepository.js - AJOUTER :
+async findByDevisId(devis_id) {
+  try {
+    return await db('contrats')
+      .where('devis_id', devis_id)
+      .first();
+  } catch (error) {
+    console.error('Erreur ContratRepository.findByDevisId:', error);
+    throw error;
+  }
+}
 }
 
 export default ContratRepository;

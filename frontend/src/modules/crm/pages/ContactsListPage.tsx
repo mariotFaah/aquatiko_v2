@@ -137,13 +137,14 @@ const ContactsListPage: React.FC = () => {
       {/* Header de page */}
       <div className="ms-page-header">
         <div className="ms-header-left">
-          <h1 className="ms-page-title">Contacts</h1>
+          <h1 className="ms-page-title">👥 Contacts</h1>
           <div className="ms-page-subtitle">
             {filteredContacts.length} contact{filteredContacts.length !== 1 ? 's' : ''} trouvé{filteredContacts.length !== 1 ? 's' : ''}
           </div>
         </div>
         <div className="ms-header-actions">
           <Link to="/crm/contacts/nouveau" className="ms-btn ms-btn-primary">
+            <span className="ms-btn-icon">➕</span>
             Nouveau contact
           </Link>
         </div>
@@ -152,6 +153,7 @@ const ContactsListPage: React.FC = () => {
       {/* Barre d'outils */}
       <div className="ms-toolbar">
         <div className="ms-search-box">
+          <span className="ms-search-icon">🔍</span>
           <input
             type="text"
             placeholder="Rechercher un contact..."
@@ -159,7 +161,6 @@ const ContactsListPage: React.FC = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="ms-search-input"
           />
-          <span className="ms-search-icon">🔍</span>
         </div>
 
         <div className="ms-filter-group">
@@ -168,7 +169,7 @@ const ContactsListPage: React.FC = () => {
             onChange={(e) => handleClientFilterChange(parseInt(e.target.value))}
             className="ms-filter-select"
           >
-            <option value={0}>Tous les clients</option>
+            <option value={0}>👥 Tous les clients</option>
             {clients.map(client => (
               <option key={client.id_tiers} value={client.id_tiers}>
                 {client.raison_sociale || client.nom}
@@ -205,7 +206,7 @@ const ContactsListPage: React.FC = () => {
                     </div>
                     {contact.principal && (
                       <div className="ms-badge ms-badge-primary">
-                        Principal
+                        👑 Principal
                       </div>
                     )}
                   </div>
@@ -214,14 +215,14 @@ const ContactsListPage: React.FC = () => {
                 <div className="ms-card-content">
                   {contact.fonction && (
                     <div className="ms-property">
-                      <span className="ms-property-label">Fonction</span>
+                      <span className="ms-property-label">💼 Fonction</span>
                       <span className="ms-property-value">{contact.fonction}</span>
                     </div>
                   )}
 
                   {contact.email && (
                     <div className="ms-property">
-                      <span className="ms-property-label">Email</span>
+                      <span className="ms-property-label">📧 Email</span>
                       <a 
                         href={`mailto:${contact.email}`} 
                         className="ms-property-value ms-link"
@@ -233,7 +234,7 @@ const ContactsListPage: React.FC = () => {
 
                   {contact.telephone && (
                     <div className="ms-property">
-                      <span className="ms-property-label">Téléphone</span>
+                      <span className="ms-property-label">📞 Téléphone</span>
                       <a 
                         href={`tel:${contact.telephone}`} 
                         className="ms-property-value ms-link"
@@ -245,7 +246,7 @@ const ContactsListPage: React.FC = () => {
 
                   {contact.notes && (
                     <div className="ms-property">
-                      <span className="ms-property-label">Notes</span>
+                      <span className="ms-property-label">📝 Notes</span>
                       <span className="ms-property-value ms-notes">
                         {contact.notes.length > 100 
                           ? `${contact.notes.substring(0, 100)}...` 
@@ -256,7 +257,7 @@ const ContactsListPage: React.FC = () => {
                   )}
 
                   <div className="ms-property">
-                    <span className="ms-property-label">Créé le</span>
+                    <span className="ms-property-label">📅 Créé le</span>
                     <span className="ms-property-value">
                       {new Date(contact.created_at).toLocaleDateString()}
                     </span>
@@ -264,16 +265,19 @@ const ContactsListPage: React.FC = () => {
                 </div>
 
                 <div className="ms-card-actions">
+                  {/* CORRECTION ICI : Redirection vers la page de modification */}
                   <button
-                    onClick={() => navigate(`/crm/contacts/${contact.id_contact}`)}
+                    onClick={() => navigate(`/crm/contacts/${contact.id_contact}/modifier`)}
                     className="ms-btn ms-btn-secondary ms-btn-sm"
                   >
+                    <span className="ms-btn-icon">✏️</span>
                     Modifier
                   </button>
                   <button
                     onClick={() => handleDeleteContact(contact.id_contact, `${contact.prenom} ${contact.nom}`)}
                     className="ms-btn ms-btn-danger ms-btn-sm"
                   >
+                    <span className="ms-btn-icon">🗑️</span>
                     Supprimer
                   </button>
                 </div>
@@ -292,6 +296,7 @@ const ContactsListPage: React.FC = () => {
             </p>
             {!searchTerm && selectedClient === 0 && (
               <Link to="/crm/contacts/nouveau" className="ms-btn ms-btn-primary">
+                <span className="ms-btn-icon">➕</span>
                 Créer un contact
               </Link>
             )}

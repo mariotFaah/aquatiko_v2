@@ -118,50 +118,55 @@ export class DevisService {
     }
   }
 
-  async transformerDevisEnContrat(id_devis, donneesContrat) {
-  try {
-    const devis = await this.devisRepository.findById(id_devis);
-    
-    if (!devis) {
-      throw new Error('Devis non trouvé');
+    async transformerDevisEnContrat(id_devis, donneesContrat) {
+    try {
+      const devis = await this.devisRepository.findById(id_devis);
+      
+      if (!devis) {
+        throw new Error('Devis non trouvé');
+      }
+      
+      // VÉRIFICATION RENFORCÉE
+      if (devis.statut !== 'accepte') {
+        throw new Error('Seuls les devis acceptés peuvent être transformés en contrat');
+      }
+      
+      // VÉRIFIER SI CONTRAT EXISTE DÉJÀ
+      const contratExistant = await this.contratRepository.findByDevisId(id_devis);
+      if (contratExistant) {
+        throw new Error('Un contrat existe déjà pour ce devis');
+      }
+      
+      // Génération numéro contrat
+      const dernierContrat = await this.contratRepository.findLast();
+      const nouveauNumero = this.genererNumeroContrat(dernierContrat);
+      
+      const contratData = {
+        numero_contrat: nouveauNumero,
+        tiers_id: devis.tiers_id,
+        devis_id: id_devis,
+        type_contrat: donneesContrat.type_contrat || 'Maintenance',
+        date_debut: donneesContrat.date_debut || new Date(),
+        date_fin: donneesContrat.date_fin,
+        statut: 'actif',
+        montant_ht: devis.montant_ht,
+        montant_ttc: devis.montant_ttc,
+        periodicite: donneesContrat.periodicite || 'ponctuel',
+        description: donneesContrat.description || devis.objet,
+        conditions: donneesContrat.conditions || devis.conditions
+      };
+      
+      const contrat = await this.contratRepository.create(contratData);
+      
+      // CORRECTION : Mettre à jour le statut du devis
+      await this.devisRepository.updateStatut(id_devis, 'transforme_contrat');
+      
+      return contrat;
+    } catch (error) {
+      console.error('Erreur transformation devis en contrat:', error);
+      throw error;
     }
-    
-    if (devis.statut !== 'accepte') {
-      throw new Error('Seuls les devis acceptés peuvent être transformés en contrat');
-    }
-    
-    // Générer numéro contrat
-    const dernierContrat = await this.contratRepository.findLast();
-    const nouveauNumero = this.genererNumeroContrat(dernierContrat);
-    
-    const contratData = {
-      numero_contrat: nouveauNumero,
-      tiers_id: devis.tiers_id,
-      devis_id: id_devis,
-      type_contrat: donneesContrat.type_contrat || 'Maintenance',
-      date_debut: donneesContrat.date_debut || new Date(),
-      date_fin: donneesContrat.date_fin,
-      statut: 'actif',
-      montant_ht: devis.montant_ht,
-      montant_ttc: devis.montant_ttc,
-      periodicite: donneesContrat.periodicite || 'ponctuel',
-      description: donneesContrat.description || devis.objet,
-      conditions: donneesContrat.conditions || devis.conditions
-    };
-    
-    const contrat = await this.contratRepository.create(contratData);
-    
-    // CORRECTION : Utiliser un statut existant dans l'ENUM
-    await this.devisRepository.update(id_devis, { 
-      statut: 'accepte' // Garder 'accepte' au lieu de 'transforme_contrat'
-    });
-    
-    return contrat;
-  } catch (error) {
-    console.error('Erreur transformation devis en contrat:', error);
-    throw error;
   }
-}
 
   // Méthode pour générer le numéro de contrat
 

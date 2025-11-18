@@ -1,552 +1,566 @@
 /* src/modules/crm/pages/ClientDetailPage.css */
-.client-detail-container {
-  padding: 1.5rem;
-  max-width: 100%;
-}
 
-.client-header {
-  background-color: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-}
-
-.client-header-main {
+/* Client Specific Styles */
+.ms-crm-client-subtitle {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 1rem;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #605e5c;
+  margin-top: 4px;
 }
 
-.client-title {
-  font-size: 1.875rem;
-  font-weight: bold;
-  color: #1f2937;
-  margin: 0;
+.ms-crm-separator {
+  color: #a19f9d;
 }
 
-.client-contact-info {
-  color: #6b7280;
-  margin: 0.25rem 0;
+.ms-crm-client-email,
+.ms-crm-client-phone,
+.ms-crm-client-address {
+  color: #605e5c;
 }
 
-.client-address {
-  color: #6b7280;
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
+/* Client Summary */
+.ms-crm-client-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
 }
 
-.client-responsable {
-  text-align: right;
+.ms-crm-category-prospect {
+  color: #0078d4;
+  font-weight: 600;
 }
 
-.responsable-label {
-  font-size: 0.875rem;
-  color: #6b7280;
+.ms-crm-category-client {
+  color: #107c10;
+  font-weight: 600;
 }
 
-.responsable-name {
-  font-weight: 500;
-  color: #1f2937;
+.ms-crm-category-fournisseur {
+  color: #e97548;
+  font-weight: 600;
 }
 
-/* Tabs Navigation */
-.client-tabs {
-  background-color: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  margin-bottom: 1.5rem;
+.ms-crm-category-partenaire {
+  color: #b146c2;
+  font-weight: 600;
 }
 
-.tabs-header {
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.tabs-nav {
+/* Tab Navigation */
+.ms-crm-tab-navigation {
   display: flex;
-  margin-bottom: -1px;
+  border-bottom: 1px solid #e1e5e9;
+  padding: 0 20px;
 }
 
-.tab-button {
-  padding: 1rem 1.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  border: none;
+.ms-crm-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 20px;
   background: none;
-  cursor: pointer;
+  border: none;
   border-bottom: 2px solid transparent;
-  color: #6b7280;
-  transition: all 0.2s;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: #605e5c;
+  transition: all 0.2s ease;
 }
 
-.tab-button:hover {
-  color: #374151;
+.ms-crm-tab:hover {
+  color: #323130;
+  border-bottom-color: #a19f9d;
 }
 
-.tab-button.active {
-  color: #4f46e5;
-  border-bottom-color: #4f46e5;
+.ms-crm-tab-active {
+  color: #0078d4;
+  border-bottom-color: #0078d4;
 }
 
-.tabs-content {
-  padding: 1.5rem;
+.ms-crm-tab-label {
+  white-space: nowrap;
 }
 
-/* Informations Tab */
-.info-grid {
+.ms-crm-tab-count {
+  background: #f3f2f1;
+  color: #605e5c;
+  padding: 2px 6px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  min-width: 20px;
+  text-align: center;
+}
+
+.ms-crm-tab-active .ms-crm-tab-count {
+  background: #0078d4;
+  color: white;
+}
+
+/* Tab Content */
+.ms-crm-tab-content {
+  padding: 20px;
+}
+
+.ms-crm-info-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
+  gap: 32px;
 }
 
-.info-section h3 {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 1rem;
-}
-
-.info-list {
+.ms-crm-info-section {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 16px;
 }
 
-.info-item dt {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #6b7280;
-  margin-bottom: 0.25rem;
-}
-
-.info-item dd {
-  font-size: 0.875rem;
-  color: #1f2937;
-  margin: 0;
-}
-
-/* Contacts Tab */
-.contacts-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.contacts-title {
-  font-size: 1.125rem;
+.ms-crm-section-title {
+  font-size: 16px;
   font-weight: 600;
-  color: #1f2937;
+  color: #323130;
   margin: 0;
 }
 
-.add-contact-btn {
-  background-color: #4f46e5;
-  color: white;
-  border: none;
-  border-radius: 0.375rem;
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.add-contact-btn:hover {
-  background-color: #4338ca;
-}
-
-.contacts-list {
+.ms-crm-info-list {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 12px;
 }
 
-.contact-card {
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-  padding: 1rem;
-}
-
-.contact-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 0.5rem;
-}
-
-.contact-name {
-  font-weight: 500;
-  color: #1f2937;
-  margin: 0;
-}
-
-.contact-badges {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.principal-badge {
-  background-color: #d1fae5;
-  color: #065f46;
-  padding: 0.25rem 0.5rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.contact-function {
-  color: #6b7280;
-  font-size: 0.875rem;
-  margin: 0.25rem 0;
-}
-
-.contact-details {
-  color: #6b7280;
-  font-size: 0.875rem;
-}
-
-.contact-actions {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-}
-
-.contact-action {
-  font-size: 0.875rem;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.contact-edit {
-  color: #4f46e5;
-}
-
-.contact-edit:hover {
-  color: #3730a3;
-}
-
-.contact-delete {
-  color: #dc2626;
-}
-
-.contact-delete:hover {
-  color: #b91c1c;
-}
-
-/* Devis Tab */
-.devis-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.devis-title {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0;
-}
-
-.add-devis-btn {
-  background-color: #4f46e5;
-  color: white;
-  border: none;
-  border-radius: 0.375rem;
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.add-devis-btn:hover {
-  background-color: #4338ca;
-}
-
-.devis-list {
+.ms-crm-info-item {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 4px;
 }
 
-.devis-card {
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-  padding: 1rem;
+.ms-crm-info-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #605e5c;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.devis-header-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 0.5rem;
-}
-
-.devis-number {
-  font-weight: 500;
-  color: #1f2937;
-  margin: 0;
-}
-
-.devis-badges {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.devis-statut {
-  padding: 0.25rem 0.5rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
+.ms-crm-info-value {
+  font-size: 14px;
+  color: #323130;
   font-weight: 500;
 }
 
-.statut-accepte {
-  background-color: #d1fae5;
-  color: #065f46;
+.ms-crm-amount {
+  font-weight: 600;
 }
 
-.statut-envoye {
-  background-color: #dbeafe;
-  color: #1e40af;
-}
-
-.statut-brouillon {
-  background-color: #f3f4f6;
-  color: #374151;
-}
-
-.statut-refuse {
-  background-color: #fecaca;
-  color: #dc2626;
-}
-
-.statut-expire {
-  background-color: #fed7aa;
-  color: #ea580c;
-}
-
-.devis-description {
-  color: #6b7280;
-  font-size: 0.875rem;
-  margin: 0.25rem 0;
-}
-
-.devis-details {
-  color: #6b7280;
-  font-size: 0.875rem;
-}
-
-.devis-link {
-  color: #4f46e5;
+.ms-crm-link {
+  color: #0078d4;
   text-decoration: none;
-  font-weight: 500;
-  font-size: 0.875rem;
 }
 
-.devis-link:hover {
-  color: #3730a3;
+.ms-crm-link:hover {
+  text-decoration: underline;
 }
 
-/* Activites Tab */
-.activites-header {
+.ms-crm-notes {
+  background: #f8f9fa;
+  border: 1px solid #e1e5e9;
+  border-radius: 4px;
+  padding: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #323130;
+  white-space: pre-wrap;
+}
+
+/* Tab Panels */
+.ms-crm-tab-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ms-crm-panel-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
 }
 
-.activites-title {
-  font-size: 1.125rem;
+.ms-crm-panel-title {
+  font-size: 18px;
   font-weight: 600;
-  color: #1f2937;
+  color: #323130;
   margin: 0;
 }
 
-.add-activite-btn {
-  background-color: #4f46e5;
-  color: white;
-  border: none;
-  border-radius: 0.375rem;
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.add-activite-btn:hover {
-  background-color: #4338ca;
-}
-
-.activites-list {
+/* List Styles */
+.ms-crm-list {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 8px;
 }
 
-.activite-card {
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-  padding: 1rem;
+.ms-crm-list-item {
+  border: 1px solid #e1e5e9;
+  border-radius: 4px;
+  background: white;
+  transition: all 0.2s ease;
 }
 
-.activite-header {
+.ms-crm-list-item:hover {
+  border-color: #0078d4;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.ms-crm-list-item-content {
+  padding: 16px;
+}
+
+/* Contact Styles */
+.ms-crm-contact-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 0.5rem;
+  margin-bottom: 8px;
 }
 
-.activite-sujet {
-  font-weight: 500;
-  color: #1f2937;
+.ms-crm-contact-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #323130;
   margin: 0;
-}
-
-.activite-badges {
   display: flex;
-  gap: 0.5rem;
   align-items: center;
+  gap: 8px;
 }
 
-.activite-priorite {
-  padding: 0.25rem 0.5rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
+.ms-crm-contact-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.ms-crm-contact-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ms-crm-contact-function {
+  font-size: 14px;
+  color: #605e5c;
   font-weight: 500;
 }
 
-.priorite-urgent {
-  background-color: #fecaca;
-  color: #dc2626;
+.ms-crm-contact-email,
+.ms-crm-contact-phone {
+  font-size: 14px;
+  color: #0078d4;
+  text-decoration: none;
 }
 
-.priorite-haut {
-  background-color: #fed7aa;
-  color: #ea580c;
+.ms-crm-contact-email:hover,
+.ms-crm-contact-phone:hover {
+  text-decoration: underline;
 }
 
-.priorite-normal {
-  background-color: #f3f4f6;
-  color: #374151;
+/* Devis Styles */
+.ms-crm-devis-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
 }
 
-.priorite-bas {
-  background-color: #d1fae5;
-  color: #065f46;
+.ms-crm-devis-info {
+  flex: 1;
 }
 
-.activite-statut {
-  padding: 0.25rem 0.5rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 500;
+.ms-crm-devis-number {
+  font-size: 16px;
+  font-weight: 600;
+  color: #323130;
+  margin: 0 0 4px 0;
 }
 
-.statut-realise {
-  background-color: #d1fae5;
-  color: #065f46;
+.ms-crm-devis-object {
+  font-size: 14px;
+  color: #605e5c;
+  margin: 0 0 8px 0;
 }
 
-.statut-planifie {
-  background-color: #dbeafe;
-  color: #1e40af;
+.ms-crm-devis-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #a19f9d;
 }
 
-.statut-annule {
-  background-color: #f3f4f6;
-  color: #374151;
+.ms-crm-devis-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.activite-type {
-  color: #6b7280;
-  font-size: 0.875rem;
-  margin: 0.25rem 0;
+/* Activity Styles */
+.ms-crm-activity-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.ms-crm-activity-info {
+  flex: 1;
+}
+
+.ms-crm-activity-subject {
+  font-size: 16px;
+  font-weight: 600;
+  color: #323130;
+  margin: 0 0 4px 0;
+}
+
+.ms-crm-activity-type {
+  font-size: 14px;
+  color: #605e5c;
+  margin: 0 0 8px 0;
   text-transform: capitalize;
 }
 
-.activite-date {
-  color: #6b7280;
-  font-size: 0.875rem;
-}
-
-.activite-description {
-  color: #374151;
-  font-size: 0.875rem;
-  margin-top: 0.5rem;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 3rem;
-  color: #6b7280;
-}
-
-.loading-state {
+.ms-crm-activity-meta {
   display: flex;
-  justify-content: center;
-  padding: 2rem;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #a19f9d;
 }
 
-.error-state {
-  color: #dc2626;
-  padding: 1rem;
-  background-color: #fef2f2;
-  border-radius: 0.375rem;
-  margin: 1rem;
+.ms-crm-activity-description {
+  color: #605e5c;
+  font-style: italic;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .client-header-main {
-    flex-direction: column;
-    gap: 1rem;
-  }
+.ms-crm-activity-badges {
+  display: flex;
+  gap: 8px;
+}
 
-  .client-responsable {
-    text-align: left;
-  }
+/* Priority Badges */
+.ms-crm-priority-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
 
-  .info-grid {
+.ms-crm-priority-urgent {
+  background: #fef7f7;
+  color: #d13438;
+  border: 1px solid #d13438;
+}
+
+.ms-crm-priority-haut {
+  background: #fff4ce;
+  color: #8a6e00;
+  border: 1px solid #8a6e00;
+}
+
+.ms-crm-priority-normal {
+  background: #f3f2f1;
+  color: #605e5c;
+  border: 1px solid #605e5c;
+}
+
+/* Quick Actions */
+.ms-crm-quick-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ms-crm-quick-action {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid #e1e5e9;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s ease;
+}
+
+.ms-crm-quick-action:hover {
+  background: #f3f2f1;
+  border-color: #0078d4;
+  text-decoration: none;
+  color: inherit;
+}
+
+.ms-crm-quick-action-icon {
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+}
+
+.ms-crm-quick-action-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #323130;
+}
+
+/* Metrics */
+.ms-crm-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  text-align: center;
+}
+
+.ms-crm-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ms-crm-metric-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0078d4;
+}
+
+.ms-crm-metric-label {
+  font-size: 12px;
+  color: #605e5c;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Empty States */
+.ms-crm-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 40px 20px;
+  color: #605e5c;
+}
+
+.ms-crm-empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.ms-crm-empty-state h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #323130;
+  margin: 0 0 8px 0;
+}
+
+.ms-crm-empty-state p {
+  font-size: 14px;
+  margin: 0 0 20px 0;
+  max-width: 300px;
+}
+
+/* Button Variants */
+.ms-crm-btn-text {
+  background: none;
+  border: none;
+  color: #0078d4;
+  padding: 4px 8px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.ms-crm-btn-text:hover {
+  background: #f3f2f1;
+  border-radius: 2px;
+}
+
+.ms-crm-btn-danger {
+  color: #d13438;
+}
+
+.ms-crm-btn-danger:hover {
+  color: #a4262c;
+}
+
+/* Badges */
+.ms-crm-badge {
+  padding: 2px 6px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ms-crm-badge-primary {
+  background: #e1f5fe;
+  color: #0099bc;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .ms-crm-detail-layout {
     grid-template-columns: 1fr;
-    gap: 1rem;
   }
-
-  .tabs-nav {
-    flex-wrap: wrap;
+  
+  .ms-crm-info-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
   }
-
-  .tab-button {
-    flex: 1;
-    min-width: 120px;
+  
+  .ms-crm-tab-navigation {
+    overflow-x: auto;
+    padding: 0 16px;
   }
+}
 
-  .contacts-header,
-  .devis-header,
-  .activites-header {
+@media (max-width: 768px) {
+  .ms-crm-contact-header,
+  .ms-crm-devis-header,
+  .ms-crm-activity-header {
     flex-direction: column;
+    gap: 12px;
     align-items: flex-start;
-    gap: 1rem;
   }
-
-  .contact-header,
-  .devis-header-info,
-  .activite-header {
+  
+  .ms-crm-contact-actions,
+  .ms-crm-devis-actions,
+  .ms-crm-activity-badges {
+    align-self: flex-end;
+  }
+  
+  .ms-crm-panel-header {
     flex-direction: column;
+    gap: 12px;
     align-items: flex-start;
-    gap: 0.5rem;
   }
-
-  .contact-badges,
-  .devis-badges,
-  .activite-badges {
-    align-self: flex-start;
+  
+  .ms-crm-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  
+  .ms-crm-header-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  
+  .ms-crm-metrics {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  
+  .ms-crm-metric-value {
+    font-size: 20px;
   }
 }

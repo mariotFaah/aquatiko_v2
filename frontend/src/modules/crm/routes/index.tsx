@@ -25,7 +25,7 @@ import ContactForm from '../components/forms/ContactForm';
 import ContactDetailPage from '../pages/ContactDetailPage';
 import RelanceForm from '../components/forms/RelanceForm';
 import RelanceDetailPage from '../pages/RelanceDetailPage';
-
+import ClientForm from '../components/forms/ClientForm';
 const CRMRoutes: React.FC = () => {
   return (
     <Routes>
@@ -34,9 +34,9 @@ const CRMRoutes: React.FC = () => {
       
       {/* Routes Clients */}
       <Route path="clients" element={<ClientsListPage />} />
-      <Route path="clients/nouveau" element={<ClientDetailPage  />} />
+      <Route path="clients/nouveau" element={<ClientForm  />} />
       <Route path="clients/:id" element={<ClientDetailPage />} />
-      <Route path="clients/:id/modifier" element={<ClientDetailPage  />} />
+      <Route path="clients/:id/modifier" element={<ClientForm  />} />
       
       {/* Routes Devis */}
       <Route path="devis" element={<DevisListPage />} />

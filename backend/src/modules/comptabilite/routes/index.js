@@ -25,14 +25,33 @@ router.use('/stats', statistiquesRoutes);
 router.use('/referentiels', referentielsRoutes); 
 router.use('/email', emailRoutes); 
 
-// Route test globale mise à jour
+// ✅ NOUVELLE ROUTE - Test d'authentification
+router.get('/auth-test', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Test de sécurité du module Comptabilité',
+    security: {
+      authentification: 'Requis pour la plupart des endpoints',
+      permissions: 'Gestion fine par rôle (admin, comptable, commercial, utilisateur)',
+      modules_protégés: ['factures', 'paiements', 'ecritures', 'rapports', 'statistiques'],
+      modules_partiellement_publics: ['devises', 'referentiels']
+    },
+    instructions: {
+      login: 'POST /api/auth/login',
+      test_acces: 'Utiliser le token dans le header Authorization: Bearer <token>'
+    }
+  });
+});
+
+// ✅ ROUTE TEST GLOBALE MISE À JOUR
 router.get('/test', (req, res) => {
   res.json({
     success: true,
     message: 'Module Comptabilité fonctionnel!',
     data: {
       module: 'Comptabilité',
-      version: '2.0.0',
+      version: '2.1.0', // ✅ Version mise à jour
+      sécurité: '🔐 Authentification et permissions par rôle',
       entités: [
         'Tiers', 
         'Article', 
@@ -42,7 +61,10 @@ router.get('/test', (req, res) => {
         'TauxChange',
         'EcritureComptable',
         'PlanComptable',
-        'Referentiels'
+        'Referentiels',
+        'Users', // ✅ Nouveau
+        'Roles', // ✅ Nouveau
+        'Permissions' // ✅ Nouveau
       ],
       services: [
         'Multi-devises',
@@ -50,19 +72,22 @@ router.get('/test', (req, res) => {
         'Journaux comptables',
         'États financiers',
         'Gestion référentiels',
-        'Relances email' 
+        'Relances email',
+        'Authentification sécurisée', // ✅ Nouveau
+        'Gestion des permissions' // ✅ Nouveau
       ],
       routes: {
-        tiers: '/api/comptabilite/tiers',
-        articles: '/api/comptabilite/articles',
-        factures: '/api/comptabilite/factures',
-        paiements: '/api/comptabilite/paiements',
-        devises: '/api/comptabilite/devises',
-        rapports: '/api/comptabilite/rapports',
-        ecritures: '/api/comptabilite/ecritures',
-        stats: '/api/comptabilite/stats',
-        referentiels: '/api/comptabilite/referentiels',
-        email: '/api/comptabilite/email'
+        tiers: '/api/comptabilite/tiers (🔐)',
+        articles: '/api/comptabilite/articles (🔐)',
+        factures: '/api/comptabilite/factures (🔐)',
+        paiements: '/api/comptabilite/paiements (🔐)',
+        devises: '/api/comptabilite/devises (🔓 conversion publique)',
+        rapports: '/api/comptabilite/rapports (🔐)',
+        ecritures: '/api/comptabilite/ecritures (🔐)',
+        stats: '/api/comptabilite/stats (🔐)',
+        referentiels: '/api/comptabilite/referentiels (🔓 partiellement public)',
+        email: '/api/comptabilite/email (🔐)',
+        auth_test: '/api/comptabilite/auth-test (🔓)'
       },
       fonctionnalités: {
         'Multi-devises': 'Support EUR, USD, MGA avec taux de change',
@@ -74,9 +99,29 @@ router.get('/test', (req, res) => {
         'Statistiques': 'Chiffre d\'affaires, ventes par produit, clients',
         'Plan comptable dynamique': 'Configuration flexible des comptes',
         'Référentiels configurables': 'Modes paiement, types facture, TVA',
-        'Relances email': 'Relances automatiques des factures impayées' 
+        'Relances email': 'Relances automatiques des factures impayées',
+        '🔐 Authentification': 'Système de rôles et permissions', // ✅ Nouveau
+        '🛡️ Sécurité': 'Protection JWT et contrôle d\'accès' // ✅ Nouveau
+      },
+      rôles_supportés: {
+        'admin': 'Accès complet à tous les modules',
+        'comptable': 'Module comptabilité complet',
+        'commercial': 'Modules CRM et Import-Export seulement',
+        'utilisateur': 'Accès limité en lecture'
       }
     }
+  });
+});
+
+// ✅ NOUVELLE ROUTE - Santé du module
+router.get('/health', (req, res) => {
+  res.json({
+    success: true,
+    module: 'comptabilite',
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    sécurité: 'active',
+    version: '2.1.0'
   });
 });
 
