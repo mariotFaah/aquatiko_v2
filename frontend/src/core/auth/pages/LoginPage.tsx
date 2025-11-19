@@ -1,7 +1,7 @@
 // src/core/auth/pages/LoginPage.tsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 import './LoginPage.css';
 
 export const LoginPage: React.FC = () => {

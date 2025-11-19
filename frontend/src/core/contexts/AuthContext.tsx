@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { authApi } from '../auth/services/authApi';
 import { tokenUtils } from '../auth/utils/tokenUtils';
-import type { LoginData, AuthState, AuthContextType } from '../auth/types';
+import type { LoginData, AuthState, AuthContextType,  } from '../auth/types';
 
 // Création du contexte
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -73,11 +73,13 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const validateStoredToken = async (token: string): Promise<boolean> => {
     try {
       const response = await authApi.validateToken(token);
-      // ✅ CORRECTION : Utiliser l'opérateur de chaînage optionnel
+      
+      // ✅ Vérification sécurisée avec destructuring
       if (response.success && response.data?.user) {
+        const { user } = response.data;
         setAuthState(prev => ({
           ...prev,
-          user: response.data.user,
+          user: user,
         }));
         return true;
       }
@@ -88,14 +90,13 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  // Fonction de connexion
   const login = async (data: LoginData): Promise<void> => {
     try {
       setAuthState(prev => ({ ...prev, isLoading: true }));
 
       const response = await authApi.login(data.email, data.password);
       
-      // ✅ CORRECTION : Utiliser l'opérateur de chaînage optionnel
+      // ✅ Vérification sécurisée avec destructuring
       if (response.success && response.data?.user && response.data?.token) {
         const { user, token } = response.data;
         
@@ -127,17 +128,18 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     });
   };
 
-  // Valider le token actuel
   const validateToken = async (): Promise<boolean> => {
     if (!authState.token) return false;
     
     try {
       const response = await authApi.validateToken(authState.token);
-      // ✅ CORRECTION : Utiliser l'opérateur de chaînage optionnel
+      
+      // ✅ Vérification sécurisée avec destructuring
       if (response.success && response.valid && response.data?.user) {
+        const { user } = response.data;
         setAuthState(prev => ({
           ...prev,
-          user: response.data.user,
+          user: user,
         }));
         return true;
       } else {
@@ -190,6 +192,5 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   );
 };
 
-// ✅ EXPORTS CORRECTS
-export { AuthProvider, useAuth };
-export default AuthContext;
+export { AuthProvider, useAuth }; 
+export type { AuthContextType };
