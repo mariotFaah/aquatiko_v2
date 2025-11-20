@@ -1,196 +1,85 @@
-// src/core/contexts/AuthContext.tsx
-import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import type { User, LoginCredentials } from '../auth/types';
 import { authApi } from '../auth/services/authApi';
-import { tokenUtils } from '../auth/utils/tokenUtils';
-import type { LoginData, AuthState, AuthContextType,  } from '../auth/types';
 
-// Création du contexte
+interface AuthContextType {
+  user: User | null;
+  login: (credentials: LoginCredentials) => Promise<void>;
+  logout: () => void;
+  isAuthenticated: boolean;
+  hasRole: (role: User['role']) => boolean;
+  isLoading: boolean; // ✅ AJOUTER cette propriété
+}
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Hook personnalisé pour utiliser le contexte
-const useAuth = () => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true); // ✅ AJOUTER l'état de loading
+
+  useEffect(() => {
+    // Vérifier l'authentification au chargement
+    const checkAuth = async () => {
+      try {
+        const currentUser = authApi.getCurrentUser();
+        if (currentUser) {
+          setUser(currentUser);
+        }
+      } catch (error) {
+        console.error('Erreur lors de la vérification de l\'authentification:', error);
+      } finally {
+        setIsLoading(false); // ✅ FIN du loading
+      }
+    };
+
+    checkAuth();
+  }, []);
+
+  const login = async (credentials: LoginCredentials) => {
+    setIsLoading(true); // ✅ DÉBUT du loading pendant la connexion
+    try {
+      const response = await authApi.login(credentials);
+      if (response.success) {
+        const { user, token } = response.data;
+        authApi.setAuthData(user, token);
+        setUser(user);
+      } else {
+        throw new Error(response.message);
+      }
+    } finally {
+      setIsLoading(false); // ✅ FIN du loading après connexion
+    }
+  };
+
+  const logout = () => {
+    authApi.logout();
+    setUser(null);
+  };
+
+  const isAuthenticated = !!user;
+  
+  const hasRole = (role: User['role']) => {
+    return user?.role === role || user?.role === 'admin';
+  };
+
+  return (
+    <AuthContext.Provider value={{ 
+      user, 
+      login, 
+      logout, 
+      isAuthenticated, 
+      hasRole,
+      isLoading // ✅ INCLURE dans le contexte
+    }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 };
-
-interface AuthProviderProps {
-  children: ReactNode;
-}
-
-const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [authState, setAuthState] = useState<AuthState>({
-    user: null,
-    token: null,
-    isAuthenticated: false,
-    isLoading: true,
-  });
-
-  // Vérifier le token au chargement de l'app
-  useEffect(() => {
-    checkStoredToken();
-  }, []);
-
-  const checkStoredToken = async () => {
-    try {
-      const storedToken = tokenUtils.getToken();
-      
-      if (storedToken) {
-        const isValid = await validateStoredToken(storedToken);
-        
-        if (isValid) {
-          setAuthState(prev => ({
-            ...prev,
-            token: storedToken,
-            isAuthenticated: true,
-            isLoading: false,
-          }));
-        } else {
-          tokenUtils.removeToken();
-          setAuthState(prev => ({
-            ...prev,
-            isLoading: false,
-          }));
-        }
-      } else {
-        setAuthState(prev => ({
-          ...prev,
-          isLoading: false,
-        }));
-      }
-    } catch (error) {
-      console.error('Erreur vérification token:', error);
-      tokenUtils.removeToken();
-      setAuthState(prev => ({
-        ...prev,
-        isLoading: false,
-      }));
-    }
-  };
-
-  const validateStoredToken = async (token: string): Promise<boolean> => {
-    try {
-      const response = await authApi.validateToken(token);
-      
-      // ✅ Vérification sécurisée avec destructuring
-      if (response.success && response.data?.user) {
-        const { user } = response.data;
-        setAuthState(prev => ({
-          ...prev,
-          user: user,
-        }));
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error('Erreur validation token:', error);
-      return false;
-    }
-  };
-
-  const login = async (data: LoginData): Promise<void> => {
-    try {
-      setAuthState(prev => ({ ...prev, isLoading: true }));
-
-      const response = await authApi.login(data.email, data.password);
-      
-      // ✅ Vérification sécurisée avec destructuring
-      if (response.success && response.data?.user && response.data?.token) {
-        const { user, token } = response.data;
-        
-        tokenUtils.setToken(token);
-        
-        setAuthState({
-          user,
-          token,
-          isAuthenticated: true,
-          isLoading: false,
-        });
-      } else {
-        throw new Error(response.message || 'Erreur de connexion');
-      }
-    } catch (error) {
-      setAuthState(prev => ({ ...prev, isLoading: false }));
-      throw error;
-    }
-  };
-
-  // Fonction de déconnexion
-  const logout = (): void => {
-    tokenUtils.removeToken();
-    setAuthState({
-      user: null,
-      token: null,
-      isAuthenticated: false,
-      isLoading: false,
-    });
-  };
-
-  const validateToken = async (): Promise<boolean> => {
-    if (!authState.token) return false;
-    
-    try {
-      const response = await authApi.validateToken(authState.token);
-      
-      // ✅ Vérification sécurisée avec destructuring
-      if (response.success && response.valid && response.data?.user) {
-        const { user } = response.data;
-        setAuthState(prev => ({
-          ...prev,
-          user: user,
-        }));
-        return true;
-      } else {
-        logout();
-        return false;
-      }
-    } catch (error) {
-      console.error('Erreur validation token:', error);
-      logout();
-      return false;
-    }
-  };
-
-  // Vérifier les permissions
-  const hasPermission = (module: string, action: string): boolean => {
-    const userRole = authState.user?.code_role;
-    
-    switch (userRole) {
-      case 'admin':
-        return true;
-      case 'comptable':
-        return module === 'comptabilite';
-      case 'commercial':
-        return module === 'crm' || module === 'import-export';
-      case 'utilisateur':
-        return action === 'read';
-      default:
-        return false;
-    }
-  };
-
-  // Vérifier les rôles
-  const hasRole = (roles: string[]): boolean => {
-    return authState.user ? roles.includes(authState.user.code_role) : false;
-  };
-
-  const value: AuthContextType = {
-    ...authState,
-    login,
-    logout,
-    validateToken,
-    hasPermission,
-    hasRole,
-  };
-
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
-
-export { AuthProvider, useAuth }; 
-export type { AuthContextType };

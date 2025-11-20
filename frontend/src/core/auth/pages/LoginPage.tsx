@@ -8,24 +8,24 @@ export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false); // ✅ RENOMMER pour éviter la confusion
 
-  const { login, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { login, isAuthenticated, isLoading } = useAuth(); // ✅ MAINTENANT isLoading existe
   const navigate = useNavigate();
   const location = useLocation();
 
   // Redirection si déjà authentifié
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && !isLoading) {
       const from = (location.state as any)?.from?.pathname || '/';
       navigate(from, { replace: true });
     }
-  }, [isAuthenticated, navigate, location]);
+  }, [isAuthenticated, isLoading, navigate, location]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setIsLoading(true);
+    setIsSubmitting(true); // ✅ UTILISER isSubmitting
 
     try {
       await login({ email, password });
@@ -33,12 +33,12 @@ export const LoginPage: React.FC = () => {
     } catch (err: any) {
       setError(err.message || 'Erreur de connexion');
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
   // Afficher le loading pendant la vérification initiale
-  if (authLoading) {
+  if (isLoading) {
     return (
       <div className="login-container">
         <div className="login-loading">
@@ -74,7 +74,7 @@ export const LoginPage: React.FC = () => {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="votre@email.com"
               required
-              disabled={isLoading}
+              disabled={isSubmitting} // ✅ UTILISER isSubmitting
             />
           </div>
 
@@ -87,16 +87,16 @@ export const LoginPage: React.FC = () => {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Votre mot de passe"
               required
-              disabled={isLoading}
+              disabled={isSubmitting} // ✅ UTILISER isSubmitting
             />
           </div>
 
           <button 
             type="submit" 
             className="login-button"
-            disabled={isLoading}
+            disabled={isSubmitting} // ✅ UTILISER isSubmitting
           >
-            {isLoading ? (
+            {isSubmitting ? ( // ✅ UTILISER isSubmitting
               <>
                 <div className="button-spinner"></div>
                 Connexion...

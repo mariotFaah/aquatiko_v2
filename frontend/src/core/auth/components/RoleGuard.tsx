@@ -1,25 +1,32 @@
-// src/core/auth/components/RoleGuard.tsx
 import React from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface RoleGuardProps {
   children: React.ReactNode;
-  roles: string[];
+  allowedRoles: ('admin' | 'comptable' | 'commercial')[];
   fallback?: React.ReactNode;
 }
 
-export const RoleGuard: React.FC<RoleGuardProps> = ({
-  children,
-  roles,
-  fallback = null
+export const RoleGuard: React.FC<RoleGuardProps> = ({ 
+  children, 
+  allowedRoles,
+  fallback = null 
 }) => {
-  const { hasRole, isAuthenticated } = useAuth();
+  const { user } = useAuth();
 
-  if (!isAuthenticated || !hasRole(roles)) {
+  if (!user) {
     return <>{fallback}</>;
   }
 
-  return <>{children}</>;
-};
+  // Admin a accès à tout
+  if (user.role === 'admin') {
+    return <>{children}</>;
+  }
 
-export default RoleGuard;
+  // Vérifier si l'utilisateur a un des rôles autorisés
+  if (allowedRoles.includes(user.role)) {
+    return <>{children}</>;
+  }
+
+  return <>{fallback}</>;
+};

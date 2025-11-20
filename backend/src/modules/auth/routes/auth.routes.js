@@ -1,27 +1,47 @@
-// backend/src/modules/auth/routes/auth.routes.js
-import express from 'express';
-import AuthController from '../controllers/AuthController.js'; // ✅ Changement ici
-import authMiddleware from '../middleware/authMiddleware.js';
+// src/modules/auth/routes/auth.routes.js
+import { Router } from 'express';
+import { AuthController } from '../controllers/AuthController.js';
+import { validateRequest } from '../../../core/middleware/validation.js';
+import { loginSchema } from '../validators/auth.validator.js';
 
-const router = express.Router();
+// ✅ NOUVEAU : Plus besoin d'importer l'ancien authMiddleware
+
+const router = Router();
 const authController = new AuthController();
 
-// Routes publiques
-router.post('/login', authController.login);
-// router.post('/register', authController.register); // ❌ Temporairement commenté si non implémenté
-router.post('/validate-token', authController.validateToken);
-
-// Routes protégées
-router.get('/me', authMiddleware.authenticate, authController.me);
-// router.post('/change-password', authMiddleware.authenticate, authController.changePassword); // ❌ Temporairement commenté
-
-// Routes admin seulement
-router.get('/admin/users', 
-  authMiddleware.authenticate, 
-  authMiddleware.requireRole(['admin']),
-  (req, res) => {
-    res.json({ message: 'Liste des utilisateurs (admin seulement)' });
-  }
+// Route de connexion
+router.post('/login', 
+  validateRequest(loginSchema), 
+  authController.login.bind(authController)
 );
+
+// Route de déconnexion (optionnelle)
+router.post('/logout', (req, res) => {
+  res.json({ 
+    success: true, 
+    message: 'Déconnexion réussie' 
+  });
+});
+
+// Route de vérification de token (optionnelle)
+router.get('/verify', (req, res) => {
+  res.json({ 
+    success: true, 
+    message: 'Endpoint de vérification - à implémenter' 
+  });
+});
+
+// Route racine
+router.get('/', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Module d\'authentification Aquatiko',
+    endpoints: {
+      login: 'POST /api/auth/login',
+      logout: 'POST /api/auth/logout',
+      verify: 'GET /api/auth/verify'
+    }
+  });
+});
 
 export default router;

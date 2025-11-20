@@ -1,8 +1,37 @@
-// src/modules/comptabilite/services/paiementApi.ts - VERSION 100% API
+// src/modules/comptabilite/services/paiementApi.ts - VERSION CORRIGÉE
+import axios from '../../../core/config/axios';
 import type { Paiement } from '../types';
 
-const API_BASE_URL = 'http://localhost:3001/api/comptabilite';
-//const API_BASE_URL = 'https://sentence-hands-therapy-surely.trycloudflare.com/api/comptabilite';
+const API_BASE_URL = '/comptabilite';
+
+// ✅ UTILISER la même fonction helper que dans api.ts
+const extractData = (response: any): any[] => {
+  console.log('📊 Structure de la réponse paiements:', response.data);
+  
+  if (response.data.success && Array.isArray(response.data.data)) {
+    return response.data.data;
+  } else if (response.data.success && Array.isArray(response.data.message)) {
+    return response.data.message;
+  } else if (Array.isArray(response.data)) {
+    return response.data;
+  }
+  
+  console.warn('⚠️ Aucune donnée valide trouvée dans la réponse paiements');
+  return [];
+};
+
+// ✅ FONCTION HELPER pour extraire un objet simple
+const extractObject = (response: any): any => {
+  if (response.data.success && response.data.data) {
+    return response.data.data;
+  } else if (response.data.success && response.data.message && typeof response.data.message === 'object') {
+    return response.data.message;
+  } else if (response.data.data) {
+    return response.data.data;
+  }
+  
+  return response.data;
+};
 
 // Fonction utilitaire pour parser les montants
 const parsePaiement = (paiement: any): Paiement => ({
@@ -14,77 +43,78 @@ const parsePaiement = (paiement: any): Paiement => ({
 export const paiementApi = {
   // Récupérer tous les paiements
   getPaiements: async (): Promise<Paiement[]> => {
-    const res = await fetch(`${API_BASE_URL}/paiements`);
-    if (!res.ok) throw new Error('Erreur lors du chargement des paiements');
-    const data = await res.json();
-    return Array.isArray(data.data) ? data.data.map(parsePaiement) : [];
+    try {
+      const response = await axios.get(`${API_BASE_URL}/paiements`);
+      const paiements = extractData(response);
+      return paiements.map(parsePaiement);
+    } catch (error: any) {
+      console.error('❌ Erreur getPaiements:', error.response?.data || error.message);
+      // ✅ GÉRER le cas 204 No Content
+      if (error.response?.status === 204) {
+        return [];
+      }
+      throw error;
+    }
   },
-  
 
   // Récupérer les paiements d'une facture
   getPaiementsByFacture: async (numero_facture: number): Promise<Paiement[]> => {
-    const res = await fetch(`${API_BASE_URL}/paiements/facture/${numero_facture}`);
-    if (!res.ok) throw new Error('Erreur lors du chargement des paiements de la facture');
-    const data = await res.json();
-    return Array.isArray(data.data) ? data.data.map(parsePaiement) : [];
+    try {
+      const response = await axios.get(`${API_BASE_URL}/paiements/facture/${numero_facture}`);
+      const paiements = extractData(response);
+      return paiements.map(parsePaiement);
+    } catch (error: any) {
+      console.error('❌ Erreur getPaiementsByFacture:', error.response?.data || error.message);
+      if (error.response?.status === 204) {
+        return [];
+      }
+      throw error;
+    }
   },
 
   // Créer un paiement
   createPaiement: async (paiementData: Omit<Paiement, 'id_paiement' | 'created_at' | 'updated_at'>): Promise<Paiement> => {
-    const res = await fetch(`${API_BASE_URL}/paiements`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(paiementData),
-    });
-    
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.message || 'Erreur lors de la création du paiement');
+    try {
+      const response = await axios.post(`${API_BASE_URL}/paiements`, paiementData);
+      const paiement = extractObject(response);
+      return parsePaiement(paiement);
+    } catch (error: any) {
+      console.error('❌ Erreur createPaiement:', error.response?.data || error.message);
+      throw error;
     }
-    
-    const data = await res.json();
-    return parsePaiement(data.data);
   },
 
   // Valider un paiement
   validerPaiement: async (id_paiement: number): Promise<Paiement> => {
-    const res = await fetch(`${API_BASE_URL}/paiements/${id_paiement}/valider`, {
-      method: 'PATCH',
-    });
-    
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.message || 'Erreur lors de la validation du paiement');
+    try {
+      const response = await axios.patch(`${API_BASE_URL}/paiements/${id_paiement}/valider`);
+      const paiement = extractObject(response);
+      return parsePaiement(paiement);
+    } catch (error: any) {
+      console.error('❌ Erreur validerPaiement:', error.response?.data || error.message);
+      throw error;
     }
-    
-    const data = await res.json();
-    return parsePaiement(data.data);
   },
 
   // Annuler un paiement
   annulerPaiement: async (id_paiement: number): Promise<Paiement> => {
-    const res = await fetch(`${API_BASE_URL}/paiements/${id_paiement}/annuler`, {
-      method: 'PATCH',
-    });
-    
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.message || 'Erreur lors de l\'annulation du paiement');
+    try {
+      const response = await axios.patch(`${API_BASE_URL}/paiements/${id_paiement}/annuler`);
+      const paiement = extractObject(response);
+      return parsePaiement(paiement);
+    } catch (error: any) {
+      console.error('❌ Erreur annulerPaiement:', error.response?.data || error.message);
+      throw error;
     }
-    
-    const data = await res.json();
-    return parsePaiement(data.data);
   },
 
   // Supprimer un paiement
   deletePaiement: async (id_paiement: number): Promise<void> => {
-    const res = await fetch(`${API_BASE_URL}/paiements/${id_paiement}`, {
-      method: 'DELETE',
-    });
-    
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.message || 'Erreur lors de la suppression du paiement');
+    try {
+      await axios.delete(`${API_BASE_URL}/paiements/${id_paiement}`);
+    } catch (error: any) {
+      console.error('❌ Erreur deletePaiement:', error.response?.data || error.message);
+      throw error;
     }
   }
 };

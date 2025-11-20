@@ -1,49 +1,59 @@
-// src/core/auth/types/index.ts
+// frontend/src/core/auth/types/index.ts
+
+// Types pour le système d'authentification
 export interface User {
-  id_user: number;
+  id: number;
   email: string;
   nom: string;
-  prenom: string;
-  code_role: string;
-  nom_role: string;
-  role_description?: string;
+  role: 'admin' | 'comptable' | 'commercial';
+  prenom?: string;
+  code_role?: string;
+  nom_role?: string;
 }
 
-export interface LoginData {
+export interface LoginCredentials {
   email: string;
   password: string;
 }
 
-export interface AuthState {
-  user: User | null;
-  token: string | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-}
-
-export interface AuthContextType extends AuthState {
-  login: (data: LoginData) => Promise<void>;
-  logout: () => void;
-  validateToken: () => Promise<boolean>;
-  hasPermission: (module: string, action: string) => boolean;
-  hasRole: (roles: string[]) => boolean;
+export interface ApiResponse<T = any> {
+  success: boolean;
+  message: string;
+  data: T;
+  timestamp?: string;
 }
 
 export interface LoginResponse {
-  success: boolean;
-  message: string;
-  data?: {
-    user: User;
-    token: string;
-    expiresIn: string;
-  };
+  user: User;
+  token: string;
+  expiresIn?: number;
 }
 
 export interface ValidateTokenResponse {
+  user: User;
+  isValid: boolean;
+  expiresAt?: string;
+}
+
+export interface AuthResponse {
   success: boolean;
-  valid: boolean;
-  message?: string;
-  data?: {
-    user: User;
-  };
+  message: string;
+  data: LoginResponse;
+}
+
+export interface ApiError {
+  success: false;
+  message: string;
+  error?: string;
+  statusCode?: number;
+}
+
+// Types pour les permissions
+export interface Permission {
+  module: string;
+  actions: string[];
+}
+
+export interface UserWithPermissions extends User {
+  permissions?: Permission[];
 }

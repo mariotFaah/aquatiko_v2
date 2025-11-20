@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext'; 
 import './Sidebar.css';
 
 interface SidebarProps {
@@ -13,6 +14,7 @@ interface MenuItemBase {
   path: string;
   icon: string;
   badge?: string | null;
+  requiredRole?: ('admin' | 'comptable' | 'commercial')[]; // ✅ CORRIGER le type
 }
 
 interface MenuItemWithChildren extends MenuItemBase {
@@ -32,10 +34,13 @@ const hasChildren = (item: MenuItem): item is MenuItemWithChildren => {
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
   const location = useLocation();
+  const { user } = useAuth();
+
   const [openSubmenus, setOpenSubmenus] = useState<Record<string, boolean>>({
     crm: location.pathname.startsWith('/crm'),
     comptabilite: location.pathname.startsWith('/comptabilite'),
-    importExport: location.pathname.startsWith('/import-export')
+    importExport: location.pathname.startsWith('/import-export'),
+    admin: location.pathname.startsWith('/admin')
   });
 
   const toggleSubmenu = (menu: string) => {
@@ -43,6 +48,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
       ...prev,
       [menu]: !prev[menu]
     }));
+  };
+
+  // ✅ CORRIGER la fonction hasAccess
+  const hasAccess = (item: MenuItemBase): boolean => {
+    if (!item.requiredRole) return true; // Pas de restriction
+    if (!user) return false; // Utilisateur non connecté
+    
+    // Admin a accès à tout
+    if (user.role === 'admin') return true;
+    
+    // Vérifier si l'utilisateur a un des rôles requis
+    return item.requiredRole.includes(user.role);
   };
 
   const menuItems: MenuItem[] = [
@@ -57,6 +74,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
       path: '/comptabilite',
       icon: '💰',
       badge: '3',
+      requiredRole: ['admin', 'comptable'],
       children: [
         { name: 'Vue générale', path: '/comptabilite', icon: '📈' },
         { name: 'Factures', path: '/comptabilite/factures', icon: '🧾' },
@@ -75,6 +93,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
       path: '/import-export',
       icon: '🌐',
       badge: 'New',
+      requiredRole: ['admin', 'commercial'],
       children: [
         { name: 'Vue générale', path: '/import-export', icon: '📈' },
         { name: 'Commandes', path: '/import-export/commandes', icon: '📋' },
@@ -87,6 +106,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
       path: '/crm',
       icon: '🤝',
       badge: '12',
+      requiredRole: ['admin', 'commercial'],
       children: [
         { name: 'Vue générale', path: '/crm', icon: '📈' },
         { name: 'Clients', path: '/crm/clients', icon: '👥' },
@@ -97,7 +117,44 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
         { name: 'Relances', path: '/crm/relances', icon: '🔔' },
       ],
     },
+    {
+      name: 'Administration',
+      path: '/admin',
+      icon: '⚙️',
+      badge: null,
+      requiredRole: ['admin'],
+      children: [
+        { name: 'Gestion Utilisateurs', path: '/admin/users', icon: '👥' },
+      ],
+    },
   ];
+
+  // Filtrer les menus selon les permissions
+  const filteredMenuItems = menuItems.filter(hasAccess);
+
+  // ✅ CORRIGER l'affichage du profil utilisateur
+  const getUserDisplayName = () => {
+    if (user?.prenom && user?.nom) {
+      return `${user.prenom} ${user.nom}`;
+    }
+    return user?.nom || user?.email || 'Utilisateur';
+  };
+
+  const getUserRoleDisplay = () => {
+    const roleMap = {
+      'admin': 'Administrateur',
+      'comptable': 'Comptable', 
+      'commercial': 'Commercial'
+    };
+    return roleMap[user?.role as keyof typeof roleMap] || user?.role || 'Utilisateur';
+  };
+
+  const getUserInitials = () => {
+    if (user?.prenom && user?.nom) {
+      return `${user.prenom.charAt(0)}${user.nom.charAt(0)}`;
+    }
+    return user?.nom?.charAt(0) || user?.email?.charAt(0) || 'U';
+  };
 
   return (
     <>
@@ -121,7 +178,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
         {/* Container scrollable pour le contenu */}
         <div className="sidebar-content">
           <nav className="sidebar-nav">
-            {menuItems.map((item) => (
+            {filteredMenuItems.map((item) => (
               <div key={item.path} className="sidebar-menu">
                 {hasChildren(item) ? (
                   <>
@@ -149,7 +206,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                     
                     {openSubmenus[item.name] && isOpen && (
                       <div className="sidebar-submenu">
-                        {item.children.map((child) => (
+                        {item.children
+                          .filter(hasAccess)
+                          .map((child) => (
                           <Link
                             key={child.path}
                             to={child.path}
@@ -187,13 +246,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
           </nav>
 
           {/* User profile section */}
-          {isOpen && (
+          {isOpen && user && (
             <div className="sidebar-footer">
               <div className="user-profile">
-                <div className="user-avatar">AK</div>
+                <div className="user-avatar">
+                  {getUserInitials()}
+                </div>
                 <div className="user-info">
-                  <div className="user-name">OMNISERVE EXPERTS Team</div>
-                  <div className="user-role">Administrateur</div>
+                  <div className="user-name">{getUserDisplayName()}</div>
+                  <div className="user-role">{getUserRoleDisplay()}</div>
                 </div>
               </div>
             </div>

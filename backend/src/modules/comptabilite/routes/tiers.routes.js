@@ -3,43 +3,44 @@ import { Router } from 'express';
 import { TiersController } from '../controllers/TiersController.js';
 import { validateRequest } from '../../../core/middleware/validation.js';
 import { createTiersSchema, updateTiersSchema } from '../validators/tiers.validator.js';
-import authMiddleware from '../../auth/middleware/authMiddleware.js';
+// ✅ CORRECTION : Remplacer par le nouveau middleware
+import { auth, requireRole } from '../../../core/middleware/auth.js';
 
 const router = Router();
 const tiersController = new TiersController();
 
 // ✅ ROUTES PROTÉGÉES - Lecture pour utilisateurs authentifiés
 router.get('/', 
-  authMiddleware.authenticate,
-  authMiddleware.requirePermission('comptabilite', 'read'),
+  auth,
+  requireRole('comptable'), // ✅ CORRECTION
   tiersController.getAll.bind(tiersController)
 );
 
 router.get('/:id', 
-  authMiddleware.authenticate,
-  authMiddleware.requirePermission('comptabilite', 'read'),
+  auth,
+  requireRole('comptable'), // ✅ CORRECTION
   tiersController.getById.bind(tiersController)
 );
 
 // ✅ ROUTES PROTÉGÉES - Écriture (comptable et admin seulement)
 router.post('/', 
-  authMiddleware.authenticate,
-  authMiddleware.requirePermission('comptabilite', 'write'),
+  auth,
+  requireRole('comptable'), // ✅ CORRECTION
   validateRequest(createTiersSchema), 
   tiersController.create.bind(tiersController)
 );
 
 router.put('/:id', 
-  authMiddleware.authenticate,
-  authMiddleware.requirePermission('comptabilite', 'write'),
+  auth,
+  requireRole('comptable'), // ✅ CORRECTION
   validateRequest(updateTiersSchema), 
   tiersController.update.bind(tiersController)
 );
 
 // ✅ ROUTE PROTÉGÉE - Suppression (admin seulement)
 router.delete('/:id', 
-  authMiddleware.authenticate,
-  authMiddleware.requireRole(['admin']),
+  auth,
+  requireRole('admin'), // ✅ CORRECTION
   tiersController.delete.bind(tiersController)
 );
 

@@ -1,106 +1,84 @@
-// src/core/auth/services/authApi.ts
+// frontend/src/core/auth/services/authApi.ts
+import type { 
+  ApiResponse, 
+  LoginResponse, 
+  ValidateTokenResponse, 
+  User,
+  LoginCredentials 
+} from '../types';
+import api from '../../../core/config/axios';
 
-// ✅ Supprimer l'import inutile et définir les types localement
-export interface User {
-  id_user: number;
-  email: string;
-  nom: string;
-  prenom: string;
-  code_role: string;
-  nom_role: string;
-  role_description?: string;
-}
+// Clés pour le localStorage
+const TOKEN_KEY = 'auth_token';
+const USER_KEY = 'auth_user';
 
-export interface LoginResponse {
-  success: boolean;
-  message: string;
-  data?: {
-    user: User;
-    token: string;
-    expiresIn: string;
-  };
-}
+// ✅ DÉPLACER les méthodes de gestion du token en dehors de l'objet
+const getToken = (): string | null => {
+  return localStorage.getItem(TOKEN_KEY);
+};
 
-export interface ValidateTokenResponse {
-  success: boolean;
-  valid: boolean;
-  message?: string;
-  data?: {
-    user: User;
-  };
-}
+const setAuthData = (user: User, token: string): void => {
+  localStorage.setItem(TOKEN_KEY, token);
+  localStorage.setItem(USER_KEY, JSON.stringify(user));
+};
 
-class AuthApi {
-  private baseURL = 'http://localhost:3001/api/auth';
+const getCurrentUser = (): User | null => {
+  const userStr = localStorage.getItem(USER_KEY);
+  return userStr ? JSON.parse(userStr) : null;
+};
 
-  async login(email: string, password: string): Promise<LoginResponse> {
+const logout = (): void => {
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(USER_KEY);
+};
+
+const isAuthenticated = (): boolean => {
+  return !!getToken() && !!getCurrentUser();
+};
+
+const getAuthHeaders = (): { Authorization: string } | {} => {
+  const token = getToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
+export const authApi = {
+  async login(credentials: LoginCredentials): Promise<ApiResponse<LoginResponse>> {
     try {
-      const response = await fetch(`${this.baseURL}/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
+      const response = await api.post('/auth/login', credentials);
       
-      if (!response.ok) {
-        throw new Error(data.message || 'Erreur de connexion');
+      if (response.data.success) {
+        // ✅ CORRECTION : Utiliser les fonctions directement, pas this.
+        setAuthData(response.data.data.user, response.data.data.token);
       }
-
-      return data;
-    } catch (error) {
-      console.error('Erreur API login:', error);
-      throw error;
+      
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Erreur de connexion');
     }
-  }
+  },
 
-  async validateToken(token: string): Promise<ValidateTokenResponse> {
+  // ✅ RÉFÉRENCER les fonctions existantes
+  getToken,
+  setAuthData,
+  getCurrentUser,
+  logout,
+  isAuthenticated,
+  getAuthHeaders,
+
+  // Validation du token (optionnelle)
+  async validateToken(): Promise<ApiResponse<ValidateTokenResponse>> {
     try {
-      const response = await fetch(`${this.baseURL}/validate-token`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token }),
-      });
-
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message || 'Erreur de validation');
+      const token = getToken(); // ✅ Utiliser la fonction directement
+      if (!token) {
+        throw new Error('Aucun token disponible');
       }
-
-      return data;
-    } catch (error) {
-      console.error('Erreur API validateToken:', error);
-      throw error;
-    }
-  }
-
-  async getCurrentUser(token: string): Promise<User> {
-    try {
-      const response = await fetch(`${this.baseURL}/me`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const data = await response.json();
       
-      if (!response.ok) {
-        throw new Error(data.message || 'Erreur récupération utilisateur');
-      }
-
-      return data.data.user;
-    } catch (error) {
-      console.error('Erreur API getCurrentUser:', error);
-      throw error;
+      const response = await api.get('/auth/verify', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Token invalide');
     }
-  }
-}
-
-export const authApi = new AuthApi();
+  },
+};

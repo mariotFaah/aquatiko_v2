@@ -1,55 +1,60 @@
-// src/modules/comptabilite/services/emailApi.ts
+// src/modules/comptabilite/services/emailApi.ts - VERSION CORRIGÉE
+import axios from '../../../core/config/axios';
 import type { Facture, RelanceData, RelanceResponse, RelancesGroupeesResponse } from '../types';
 
-const API_BASE_URL = 'http://localhost:3001/api/comptabilite';
+const API_BASE_URL = '/comptabilite';
+
+// ✅ UTILISER les mêmes fonctions helper que dans api.ts
+const extractObject = (response: any): any => {
+  console.log('📊 Structure de la réponse email:', response.data);
+  
+  if (response.data.success && response.data.data) {
+    return response.data.data;
+  } else if (response.data.success && response.data.message && typeof response.data.message === 'object') {
+    return response.data.message;
+  } else if (response.data.data) {
+    return response.data.data;
+  }
+  
+  return response.data;
+};
 
 export const emailApi = {
   // Envoyer une relance pour une facture spécifique
-  // emailApi.ts - Version finale simple
-async envoyerRelance(facture: Facture, messagePersonnalise?: string): Promise<RelanceResponse> {
-  try {
-    // Le backend fournit maintenant directement l'email correct
-    const emailCorrect = facture.email;
+  async envoyerRelance(facture: Facture, messagePersonnalise?: string): Promise<RelanceResponse> {
+    try {
+      // Le backend fournit maintenant directement l'email correct
+      const emailCorrect = facture.email;
 
-    if (!emailCorrect) {
-      throw new Error('Aucun email disponible pour ce client');
+      if (!emailCorrect) {
+        throw new Error('Aucun email disponible pour ce client');
+      }
+
+      const aujourdhui = new Date();
+      const dateEcheance = facture.date_finale_paiement ? new Date(facture.date_finale_paiement) : aujourdhui;
+      const joursRetard = Math.floor((aujourdhui.getTime() - dateEcheance.getTime()) / (1000 * 60 * 60 * 24));
+
+      const relanceData: RelanceData = {
+        numero_facture: facture.numero_facture ?? 0,
+        email_client: emailCorrect,
+        nom_client: facture.nom_tiers || 'Client',
+        montant: facture.montant_restant || facture.total_ttc || 0,
+        jours_retard: Math.max(joursRetard, 0),
+        message_personnalise: messagePersonnalise
+      };
+
+      console.log('📧 Envoi relance AVEC EMAIL CORRECT:', relanceData);
+
+      const response = await axios.post(`${API_BASE_URL}/email/relance`, relanceData);
+      const result = extractObject(response);
+      return result;
+
+    } catch (error: any) {
+      console.error('❌ Erreur API relance:', error.response?.data || error.message);
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      throw new Error(errorMessage);
     }
-
-    const aujourdhui = new Date();
-    const dateEcheance = facture.date_finale_paiement ? new Date(facture.date_finale_paiement) : aujourdhui;
-    const joursRetard = Math.floor((aujourdhui.getTime() - dateEcheance.getTime()) / (1000 * 60 * 60 * 24));
-
-    const relanceData: RelanceData = {
-      numero_facture: facture.numero_facture ?? 0,
-      email_client: emailCorrect,
-      nom_client: facture.nom_tiers || 'Client',
-      montant: facture.montant_restant || facture.total_ttc || 0,
-      jours_retard: Math.max(joursRetard, 0),
-      message_personnalise: messagePersonnalise
-    };
-
-    console.log('📧 Envoi relance AVEC EMAIL CORRECT:', relanceData);
-
-    const response = await fetch(`${API_BASE_URL}/email/relance`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(relanceData),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Erreur serveur: ${response.status}`);
-    }
-
-    return await response.json();
-
-  } catch (error) {
-    console.error('❌ Erreur API relance:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
-    throw new Error(errorMessage);
-  }
-},
+  },
 
   // Envoyer des relances groupées
   async envoyerRelancesGroupees(factures: Facture[]): Promise<RelancesGroupeesResponse> {
@@ -70,28 +75,18 @@ async envoyerRelance(facture: Facture, messagePersonnalise?: string): Promise<Re
 
       console.log('📧 Envoi relances groupées:', relancesData.length, 'factures');
 
-      const response = await fetch(`${API_BASE_URL}/email/relances-groupees`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ factures: relancesData }),
+      const response = await axios.post(`${API_BASE_URL}/email/relances-groupees`, { 
+        factures: relancesData 
       });
+      const result = extractObject(response);
+      return result;
 
-      if (!response.ok) {
-        throw new Error(`Erreur serveur: ${response.status}`);
-      }
-
-      const data: RelancesGroupeesResponse = await response.json();
-      return data;
-
-    } catch (error) {
-      console.error('❌ Erreur API relance:', error);
+    } catch (error: any) {
+      console.error('❌ Erreur API relances groupées:', error.response?.data || error.message);
       
-      // ✅ CORRECTION : Gestion sécurisée du type error
       const errorMessage = error instanceof Error 
         ? error.message 
-        : 'Impossible d\'envoyer la relance';
+        : 'Impossible d\'envoyer les relances groupées';
       
       throw new Error(errorMessage);
     }
@@ -100,20 +95,15 @@ async envoyerRelance(facture: Facture, messagePersonnalise?: string): Promise<Re
   // Tester la configuration email
   async testerConfiguration(): Promise<{ success: boolean; message: string }> {
     try {
-      const response = await fetch(`${API_BASE_URL}/email/test-config`);
+      const response = await axios.get(`${API_BASE_URL}/email/test-config`);
+      const result = extractObject(response);
+      return result;
+    } catch (error: any) {
+      console.error('❌ Erreur test configuration email:', error.response?.data || error.message);
       
-      if (!response.ok) {
-        throw new Error(`Erreur serveur: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error('❌ Erreur API relances groupées:', error);
-      
-      // ✅ CORRECTION : Gestion sécurisée du type error
       const errorMessage = error instanceof Error 
         ? error.message 
-        : 'Impossible d\'envoyer les relances groupées';
+        : 'Impossible de tester la configuration email';
       
       throw new Error(errorMessage);
     }

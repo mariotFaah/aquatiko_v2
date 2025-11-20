@@ -27,9 +27,6 @@ export const validate = (schema, property = 'body') => {
   };
 };
 
-// Alias pour compatibilité (utilisé dans tiers.routes.js)
-export const validateRequest = validate;
-
 // Validation d'ID numérique
 export const validateId = (req, res, next) => {
   const id = parseInt(req.params.id);
@@ -62,7 +59,6 @@ export const validatePagination = (req, res, next) => {
 // Export par défaut pour compatibilité
 export default {
   validate,
-  validateRequest, // ✅ Ajout de l'alias
   validateId,
   validatePagination
 };

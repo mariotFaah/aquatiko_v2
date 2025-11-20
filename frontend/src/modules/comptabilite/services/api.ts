@@ -3,25 +3,12 @@
   Decommentena ilay api_base_url faharoa rehefa prod dia soloina amlay nihebergena anlay backend
   aveo commentena lay en local
 */
+import axios from '../../../core/config/axios';
 import type { Tiers, Article, Facture, Paiement, TauxChange, ArticleBackend, PaiementFlexibleConfig, FactureAvecPaiement } from '../types';
 
-const API_BASE_URL = 'http://localhost:3001/api/comptabilite';
-//const API_BASE_URL = ' https://sentence-hands-therapy-surely.trycloudflare.com/api/comptabilite';
+const API_BASE_URL = '/comptabilite';
 
 // Interfaces pour la gestion de stock
-
-const HEADERS = {
-  'Content-Type': 'application/json',
-};
-
-const handleResponse = async (response: Response) => {
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Erreur API');
-  }
-  const data = await response.json();
-  return data.data || data;
-};
 export interface UpdateStockRequest {
   quantite_stock: number;
 }
@@ -48,468 +35,320 @@ export interface StockAlerte {
   priorite: 'faible' | 'rupture';
 }
 
+// ✅ FONCTION HELPER pour extraire les données de la réponse
+const extractData = (response: any): any[] => {
+  console.log('📊 Structure de la réponse:', response.data);
+  
+  if (response.data.success && Array.isArray(response.data.data)) {
+    return response.data.data;
+  } else if (response.data.success && Array.isArray(response.data.message)) {
+    return response.data.message; // ← CORRECTION: Les données sont dans "message"
+  } else if (Array.isArray(response.data)) {
+    return response.data;
+  }
+  
+  console.warn('⚠️ Aucune donnée valide trouvée dans la réponse');
+  return [];
+};
+
+// ✅ FONCTION HELPER pour extraire un objet simple
+const extractObject = (response: any): any => {
+  if (response.data.success && response.data.data) {
+    return response.data.data;
+  } else if (response.data.success && response.data.message && typeof response.data.message === 'object') {
+    return response.data.message; // ← CORRECTION: Les données sont dans "message"
+  } else if (response.data.data) {
+    return response.data.data;
+  }
+  
+  return response.data;
+};
+
 export const comptabiliteApi = {
   // ---- Tiers API ----
   getTiers: async (): Promise<Tiers[]> => {
-    const res = await fetch(`${API_BASE_URL}/tiers`);
-    const data = await res.json();
-    return Array.isArray(data.data) ? data.data : [];
+    const response = await axios.get(`${API_BASE_URL}/tiers`);
+    return extractData(response);
   },
 
   createTiers: async (tiersData: Partial<Tiers>): Promise<Tiers> => {
-    const res = await fetch(`${API_BASE_URL}/tiers`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(tiersData),
-    });
+    const response = await axios.post(`${API_BASE_URL}/tiers`, tiersData);
     
-    const data = await res.json();
-    
-    if (!res.ok || !data.success) {
-      throw new Error(data.message || 'Erreur lors de la création du tiers');
+    if (!response.data.success) {
+      throw new Error(response.data.message || 'Erreur lors de la création du tiers');
     }
     
-    return data.data;
+    return extractObject(response);
   },
 
   updateTiers: async (id: number, tiersData: Partial<Tiers>): Promise<Tiers> => {
-    const res = await fetch(`${API_BASE_URL}/tiers/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(tiersData),
-    });
-    const data = await res.json();
-    return data.data;
+    const response = await axios.put(`${API_BASE_URL}/tiers/${id}`, tiersData);
+    return extractObject(response);
   },
 
   deleteTiers: async (id: number): Promise<void> => {
-    await fetch(`${API_BASE_URL}/tiers/${id}`, { method: 'DELETE' });
+    await axios.delete(`${API_BASE_URL}/tiers/${id}`);
   },
 
   // ---- Articles API ----
-getArticles: async (): Promise<Article[]> => {
-  const res = await fetch(`${API_BASE_URL}/articles`);
-  if (!res.ok) throw new Error('Erreur lors du chargement des articles');
-  const data = await res.json();
-  
-  const articles = Array.isArray(data.data) ? data.data : [];
-  return articles.map((article: ArticleBackend) => ({
-    ...article,
-    seuil_alerte: article.seuil_alerte,
-    // Mapper le statut stock backend → frontend
-    statut_stock: article.statut_stock === 'disponible' ? 'en_stock' : article.statut_stock
-  }));
-},
+  getArticles: async (): Promise<Article[]> => {
+    const response = await axios.get(`${API_BASE_URL}/articles`);
+    const articles = extractData(response);
+    
+    return articles
+  },
 
   getArticle: async (code: string): Promise<Article> => {
-    const res = await fetch(`${API_BASE_URL}/articles/${code}`);
-    if (!res.ok) throw new Error('Erreur lors du chargement de l\'article');
-    const data = await res.json();
+    const response = await axios.get(`${API_BASE_URL}/articles/${code}`);
+    const article = extractObject(response);
     
-    // Mapper les données
     return {
-      ...data.data,
-      seuil_alerte: data.data.seuil_alerte // Mapper seuil_alerte vers seuil_alerte
+      ...article,
+      seuil_alerte: article.seuil_alerte
     };
   },
 
   createArticle: async (articleData: Omit<Article, 'actif' | 'created_at' | 'updated_at'>): Promise<Article> => {
-    // Préparer les données pour le backend
-    const backendData = {
-      ...articleData,
-      seuil_alerte: articleData.seuil_alerte // Mapper seuil_alerte vers seuil_alerte pour le backend
-    };
-    
-    const res = await fetch(`${API_BASE_URL}/articles`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(backendData),
-    });
-    
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.message || 'Erreur lors de la création');
+    try {
+      console.log('📤 Données envoyées création article:', articleData);
+      
+      const response = await axios.post(`${API_BASE_URL}/articles`, articleData);
+      
+      console.log('✅ Article créé avec succès:', response.data);
+      return extractObject(response);
+    } catch (error: any) {
+      console.error('❌ Erreur détaillée création article:', {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.response?.data?.message
+      });
+      
+      if (error.response?.data?.message?.includes('existe déjà')) {
+        throw new Error('Un article avec le code ' + articleData.code_article + ' existe déjà. Veuillez utiliser un code différent.');
+      }
+      
+      throw new Error(error.response?.data?.message || 'Erreur lors de la création de l\'article');
     }
-    
-    const data = await res.json();
-    
-    // Mapper la réponse
-    return {
-      ...data.data,
-      seuil_alerte: data.data.seuil_alerte
-    };
   },
 
   updateArticle: async (code: string, articleData: Partial<Article>): Promise<Article> => {
-    // Préparer les données pour le backend
     const backendData = { ...articleData };
     
-    // Mapper seuil_alerte vers seuil_alerte si présent
     if (articleData.seuil_alerte !== undefined) {
       backendData.seuil_alerte = articleData.seuil_alerte;
       delete backendData.seuil_alerte;
     }
     
-    const res = await fetch(`${API_BASE_URL}/articles/${code}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(backendData),
-    });
+    const response = await axios.put(`${API_BASE_URL}/articles/${code}`, backendData);
+    const article = extractObject(response);
     
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.message || 'Erreur lors de la modification');
-    }
-    
-    const data = await res.json();
-    
-    // Mapper la réponse
     return {
-      ...data.data,
-      seuil_alerte: data.data.seuil_alerte
+      ...article,
+      seuil_alerte: article.seuil_alerte
     };
   },
 
   deleteArticle: async (code: string): Promise<void> => {
-    const res = await fetch(`${API_BASE_URL}/articles/${code}`, {
-      method: 'DELETE',
-    });
-    
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.message || 'Erreur lors de la suppression');
-    }
+    await axios.delete(`${API_BASE_URL}/articles/${code}`);
   },
 
   // ---- Gestion de Stock API ----
-// Dans api.ts - mapper les statuts backend → frontend
+  getArticlesByStatut: async (statut: string): Promise<Article[]> => {
+    const response = await axios.get(`${API_BASE_URL}/articles/statut/${statut}`);
+    const articles = extractData(response);
+    
+    return articles
+  },  
 
-
-getArticlesByStatut: async (statut: string): Promise<Article[]> => {
-  const res = await fetch(`${API_BASE_URL}/articles/statut/${statut}`);
-  if (!res.ok) throw new Error(`Erreur lors du chargement des articles ${statut}`);
-  const data = await res.json();
-  
-  const articles = Array.isArray(data.data) ? data.data : [];
-  return articles.map((article: ArticleBackend) => ({
-    ...article,
-    seuil_alerte: article.seuil_alerte,
-    // Mapper le statut stock backend → frontend
-    statut_stock: article.statut_stock === 'disponible' ? 'en_stock' : article.statut_stock
-  }));
-},  
   updateStock: async (code: string, stockData: UpdateStockRequest): Promise<Article> => {
-    const res = await fetch(`${API_BASE_URL}/articles/${code}/stock`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(stockData),
-    });
+    const response = await axios.put(`${API_BASE_URL}/articles/${code}/stock`, stockData);
+    const article = extractObject(response);
     
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.message || 'Erreur lors de la mise à jour du stock');
-    }
-    
-    const data = await res.json();
-    
-    // Mapper la réponse
     return {
-      ...data.data,
-      seuil_alerte: data.data.seuil_alerte
+      ...article,
+      seuil_alerte: article.seuil_alerte
     };
   },
 
   adjustStock: async (code: string, adjustData: AdjustStockRequest): Promise<Article> => {
-    const res = await fetch(`${API_BASE_URL}/articles/${code}/stock/adjust`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(adjustData),
-    });
+    const response = await axios.patch(`${API_BASE_URL}/articles/${code}/stock/adjust`, adjustData);
+    const article = extractObject(response);
     
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(error.message || 'Erreur lors de l\'ajustement du stock');
-    }
-    
-    const data = await res.json();
-    
-    // Mapper la réponse
     return {
-      ...data.data,
-      seuil_alerte: data.data.seuil_alerte
+      ...article,
+      seuil_alerte: article.seuil_alerte
     };
   },
 
   getStockAlerts: async (): Promise<StockAlerte[]> => {
-  const res = await fetch(`${API_BASE_URL}/articles/alertes/stock`);
-  if (!res.ok) throw new Error('Erreur lors du chargement des alertes de stock');
-  const data = await res.json();
-  
-  const alertesData = data.data || {};
-  const alertes: StockAlerte[] = [];
-  
-  // Traiter les alertes de rupture
-  if (Array.isArray(alertesData.rupture_stock)) {
-    alertes.push(...alertesData.rupture_stock.map((article: ArticleBackend) => ({
-      code_article: article.code_article,
-      description: article.description,
-      quantite_stock: article.quantite_stock || 0,
-      seuil_alerte: article.seuil_alerte || 0,
-      statut_stock: article.statut_stock || 'rupture',
-      priorite: 'rupture' as const
-    })));
-  }
-  
-  // Traiter les alertes de stock faible
-  if (Array.isArray(alertesData.stock_faible)) {
-    alertes.push(...alertesData.stock_faible.map((article: ArticleBackend) => ({
-      code_article: article.code_article,
-      description: article.description,
-      quantite_stock: article.quantite_stock || 0,
-      seuil_alerte: article.seuil_alerte || 0,
-      statut_stock: article.statut_stock || 'stock_faible',
-      priorite: 'faible' as const
-    })));
-  }
-  
-  return alertes;
-},
+    const response = await axios.get(`${API_BASE_URL}/articles/alertes/stock`);
+    const alertesData = extractObject(response) || {};
+    
+    const alertes: StockAlerte[] = [];
+    
+    if (Array.isArray(alertesData.rupture_stock)) {
+      alertes.push(...alertesData.rupture_stock.map((article: ArticleBackend) => ({
+        code_article: article.code_article,
+        description: article.description,
+        quantite_stock: article.quantite_stock || 0,
+        seuil_alerte: article.seuil_alerte || 0,
+        statut_stock: article.statut_stock || 'rupture',
+        priorite: 'rupture' as const
+      })));
+    }
+    
+    if (Array.isArray(alertesData.stock_faible)) {
+      alertes.push(...alertesData.stock_faible.map((article: ArticleBackend) => ({
+        code_article: article.code_article,
+        description: article.description,
+        quantite_stock: article.quantite_stock || 0,
+        seuil_alerte: article.seuil_alerte || 0,
+        statut_stock: article.statut_stock || 'stock_faible',
+        priorite: 'faible' as const
+      })));
+    }
+    
+    return alertes;
+  },
 
   checkAvailability: async (code: string, quantite: number): Promise<DisponibiliteResponse> => {
-    const res = await fetch(`${API_BASE_URL}/articles/${code}/disponibilite?quantite=${quantite}`);
-    if (!res.ok) throw new Error('Erreur lors de la vérification de disponibilité');
-    const data = await res.json();
-    return data.data;
+    const response = await axios.get(`${API_BASE_URL}/articles/${code}/disponibilite?quantite=${quantite}`);
+    return extractObject(response);
   },
 
   // ---- Factures API ----
-getFactures: async (): Promise<FactureAvecPaiement[]> => {
-  const res = await fetch(`${API_BASE_URL}/factures`);
-  if (!res.ok) throw new Error('Erreur lors du chargement des factures');
-  const data = await res.json();
-  
-  const factures = Array.isArray(data.data) ? data.data : [];
-  
-  // Mapper les statuts de paiement si nécessaire
-  return factures.map((facture: any) => ({
-    ...facture,
-    statut_paiement: facture.statut_paiement || 'non_paye',
-    montant_paye: facture.montant_paye || 0,
-    montant_restant: facture.montant_restant || facture.total_ttc || 0
-  }));
-},
-
-  getFacture: async (numero: number): Promise<Facture> => {
-    const res = await fetch(`${API_BASE_URL}/factures/${numero}`);
-    const data = await res.json();
-    return data.data;
+  getFactures: async (): Promise<FactureAvecPaiement[]> => {
+    const response = await axios.get(`${API_BASE_URL}/factures`);
+    const factures = extractData(response);
+    
+    return factures.map((facture: any) => ({
+      ...facture,
+      statut_paiement: facture.statut_paiement || 'non_paye',
+      montant_paye: facture.montant_paye || 0,
+      montant_restant: facture.montant_restant || facture.total_ttc || 0
+    }));
   },
 
- // ---- Factures API ----
-createFacture: async (factureData: any): Promise<FactureAvecPaiement> => {
-  const res = await fetch(`${API_BASE_URL}/factures`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(factureData),
-  });
-  
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message || 'Erreur création facture');
-  }
-  
-  const data = await res.json();
-  return data.data;
-},
+  getFacture: async (numero: number): Promise<Facture> => {
+    const response = await axios.get(`${API_BASE_URL}/factures/${numero}`);
+    return extractObject(response);
+  },
 
-// ---- Paiements Flexibles API ----
-getFactureAvecPaiements: async (numero: number): Promise<FactureAvecPaiement> => {
-  const res = await fetch(`${API_BASE_URL}/factures/${numero}`);
-  if (!res.ok) throw new Error('Erreur lors du chargement de la facture');
-  const data = await res.json();
-  return data.data;
-},
+  createFacture: async (factureData: any): Promise<FactureAvecPaiement> => {
+    const response = await axios.post(`${API_BASE_URL}/factures`, factureData);
+    return extractObject(response);
+  },
 
-enregistrerPaiement: async (paiementData: Partial<Paiement>): Promise<Paiement> => {
-  const response = await fetch(`${API_BASE_URL}/paiements`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(paiementData),
-  });
-  
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Erreur lors de l\'enregistrement du paiement');
-  }
-  
-  const data = await response.json();
-  return data.data;
-},
-getPaiementsFacture: async (numeroFacture: number): Promise<Paiement[]> => {
-  const res = await fetch(`${API_BASE_URL}/paiements/facture/${numeroFacture}`);
-  if (!res.ok) throw new Error('Erreur lors du chargement des paiements');
-  const data = await res.json();
-  return Array.isArray(data.data) ? data.data : [];
-},
+  // ---- Paiements Flexibles API ----
+  getFactureAvecPaiements: async (numero: number): Promise<FactureAvecPaiement> => {
+    const response = await axios.get(`${API_BASE_URL}/factures/${numero}`);
+    return extractObject(response);
+  },
 
-createPaiementFacture: async (numeroFacture: number, paiementData: {
-  montant: number;
-  mode_paiement: string;
-  reference?: string;
-  date_paiement: string;
-  statut?: string;
-}): Promise<Paiement> => {
-  const res = await fetch(`${API_BASE_URL}/paiements`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
+  enregistrerPaiement: async (paiementData: Partial<Paiement>): Promise<Paiement> => {
+    const response = await axios.post(`${API_BASE_URL}/paiements`, paiementData);
+    return extractObject(response);
+  },
+
+  getPaiementsFacture: async (numeroFacture: number): Promise<Paiement[]> => {
+    const response = await axios.get(`${API_BASE_URL}/paiements/facture/${numeroFacture}`);
+    return extractData(response);
+  },
+
+  createPaiementFacture: async (numeroFacture: number, paiementData: {
+    montant: number;
+    mode_paiement: string;
+    reference?: string;
+    date_paiement: string;
+    statut?: string;
+  }): Promise<Paiement> => {
+    const response = await axios.post(`${API_BASE_URL}/paiements`, {
       ...paiementData,
       numero_facture: numeroFacture
-    }),
-  });
-  
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message || 'Erreur lors de l\'enregistrement du paiement');
-  }
-  
-  const data = await res.json();
-  return data.data;
-},
+    });
+    return extractObject(response);
+  },
 
-// Méthode pour configurer le paiement flexible sur une facture existante
-configurerPaiementFlexible: async (numeroFacture: number, config: PaiementFlexibleConfig): Promise<FactureAvecPaiement> => {
-  const res = await fetch(`${API_BASE_URL}/factures/${numeroFacture}/config-paiement`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(config),
-  });
-  
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.message || 'Erreur lors de la configuration du paiement flexible');
-  }
-  
-  const data = await res.json();
-  return data.data;
-},
+  configurerPaiementFlexible: async (numeroFacture: number, config: PaiementFlexibleConfig): Promise<FactureAvecPaiement> => {
+    const response = await axios.patch(`${API_BASE_URL}/factures/${numeroFacture}/config-paiement`, config);
+    return extractObject(response);
+  },
 
-// Méthode pour calculer les pénalités de retard
-calculerPenalites: async (numeroFacture: number): Promise<{ penalites: number }> => {
-  const res = await fetch(`${API_BASE_URL}/factures/${numeroFacture}/penalites`);
-  if (!res.ok) throw new Error('Erreur lors du calcul des pénalités');
-  const data = await res.json();
-  return data.data;
-},
+  calculerPenalites: async (numeroFacture: number): Promise<{ penalites: number }> => {
+    const response = await axios.get(`${API_BASE_URL}/factures/${numeroFacture}/penalites`);
+    return extractObject(response);
+  },
 
-// Méthode pour récupérer les factures par statut de paiement
-getFacturesParStatutPaiement: async (statut: string): Promise<FactureAvecPaiement[]> => {
-  const res = await fetch(`${API_BASE_URL}/factures/statut/${statut}`);
-  if (!res.ok) throw new Error(`Erreur lors du chargement des factures ${statut}`);
-  const data = await res.json();
-  return Array.isArray(data.data) ? data.data : [];
-},
-// ---- Statistiques Paiements API ----
-getStatistiquesPaiements: async (): Promise<{
-  total_factures: number;
-  factures_payees: number;
-  factures_en_retard: number;
-  factures_partiellement_payees: number;
-  taux_recouvrement: number;
-  montant_total_attente: number;
-}> => {
-  const res = await fetch(`${API_BASE_URL}/stats/factures-en-attente`);
-  if (!res.ok) throw new Error('Erreur lors du chargement des statistiques');
-  const data = await res.json();
-  return data.data;
-},
+  getFacturesParStatutPaiement: async (statut: string): Promise<FactureAvecPaiement[]> => {
+    const response = await axios.get(`${API_BASE_URL}/factures/statut/${statut}`);
+    return extractData(response);
+  },
 
+  // ---- Statistiques Paiements API ----
+  getStatistiquesPaiements: async (): Promise<{
+    total_factures: number;
+    factures_payees: number;
+    factures_en_retard: number;
+    factures_partiellement_payees: number;
+    taux_recouvrement: number;
+    montant_total_attente: number;
+  }> => {
+    const response = await axios.get(`${API_BASE_URL}/stats/factures-en-attente`);
+    return extractObject(response);
+  },
 
+  getFacturesEnRetard: async (): Promise<FactureAvecPaiement[]> => {
+    const response = await axios.get(`${API_BASE_URL}/factures/statut/en_retard`);
+    return extractData(response);
+  },
 
-// Corriger les méthodes qui utilisent this
-getFacturesEnRetard: async (): Promise<FactureAvecPaiement[]> => {
-  const res = await fetch(`${API_BASE_URL}/factures/statut/en_retard`);
-  if (!res.ok) throw new Error('Erreur lors du chargement des factures en retard');
-  const data = await res.json();
-  return Array.isArray(data.data) ? data.data : [];
-},
+  getFacturesPartiellementPayees: async (): Promise<FactureAvecPaiement[]> => {
+    const response = await axios.get(`${API_BASE_URL}/factures/statut/partiellement_payee`);
+    return extractData(response);
+  },
 
-getFacturesPartiellementPayees: async (): Promise<FactureAvecPaiement[]> => {
-  const res = await fetch(`${API_BASE_URL}/factures/statut/partiellement_payee`);
-  if (!res.ok) throw new Error('Erreur lors du chargement des factures partiellement payées');
-  const data = await res.json();
-  return Array.isArray(data.data) ? data.data : [];
-},
-
-getFacturesNonPayees: async (): Promise<FactureAvecPaiement[]> => {
-  const res = await fetch(`${API_BASE_URL}/factures/statut/non_paye`);
-  if (!res.ok) throw new Error('Erreur lors du chargement des factures non payées');
-  const data = await res.json();
-  return Array.isArray(data.data) ? data.data : [];
-},
+  getFacturesNonPayees: async (): Promise<FactureAvecPaiement[]> => {
+    const response = await axios.get(`${API_BASE_URL}/factures/statut/non_paye`);
+    return extractData(response);
+  },
 
   updateFacture: async (numero: number, factureData: Partial<Facture>): Promise<Facture> => {
-    const res = await fetch(`${API_BASE_URL}/factures/${numero}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(factureData),
-    });
-    const data = await res.json();
-    return data.data;
+    const response = await axios.put(`${API_BASE_URL}/factures/${numero}`, factureData);
+    return extractObject(response);
   },
 
   validerFacture: async (numero: number): Promise<Facture> => {
-    const res = await fetch(`${API_BASE_URL}/factures/${numero}/valider`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-    });
-    const data = await res.json();
-    if (!res.ok || !data.success) throw new Error(data.message || 'Erreur validation facture');
-    return data.data;
-  },
-    annulerFacture: async (numeroFacture: number): Promise<Facture> => {
-    const response = await fetch(`${API_BASE_URL}/factures/${numeroFacture}/annuler`, {
-      method: 'PATCH',
-      headers: HEADERS,
-    });
-    return handleResponse(response);
+    const response = await axios.patch(`${API_BASE_URL}/factures/${numero}/valider`);
+    if (!response.data.success) throw new Error(response.data.message || 'Erreur validation facture');
+    return extractObject(response);
   },
 
-
-
+  annulerFacture: async (numeroFacture: number): Promise<Facture> => {
+    const response = await axios.patch(`${API_BASE_URL}/factures/${numeroFacture}/annuler`);
+    return extractObject(response);
+  },
 
   deleteFacture: async (numero: number): Promise<void> => {
-    await fetch(`${API_BASE_URL}/factures/${numero}`, { method: 'DELETE' });
+    await axios.delete(`${API_BASE_URL}/factures/${numero}`);
   },
 
   // ---- Paiements API ----
   getPaiements: async (): Promise<Paiement[]> => {
-    const res = await fetch(`${API_BASE_URL}/paiements`);
-    const data = await res.json();
-    return Array.isArray(data.data) ? data.data : [];
+    const response = await axios.get(`${API_BASE_URL}/paiements`);
+    return extractData(response);
   },
 
   createPaiement: async (paiementData: Partial<Paiement>): Promise<Paiement> => {
-    const res = await fetch(`${API_BASE_URL}/paiements`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(paiementData),
-    });
-    const data = await res.json();
-    return data.data;
+    const response = await axios.post(`${API_BASE_URL}/paiements`, paiementData);
+    return extractObject(response);
   },
 
   // ---- Devises API ----
   getTauxChange: async (): Promise<TauxChange[]> => {
-    const res = await fetch(`${API_BASE_URL}/devises/taux`);
-    const data = await res.json();
-    return Array.isArray(data.data) ? data.data : [];
+    const response = await axios.get(`${API_BASE_URL}/devises/taux`);
+    return extractData(response);
   },
 };
-
-
 
 // Export des services supplémentaires
 export { paiementApi } from './paiementApi';

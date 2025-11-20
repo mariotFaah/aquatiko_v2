@@ -1,33 +1,33 @@
-// src/modules/comptabilite/routes/rapports.routes.js
 import express from 'express';
 import { RapportController } from '../controllers/RapportController.js';
-import authMiddleware from '../../auth/middleware/authMiddleware.js';
+// ✅ CORRECTION :
+import { auth, requireRole } from '../../../core/middleware/auth.js';
 
 const router = express.Router();
 const rapportController = new RapportController();
 
 // ✅ ROUTES PROTÉGÉES - Rapports financiers (comptable et admin seulement)
 router.get('/bilan', 
-  authMiddleware.authenticate,
-  authMiddleware.requirePermission('comptabilite', 'read'),
+  auth,
+  requireRole('comptable'),
   rapportController.bilan.bind(rapportController)
 );
 
 router.get('/compte-resultat', 
-  authMiddleware.authenticate,
-  authMiddleware.requirePermission('comptabilite', 'read'),
+  auth,
+  requireRole('comptable'),
   rapportController.compteResultat.bind(rapportController)
 );
 
 router.get('/tresorerie', 
-  authMiddleware.authenticate,
-  authMiddleware.requirePermission('comptabilite', 'read'),
+  auth,
+  requireRole('comptable'),
   rapportController.tresorerie.bind(rapportController)
 );
 
 router.get('/tva', 
-  authMiddleware.authenticate,
-  authMiddleware.requirePermission('comptabilite', 'read'),
+  auth,
+  requireRole('comptable'),
   rapportController.tva.bind(rapportController)
 );
 

@@ -1,14 +1,15 @@
 import axios from 'axios';
+import { authApi } from '../auth/services/authApi';
 
-export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3001/api',
+const instance = axios.create({
+  baseURL: 'http://localhost:3001/api',
   timeout: 10000,
 });
 
-// Intercepteur pour ajouter le token automatiquement
-api.interceptors.request.use(
+// Intercepteur pour ajouter le token aux requêtes
+instance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('authToken');
+    const token = authApi.getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -18,3 +19,18 @@ api.interceptors.request.use(
     return Promise.reject(error);
   }
 );
+
+// Intercepteur pour gérer les erreurs d'authentification
+instance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Token expiré ou invalide
+      authApi.logout();
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
+export default instance;

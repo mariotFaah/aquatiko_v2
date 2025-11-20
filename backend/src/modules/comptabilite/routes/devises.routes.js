@@ -1,6 +1,7 @@
 import express from 'express';
 import { DeviseController } from '../controllers/DeviseController.js';
-import authMiddleware from '../../auth/middleware/authMiddleware.js'; // ✅ Nouveau import
+// ✅ CORRECTION :
+import { auth, requireRole } from '../../../core/middleware/auth.js';
 
 const router = express.Router();
 const deviseController = new DeviseController();
@@ -11,8 +12,8 @@ router.get('/taux', deviseController.getTauxActifs.bind(deviseController));
 
 // ✅ ROUTE PROTÉGÉE - Mise à jour des taux (comptable et admin seulement)
 router.post('/taux', 
-  authMiddleware.authenticate,
-  authMiddleware.requirePermission('comptabilite', 'write'),
+  auth,
+  requireRole('comptable'),
   deviseController.updateTaux.bind(deviseController)
 );
 

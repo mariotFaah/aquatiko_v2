@@ -2,11 +2,12 @@
 import type { RouteObject } from 'react-router-dom';
 import { MainLayout } from '../../core/layouts/MainLayout';
 import DashboardPage from '../../core/pages/DashboardPage';
-import LoginPage from '../../core/auth/pages/LoginPage'; // ✅ Corriger l'import
+import LoginPage from '../../core/auth/pages/LoginPage';
 import { comptabiliteRoutes } from '../../modules/comptabilite/routes';
 import { importExportRoutes } from '../../modules/import-export/routes';
 import CRMRoutes from '../../modules/crm/routes';
-import { ProtectedRoute } from '../../core/auth/components/ProtectedRoute'; // ✅ Nouvel import
+import { ProtectedRoute } from '../../core/auth/components/ProtectedRoute';
+;
 
 export const routes: RouteObject[] = [
   {
@@ -25,33 +26,42 @@ export const routes: RouteObject[] = [
         index: true,
         element: <DashboardPage />,
       },
-      // Modules avec différentes structures
+     
+      {
+        path: 'admin/users',
+        element: (
+          <ProtectedRoute requiredRole="admin">
+            <div>
+              <h1>Gestion des Utilisateurs</h1>
+              <p>Interface à implémenter</p>
+              <p>Accès réservé aux administrateurs</p>
+            </div>
+          </ProtectedRoute>
+        ),
+      },
+     
       ...comptabiliteRoutes.map(route => ({
         ...route,
         element: (
-          <ProtectedRoute 
-            requiredPermission={{ module: 'comptabilite', action: 'read' }}
-          >
+          <ProtectedRoute requiredRole="comptable">
             {route.element}
           </ProtectedRoute>
         )
       })),
+     
       ...importExportRoutes.map(route => ({
         ...route,
         element: (
-          <ProtectedRoute 
-            requiredPermission={{ module: 'import-export', action: 'read' }}
-          >
+          <ProtectedRoute requiredRole="commercial">
             {route.element}
           </ProtectedRoute>
         )
       })),
+     
       {
         path: 'crm/*',
         element: (
-          <ProtectedRoute 
-            requiredPermission={{ module: 'crm', action: 'read' }}
-          >
+          <ProtectedRoute requiredRole="commercial">
             <CRMRoutes />
           </ProtectedRoute>
         ), 

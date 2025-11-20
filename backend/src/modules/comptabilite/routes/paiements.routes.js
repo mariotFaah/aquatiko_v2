@@ -1,40 +1,40 @@
-// src/modules/comptabilite/routes/paiements.routes.js
 import express from 'express';
 import { PaiementController } from '../controllers/PaiementController.js';
-import authMiddleware from '../../auth/middleware/authMiddleware.js';
+// ✅ CORRECTION :
+import { auth, requireRole } from '../../../core/middleware/auth.js';
 
 const router = express.Router();
 const paiementController = new PaiementController();
 
 // ✅ ROUTES PROTÉGÉES - Lecture pour utilisateurs authentifiés
 router.get('/', 
-  authMiddleware.authenticate,
-  authMiddleware.requirePermission('comptabilite', 'read'),
+  auth,
+  requireRole('comptable'),
   paiementController.getAll.bind(paiementController)
 );
 
 router.get('/facture/:numero_facture', 
-  authMiddleware.authenticate,
-  authMiddleware.requirePermission('comptabilite', 'read'),
+  auth,
+  requireRole('comptable'),
   paiementController.getByFacture.bind(paiementController)
 );
 
 router.get('/:id', 
-  authMiddleware.authenticate,
-  authMiddleware.requirePermission('comptabilite', 'read'),
+  auth,
+  requireRole('comptable'),
   paiementController.getById.bind(paiementController)
 );
 
 // ✅ ROUTES PROTÉGÉES - Écriture (comptable et admin seulement)
 router.post('/', 
-  authMiddleware.authenticate,
-  authMiddleware.requirePermission('comptabilite', 'write'),
+  auth,
+  requireRole('comptable'),
   paiementController.create.bind(paiementController)
 );
 
 router.put('/:id', 
-  authMiddleware.authenticate,
-  authMiddleware.requirePermission('comptabilite', 'write'),
+  auth,
+  requireRole('comptable'),
   paiementController.update.bind(paiementController)
 );
 

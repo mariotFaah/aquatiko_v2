@@ -1,91 +1,99 @@
-/**
- * Utilitaires de réponse standardisés
- */
+// src/core/utils/response.js
 
-// Nouvelles fonctions (pour Import/Export)
-export const sendSuccess = (res, data, message = 'Succès', statusCode = 200) => {
-  res.status(statusCode).json({
-    success: true,
-    message,
-    data,
-    timestamp: new Date().toISOString()
-  });
-};
+// === RÉPONSES DE SUCCÈS ===
 
-export const sendError = (res, statusCode, message = 'Erreur', error = null) => {
+// Version principale
+export const successResponse = (res, message, data = null, statusCode = 200) => {
   const response = {
-    success: false,
-    message,
-    timestamp: new Date().toISOString()
+    success: true,
+    message: message
   };
 
-  if (process.env.NODE_ENV === 'development' && error) {
-    response.error = error;
+  if (data !== null) {
+    response.data = data;
   }
 
-  res.status(statusCode).json(response);
+  return res.status(statusCode).json(response);
 };
 
-// Anciennes fonctions (pour Comptabilité)
-export const successResponse = (res, data, message = 'Succès') => {
-  res.status(200).json({
-    success: true,
-    message,
-    data,
-    timestamp: new Date().toISOString()
-  });
+export const createdResponse = (res, message, data = null) => {
+  return successResponse(res, message, data, 201);
 };
 
-export const createdResponse = (res, data, message = 'Créé avec succès') => {
-  res.status(201).json({
-    success: true,
-    message,
-    data,
-    timestamp: new Date().toISOString()
-  });
-};
+// === RÉPONSES D'ERREUR ===
 
-export const errorResponse = (res, message = 'Erreur', statusCode = 500, error = null) => {
+// Version principale
+export const errorResponse = (res, message, statusCode = 400, errors = null) => {
   const response = {
     success: false,
-    message,
-    timestamp: new Date().toISOString()
+    message: message
   };
 
-  if (process.env.NODE_ENV === 'development' && error) {
-    response.error = error;
+  if (errors !== null) {
+    response.errors = errors;
   }
 
-  res.status(statusCode).json(response);
+  return res.status(statusCode).json(response);
 };
 
-// Alias pour compatibilité
-export const notFoundResponse = (res, message = 'Non trouvé') => {
-  errorResponse(res, message, 404);
+export const unauthorizedResponse = (res, message = 'Non autorisé') => {
+  return errorResponse(res, message, 401);
 };
 
-export const badRequestResponse = (res, message = 'Requête invalide') => {
-  errorResponse(res, message, 400);
+export const forbiddenResponse = (res, message = 'Accès refusé') => {
+  return errorResponse(res, message, 403);
 };
 
-// Export pour DeviseController
-export const Response = {
-  sendSuccess,
-  sendError,
-  successResponse,
-  createdResponse,
-  errorResponse,
-  notFoundResponse,
-  badRequestResponse
+export const notFoundResponse = (res, message = 'Ressource non trouvée') => {
+  return errorResponse(res, message, 404);
 };
 
+export const serverErrorResponse = (res, message = 'Erreur interne du serveur') => {
+  return errorResponse(res, message, 500);
+};
+
+// === ALIAS POUR COMPATIBILITÉ ===
+
+// Pour UserManagementController
+export const responseSuccess = successResponse;
+export const responseError = errorResponse;
+export const responseCreated = createdResponse;
+
+// Pour TiersController
+export const sendSuccess = successResponse;
+export const sendError = errorResponse;
+
+// Pour DeviseController
+
+// Pour les autres contrôleurs qui pourraient utiliser d'autres noms
+export const sendResponse = successResponse;
+export const sendCreated = createdResponse;
+export const sendNotFound = notFoundResponse;
+export const sendServerError = serverErrorResponse;
+export const sendForbidden = forbiddenResponse;
+export const sendUnauthorized = unauthorizedResponse;
+
+// === EXPORT PAR DÉFAUT ===
 export default {
-  sendSuccess,
-  sendError,
+  // Succès
   successResponse,
   createdResponse,
+  responseSuccess,
+  responseCreated,
+  sendSuccess,
+  sendResponse,
+  sendCreated,
+  
+  // Erreurs
   errorResponse,
+  unauthorizedResponse,
+  forbiddenResponse,
   notFoundResponse,
-  badRequestResponse,
-  Response
+  serverErrorResponse,
+  responseError,
+  sendError,
+  sendNotFound,
+  sendServerError,
+  sendForbidden,
+  sendUnauthorized
 };

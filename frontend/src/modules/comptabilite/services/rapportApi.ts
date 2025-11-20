@@ -1,4 +1,5 @@
-// src/modules/comptabilite/services/rapportApi.ts - VERSION FINALE AVEC DONNÉES RÉELLES
+// src/modules/comptabilite/services/rapportApi.ts - VERSION CORRIGÉE
+import axios from '../../../core/config/axios';
 import type { 
   RapportBilan, 
   RapportCompteResultat, 
@@ -6,16 +7,22 @@ import type {
   RapportTresorerie 
 } from '../types';
 
-const API_BASE_URL = 'http://localhost:3001/api/comptabilite';
-// const API_BASE_URL = 'https://sentence-hands-therapy-surely.trycloudflare.com/api/comptabilite';
+const API_BASE_URL = '/comptabilite';
 
-// Types pour la réponse API standardisée
-interface ApiResponse<T> {
-  success: boolean;
-  message: string;
-  data: T;
-  timestamp: string;
-}
+// ✅ UTILISER les mêmes fonctions helper que dans api.ts
+const extractObject = (response: any): any => {
+  console.log('📊 Structure de la réponse rapports:', response.data);
+  
+  if (response.data.success && response.data.data) {
+    return response.data.data;
+  } else if (response.data.success && response.data.message && typeof response.data.message === 'object') {
+    return response.data.message;
+  } else if (response.data.data) {
+    return response.data.data;
+  }
+  
+  return response.data;
+};
 
 export const rapportApi = {
   /**
@@ -23,27 +30,19 @@ export const rapportApi = {
    */
   getBilan: async (date?: string): Promise<RapportBilan> => {
     try {
-      const url = date 
-        ? `${API_BASE_URL}/rapports/bilan?date=${date}`
-        : `${API_BASE_URL}/rapports/bilan`;
+      const params = date ? { date } : {};
       
-      console.log('📊 Chargement bilan depuis:', url);
+      console.log('📊 Chargement bilan avec params:', params);
       
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`Erreur HTTP ${res.status} lors du chargement du bilan`);
+      const response = await axios.get(`${API_BASE_URL}/rapports/bilan`, { params });
+      const bilan = extractObject(response);
       
-      const data: ApiResponse<RapportBilan> = await res.json();
+      console.log('✅ Bilan chargé avec succès:', bilan);
+      return bilan || {};
       
-      if (!data.success) {
-        throw new Error(data.message || 'Erreur lors de la récupération du bilan');
-      }
-      
-      console.log('✅ Bilan chargé avec succès:', data.data);
-      return data.data || {};
-      
-    } catch (error) {
-      console.error('❌ Erreur dans getBilan:', error);
-      throw new Error(`Impossible de charger le bilan: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
+    } catch (error: any) {
+      console.error('❌ Erreur dans getBilan:', error.response?.data || error.message);
+      throw new Error(`Impossible de charger le bilan: ${error.message}`);
     }
   },
 
@@ -52,32 +51,26 @@ export const rapportApi = {
    */
   getCompteResultat: async (date_debut?: string, date_fin?: string): Promise<RapportCompteResultat> => {
     try {
-      const params = new URLSearchParams();
-      if (date_debut) params.append('date_debut', date_debut);
-      if (date_fin) params.append('date_fin', date_fin);
+      const params: any = {};
+      if (date_debut) params.date_debut = date_debut;
+      if (date_fin) params.date_fin = date_fin;
       
-      const queryString = params.toString();
-      const url = queryString 
-        ? `${API_BASE_URL}/rapports/compte-resultat?${queryString}` 
-        : `${API_BASE_URL}/rapports/compte-resultat`;
+      console.log('📈 Chargement compte résultat avec params:', params);
       
-      console.log('📈 Chargement compte résultat depuis:', url);
+      const response = await axios.get(`${API_BASE_URL}/rapports/compte-resultat`, { params });
+      const compteResultat = extractObject(response);
       
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`Erreur HTTP ${res.status} lors du chargement du compte de résultat`);
+      console.log('✅ Compte résultat chargé:', compteResultat);
+      return compteResultat || { 
+        charges: 0, 
+        produits: 0, 
+        resultat_net: 0, 
+        periode: `${date_debut || '2024-01-01'} à ${date_fin || new Date().toISOString().split('T')[0]}` 
+      };
       
-      const data: ApiResponse<RapportCompteResultat> = await res.json();
-      
-      if (!data.success) {
-        throw new Error(data.message || 'Erreur lors de la récupération du compte de résultat');
-      }
-      
-      console.log('✅ Compte résultat chargé:', data.data);
-      return data.data || { charges: 0, produits: 0, resultat_net: 0, periode: `${date_debut || '2024-01-01'} à ${date_fin || new Date().toISOString().split('T')[0]}` };
-      
-    } catch (error) {
-      console.error('❌ Erreur dans getCompteResultat:', error);
-      throw new Error(`Impossible de charger le compte de résultat: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
+    } catch (error: any) {
+      console.error('❌ Erreur dans getCompteResultat:', error.response?.data || error.message);
+      throw new Error(`Impossible de charger le compte de résultat: ${error.message}`);
     }
   },
 
@@ -86,37 +79,26 @@ export const rapportApi = {
    */
   getTresorerie: async (date_debut?: string, date_fin?: string): Promise<RapportTresorerie> => {
     try {
-      const params = new URLSearchParams();
-      if (date_debut) params.append('date_debut', date_debut);
-      if (date_fin) params.append('date_fin', date_fin);
+      const params: any = {};
+      if (date_debut) params.date_debut = date_debut;
+      if (date_fin) params.date_fin = date_fin;
       
-      const queryString = params.toString();
-      const url = queryString 
-        ? `${API_BASE_URL}/rapports/tresorerie?${queryString}` 
-        : `${API_BASE_URL}/rapports/tresorerie`;
+      console.log('💰 Chargement trésorerie avec params:', params);
       
-      console.log('💰 Chargement trésorerie depuis:', url);
+      const response = await axios.get(`${API_BASE_URL}/rapports/tresorerie`, { params });
+      const tresorerie = extractObject(response);
       
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`Erreur HTTP ${res.status} lors du chargement de la trésorerie`);
-      
-      const data: ApiResponse<RapportTresorerie> = await res.json();
-      
-      if (!data.success) {
-        throw new Error(data.message || 'Erreur lors de la récupération de la trésorerie');
-      }
-      
-      console.log('✅ Trésorerie chargée:', data.data);
-      return data.data || { 
+      console.log('✅ Trésorerie chargée:', tresorerie);
+      return tresorerie || { 
         entrees: 0, 
         sorties_prevues: 0, 
         solde_tresorerie: 0, 
         periode: `${date_debut || '2024-01-01'} à ${date_fin || new Date().toISOString().split('T')[0]}` 
       };
       
-    } catch (error) {
-      console.error('❌ Erreur dans getTresorerie:', error);
-      throw new Error(`Impossible de charger la trésorerie: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
+    } catch (error: any) {
+      console.error('❌ Erreur dans getTresorerie:', error.response?.data || error.message);
+      throw new Error(`Impossible de charger la trésorerie: ${error.message}`);
     }
   },
 
@@ -125,33 +107,22 @@ export const rapportApi = {
    */
   getTVA: async (date_debut?: string, date_fin?: string): Promise<RapportTVA> => {
     try {
-      const params = new URLSearchParams();
-      if (date_debut) params.append('date_debut', date_debut);
-      if (date_fin) params.append('date_fin', date_fin);
+      const params: any = {};
+      if (date_debut) params.date_debut = date_debut;
+      if (date_fin) params.date_fin = date_fin;
       
-      const queryString = params.toString();
-      const url = queryString 
-        ? `${API_BASE_URL}/rapports/tva?${queryString}` 
-        : `${API_BASE_URL}/rapports/tva`;
+      console.log('🧾 Chargement TVA avec params:', params);
       
-      console.log('🧾 Chargement TVA depuis:', url);
-      
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`Erreur HTTP ${res.status} lors du chargement de la TVA`);
-      
-      const data: ApiResponse<RapportTVA> = await res.json();
-      
-      if (!data.success) {
-        throw new Error(data.message || 'Erreur lors de la récupération de la TVA');
-      }
+      const response = await axios.get(`${API_BASE_URL}/rapports/tva`, { params });
+      const tva = extractObject(response);
       
       console.log('✅ TVA chargée avec succès - Données RÉELLES:', {
-        collectee: data.data.tva_collectee,
-        deductible: data.data.tva_deductable,
-        a_payer: data.data.tva_a_payer
+        collectee: tva.tva_collectee,
+        deductible: tva.tva_deductable,
+        a_payer: tva.tva_a_payer
       });
       
-      return data.data || { 
+      return tva || { 
         tva_collectee: 0, 
         tva_deductable: 0, 
         tva_a_payer: 0,
@@ -159,9 +130,9 @@ export const rapportApi = {
         nombre_ecritures: 0
       };
       
-    } catch (error) {
-      console.error('❌ Erreur dans getTVA:', error);
-      throw new Error(`Impossible de charger la TVA: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
+    } catch (error: any) {
+      console.error('❌ Erreur dans getTVA:', error.response?.data || error.message);
+      throw new Error(`Impossible de charger la TVA: ${error.message}`);
     }
   }
 };

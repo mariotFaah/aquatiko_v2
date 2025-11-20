@@ -1,18 +1,46 @@
 import express from 'express';
 import { ContratController } from '../controllers/ContratController.js';
+// ✅ AJOUT :
+import { auth, requireRole } from '../../../core/middleware/auth.js';
 
 const router = express.Router();
 const contratController = new ContratController();
 
-// Routes pour les contrats
-router.get('/', contratController.getAllContrats);
-router.get('/stats', contratController.getContratStats);
-router.get('/:id', contratController.getContratById);
-router.post('/', contratController.createContrat);
-router.put('/:id', contratController.updateContrat);
-router.patch('/:id/statut', contratController.updateContratStatut);
+// Routes pour les contrats - PROTÉGÉES (commercial et admin)
+router.get('/', 
+  auth,
+  requireRole('commercial'),
+  contratController.getAllContrats
+);
 
-// Routes pour les contrats par client (déjà existantes via clients.routes.js)
-// Elles restent accessibles via /api/crm/clients/:clientId/contrats
+router.get('/stats', 
+  auth,
+  requireRole('commercial'),
+  contratController.getContratStats
+);
+
+router.get('/:id', 
+  auth,
+  requireRole('commercial'),
+  contratController.getContratById
+);
+
+router.post('/', 
+  auth,
+  requireRole('commercial'),
+  contratController.createContrat
+);
+
+router.put('/:id', 
+  auth,
+  requireRole('commercial'),
+  contratController.updateContrat
+);
+
+router.patch('/:id/statut', 
+  auth,
+  requireRole('commercial'),
+  contratController.updateContratStatut
+);
 
 export default router;

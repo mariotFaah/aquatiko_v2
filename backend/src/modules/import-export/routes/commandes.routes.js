@@ -1,10 +1,13 @@
+// src/modules/import-export/routes/commandes.routes.js
 import express from 'express';
 import CommandeController from '../controllers/CommandeController.js';
+// ✅ AJOUT : Importer le middleware (optionnel - déjà protégé au niveau supérieur)
+// import { auth, requireRole } from '../../../core/middleware/auth.js';
 
 const router = express.Router();
 const commandeController = new CommandeController();
 
-// Routes pour les commandes
+// Routes pour les commandes - DÉJÀ PROTÉGÉES PAR LE MIDDLEWARE SUPÉRIEUR
 router.get('/', commandeController.getAll);
 router.get('/:id', commandeController.getById);
 router.post('/', commandeController.create);

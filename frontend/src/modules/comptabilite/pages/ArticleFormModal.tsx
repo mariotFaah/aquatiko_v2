@@ -15,26 +15,61 @@ interface Props {
 
 type ArticleFormData = Omit<Article, 'actif' | 'created_at' | 'updated_at'>;
 
-export const ArticleFormModal: React.FC<Props> = ({ article, nextArticleCode, onClose, onSave }) => {
-  const [form, setForm] = useState<ArticleFormData>(
-    article ? {
-      code_article: article.code_article,
-      description: article.description,
-      prix_unitaire: Number(article.prix_unitaire),
-      taux_tva: Number(article.taux_tva),
-      unite: article.unite,
-      quantite_stock: article.quantite_stock ?? 0,
-      seuil_alerte: article.seuil_alerte ?? 5,
-    } : {
-      code_article: nextArticleCode || 'ART001',
-      description: '',
-      prix_unitaire: 0,
-      taux_tva: 20,
-      unite: 'unite',
-      quantite_stock: 0,
-      seuil_alerte: 5,
-    }
-  );
+export const ArticleFormModal: React.FC<Props> = ({ article, onClose, onSave }) => {
+  
+
+  // Fonction pour générer un code article unique
+const generateUniqueArticleCode = async (): Promise<string> => {
+  try {
+    const articles = await comptabiliteApi.getArticles();
+    
+    // Trouver le plus grand code numérique existant
+    const existingCodes = articles
+      .map(article => article.code_article)
+      .filter(code => code.startsWith('ART'))
+      .map(code => parseInt(code.replace('ART', '')) || 0);
+    
+    const maxCode = existingCodes.length > 0 ? Math.max(...existingCodes) : 0;
+    const nextCode = maxCode + 1;
+    
+    return `ART${nextCode.toString().padStart(3, '0')}`;
+  } catch (error) {
+    console.error('Erreur génération code article:', error);
+    // Fallback basé sur le timestamp
+    return `ART${Date.now().toString().slice(-3)}`;
+  }
+};
+
+const [form, setForm] = useState<ArticleFormData>(
+  article ? {
+    code_article: article.code_article,
+    description: article.description,
+    prix_unitaire: Number(article.prix_unitaire),
+    taux_tva: Number(article.taux_tva),
+    unite: article.unite,
+    quantite_stock: article.quantite_stock ?? 0,
+    seuil_alerte: article.seuil_alerte ?? 5,
+  } : {
+    code_article: '', // Laisser vide initialement
+    description: '',
+    prix_unitaire: 0,
+    taux_tva: 20,
+    unite: 'unite',
+    quantite_stock: 0,
+    seuil_alerte: 5,
+  }
+);
+
+// Générer le code unique au chargement du composant
+React.useEffect(() => {
+  if (!article) {
+    const generateCode = async () => {
+      const uniqueCode = await generateUniqueArticleCode();
+      setForm(prev => ({ ...prev, code_article: uniqueCode }));
+    };
+    generateCode();
+  }
+}, [article]);
 
   const [saving, setSaving] = useState(false);
   const [showStockFields, setShowStockFields] = useState(

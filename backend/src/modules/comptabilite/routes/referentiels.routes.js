@@ -1,7 +1,7 @@
-// src/modules/comptabilite/routes/referentiels.routes.js
 import express from 'express';
 import { ReferentielController } from '../controllers/ReferentielController.js';
-import authMiddleware from '../../auth/middleware/authMiddleware.js';
+// ✅ CORRECTION :
+import { auth, requireRole } from '../../../core/middleware/auth.js';
 
 const router = express.Router();
 const referentielController = new ReferentielController();
@@ -13,15 +13,15 @@ router.get('/taux-tva', referentielController.getTauxTVA.bind(referentielControl
 
 // ✅ ROUTES PROTÉGÉES - Plan comptable (utilisateurs authentifiés)
 router.get('/plan-comptable', 
-  authMiddleware.authenticate,
-  authMiddleware.requirePermission('comptabilite', 'read'),
+  auth,
+  requireRole('comptable'),
   referentielController.getPlanComptable.bind(referentielController)
 );
 
 // ✅ ROUTE PROTÉGÉE - Ajout compte (comptable et admin seulement)
 router.post('/plan-comptable', 
-  authMiddleware.authenticate,
-  authMiddleware.requirePermission('comptabilite', 'write'),
+  auth,
+  requireRole('comptable'),
   (req, res) => referentielController.addCompteComptable(req, res)
 );
 
