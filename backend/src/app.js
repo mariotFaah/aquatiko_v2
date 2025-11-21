@@ -11,11 +11,9 @@ import { testConnection } from './core/database/connection.js';
 import comptabiliteRoutes from './modules/comptabilite/routes/index.js';
 import importExportRoutes from './modules/import-export/routes/index.js';
 import initCRMModule from './modules/crm/index.js'; 
+import { initAuthModule } from './modules/auth/index.js';
 
-// Module d'authentification seulement
-import authRoutes from './modules/auth/routes/auth.routes.js';
 
-// ✅ NOUVEAU : Middleware d'authentification simple
 import { auth } from './core/middleware/auth.js';
 
 dotenv.config();
@@ -44,20 +42,44 @@ app.get('/api/health', async (req, res) => {
   });
 });
 
-// ✅ ROUTE AUTH (publique)
-app.use('/api/auth', authRoutes);
 
-// ✅ ROUTE SIMPLE POUR GESTION UTILISATEURS (admin seulement)
-app.get('/api/admin/users', auth, (req, res) => {
+
+initAuthModule(app);
+
+// ✅ ROUTE TEMPORAIRE POUR TESTER LA GESTION UTILISATEURS
+app.get('/api/auth/users-test', auth, (req, res) => {
   if (req.user.role !== 'admin') {
-    return res.status(403).json({ error: 'Accès réservé aux administrateurs' });
+    return res.status(403).json({ 
+      success: false,
+      message: 'Accès réservé aux administrateurs' 
+    });
   }
-  res.json({ 
-    message: 'Gestion des utilisateurs - Endpoint à implémenter',
-    users: [
-      { id: 1, email: 'admin@aquatiko.mg', role: 'admin' },
-      { id: 2, email: 'comptable@aquatiko.mg', role: 'comptable' },
-      { id: 3, email: 'commercial@aquatiko.mg', role: 'commercial' }
+  
+  // Données temporaires pour tester
+  res.json({
+    success: true,
+    message: 'Liste des utilisateurs (test)',
+    data: [
+      { 
+        id: 15, 
+        email: 'admin@aquatiko.mg', 
+        nom: 'Admin', 
+        prenom: 'Principal',
+        role: 'admin',
+        is_active: true,
+        last_login: new Date().toISOString(),
+        created_at: new Date().toISOString()
+      },
+      { 
+        id: 16, 
+        email: 'comptable@aquatiko.mg', 
+        nom: 'Comptable', 
+        prenom: 'Marie',
+        role: 'comptable', 
+        is_active: true,
+        last_login: null,
+        created_at: new Date().toISOString()
+      }
     ]
   });
 });

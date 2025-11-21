@@ -13,15 +13,15 @@ export const usePermissions = () => {
   };
 
   const isAdmin = (): boolean => {
-    return user?.code_role === 'admin';
+    return user?.role === 'admin';
   };
 
   const isComptable = (): boolean => {
-    return user?.code_role === 'comptable';
+    return user?.role === 'comptable';
   };
 
   const isCommercial = (): boolean => {
-    return user?.code_role === 'commercial';
+    return user?.role === 'commercial';
   };
 
   return {
@@ -32,6 +32,6 @@ export const usePermissions = () => {
     isCommercial,
     hasPermission,
     hasRole,
-    userRole: user?.code_role
+    userRole: user?.role
   };
 };

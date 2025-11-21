@@ -24,6 +24,19 @@ const AnalysesMargePage: React.FC = () => {
     chargerDonnees();
   }, [filtres]);
 
+  // Ajoutez ce useEffect APRÈS vos autres useEffect
+useEffect(() => {
+  console.log('🔍 [STATE] analyseData.marges:', analyseData.marges);
+  console.log('🔍 [STATE] Taille du Map:', analyseData.marges.size);
+  console.log('🔍 [STATE] Commandes avec marge:', 
+    Array.from(analyseData.marges.entries()).map(([id, marge]) => ({ 
+      id, 
+      marge,
+      hasCouts: marge.total_couts > 0
+    }))
+  );
+}, [analyseData.marges]);
+
   const chargerDonnees = async () => {
     try {
       setAnalyseData(prev => ({ ...prev, loading: true }));
@@ -235,7 +248,11 @@ const AnalysesMargePage: React.FC = () => {
               <tbody>
                 {analyseData.commandes.map(commande => {
                   const marge = analyseData.marges.get(commande.id);
-                  const isValidMarge = marge && marge.chiffre_affaires > 0;
+                  console.log(`🔍 [RENDER] Commande ${commande.id} (${commande.numero_commande})`);
+                  console.log(`🔍 [RENDER] Marge disponible:`, marge);
+                  console.log(`🔍 [RENDER] total_couts:`, marge?.total_couts);
+                  console.log(`🔍 [RENDER] isValidMarge:`, marge && marge.chiffre_affaires > 0);
+                                  const isValidMarge = marge && marge.chiffre_affaires > 0;
                   
                   return (
                     <tr key={commande.id}>

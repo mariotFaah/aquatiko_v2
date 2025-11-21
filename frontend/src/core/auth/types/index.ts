@@ -1,14 +1,26 @@
-// frontend/src/core/auth/types/index.ts
-
 // Types pour le système d'authentification
 export interface User {
   id: number;
   email: string;
   nom: string;
+  prenom: string;
   role: 'admin' | 'comptable' | 'commercial';
-  prenom?: string;
-  code_role?: string;
   nom_role?: string;
+  is_active?: boolean;
+  last_login?: string;
+  created_at?: string;
+  // Supprimez code_role ou ajoutez-le si nécessaire
+  // code_role?: string; // Décommentez si vous en avez besoin
+}
+
+// Ajoutez ces interfaces pour les permissions
+export interface Permission {
+  module: string;
+  actions: string[];
+}
+
+export interface UserWithPermissions extends User {
+  permissions?: Permission[];
 }
 
 export interface LoginCredentials {
@@ -26,13 +38,6 @@ export interface ApiResponse<T = any> {
 export interface LoginResponse {
   user: User;
   token: string;
-  expiresIn?: number;
-}
-
-export interface ValidateTokenResponse {
-  user: User;
-  isValid: boolean;
-  expiresAt?: string;
 }
 
 export interface AuthResponse {
@@ -48,12 +53,46 @@ export interface ApiError {
   statusCode?: number;
 }
 
-// Types pour les permissions
-export interface Permission {
-  module: string;
-  actions: string[];
+// Types pour la gestion des utilisateurs (admin)
+export interface CreateUserData {
+  email: string;
+  password: string;
+  nom: string;
+  prenom: string;
+  role: 'admin' | 'comptable' | 'commercial';
 }
 
-export interface UserWithPermissions extends User {
-  permissions?: Permission[];
+export interface UpdateUserData {
+  email?: string;
+  nom?: string;
+  prenom?: string;
+  role?: 'admin' | 'comptable' | 'commercial';
+}
+
+export interface UserListResponse {
+  users: User[];
+}
+
+// État d'authentification
+export interface AuthState {
+  user: User | null;
+  token: string | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+}
+
+// Ajoutez cette interface
+export interface ValidateTokenResponse {
+  success: boolean;
+  message: string;
+  data: {
+    user: User;
+    isValid: boolean;
+  };
+}
+
+export interface AuthContextType extends AuthState {
+  login: (credentials: LoginCredentials) => Promise<void>;
+  logout: () => void;
+  validateToken: () => Promise<boolean>;
 }

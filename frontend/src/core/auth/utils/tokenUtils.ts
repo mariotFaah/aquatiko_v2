@@ -1,4 +1,3 @@
-// src/core/auth/utils/tokenUtils.ts
 class TokenUtils {
   private readonly TOKEN_KEY = 'aquatiko_token';
   private readonly USER_KEY = 'aquatiko_user';

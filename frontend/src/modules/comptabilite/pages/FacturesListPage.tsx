@@ -229,7 +229,7 @@ export const FacturesListPage: React.FC = () => {
           
           <div className="ms-crm-filters">
             <div className="ms-crm-filter-group">
-              <label className="ms-crm-filter-label">Statut:</label>
+              {/*<label className="ms-crm-filter-label">Statut:</label>*/}
               <select
                 value={filter}
                 onChange={(e) => setFilter(e.target.value as any)}
@@ -238,16 +238,16 @@ export const FacturesListPage: React.FC = () => {
                 <option value="all">📋 Tous les statuts</option>
                 <option value="brouillon">📝 Brouillons</option>
                 <option value="validee">✅ Validées</option>
-                <option value="payee">💰 Payées</option>
+                {/*<option value="payee">💰 Payées</option>
                 <option value="partiellement_payee">🔄 Partiellement payées</option>
-                <option value="en_retard">⏰ En retard</option>
+                <option value="en_retard">⏰ En retard</option>*/}
                 <option value="annulee">❌ Annulées</option>
               </select>
             </div>
 
             <div className="ms-crm-filter-group">
-              <label className="ms-crm-filter-label">Type:</label>
-              <select
+{ /*             <label className="ms-crm-filter-label">Type:</label>*/
+}              <select
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value as any)}
                 className="ms-crm-filter-select"
@@ -444,48 +444,6 @@ export const FacturesListPage: React.FC = () => {
             )}
           </div>
         </div>
-
-        {/* Quick Stats */}
-        {filteredFactures.length > 0 && (
-          <div className="ms-crm-stats-grid">
-            <div className="ms-crm-stat-card">
-              <div className="ms-crm-stat-icon">💰</div>
-              <div className="ms-crm-stat-content">
-                <div className="ms-crm-stat-value">
-                  {factures.filter(f => f.statut === 'payee').length}
-                </div>
-                <div className="ms-crm-stat-label">Payées</div>
-              </div>
-            </div>
-            <div className="ms-crm-stat-card">
-              <div className="ms-crm-stat-icon">⏰</div>
-              <div className="ms-crm-stat-content">
-                <div className="ms-crm-stat-value">
-                  {factures.filter(f => estEnRetard(f)).length}
-                </div>
-                <div className="ms-crm-stat-label">En retard</div>
-              </div>
-            </div>
-            <div className="ms-crm-stat-card">
-              <div className="ms-crm-stat-icon">📝</div>
-              <div className="ms-crm-stat-content">
-                <div className="ms-crm-stat-value">
-                  {factures.filter(f => f.statut === 'brouillon').length}
-                </div>
-                <div className="ms-crm-stat-label">Brouillons</div>
-              </div>
-            </div>
-            <div className="ms-crm-stat-card">
-              <div className="ms-crm-stat-icon">🔄</div>
-              <div className="ms-crm-stat-content">
-                <div className="ms-crm-stat-value">
-                  {factures.filter(f => f.statut === 'partiellement_payee').length}
-                </div>
-                <div className="ms-crm-stat-label">Partielles</div>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
       <AlertDialog

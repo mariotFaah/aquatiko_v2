@@ -27,15 +27,27 @@ const extractData = (response: any): any[] => {
 };
 
 // ✅ FONCTION HELPER pour extraire un objet simple
+// ✅ CORRECTION de la fonction extractObject
 const extractObject = (response: any): any => {
-  if (response.data.success && response.data.data) {
-    return response.data.data;
-  } else if (response.data.success && response.data.message && typeof response.data.message === 'object') {
+  console.log('🔍 [DEBUG] Structure réponse import-export:', response.data);
+  
+  // ✅ CORRECTION : Vérifier d'abord si message est un objet (cas marge)
+  if (response.data.success && response.data.message && typeof response.data.message === 'object') {
+    console.log('✅ Extraction depuis response.data.message');
     return response.data.message;
-  } else if (response.data.data) {
+  }
+  // Ensuite vérifier data
+  else if (response.data.success && response.data.data) {
+    console.log('✅ Extraction depuis response.data.data');
+    return response.data.data;
+  }
+  // Sinon retourner data s'il existe
+  else if (response.data.data) {
+    console.log('✅ Extraction depuis response.data (fallback)');
     return response.data.data;
   }
   
+  console.log('✅ Extraction depuis response.data (final)');
   return response.data;
 };
 
@@ -106,12 +118,20 @@ export const importExportApi = {
 
   // ---- Calcul de Marge API ----
   calculerMarge: async (commandeId: number): Promise<CalculMarge> => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/commandes/${commandeId}/marge`);
-      return extractObject(response);
-    } catch (error: any) {
-      console.error('❌ Erreur calculerMarge:', error.response?.data || error.message);
-      throw error;
-    }
-  },
+  try {
+    console.log(`🔍 Appel API marge pour commande ${commandeId}`);
+    const response = await axios.get(`${API_BASE_URL}/commandes/${commandeId}/marge`);
+    
+    console.log('🔍 Réponse brute marge:', response);
+    console.log('🔍 response.data:', response.data);
+    
+    const margeData = extractObject(response);
+    console.log('🔍 Données marge extraites:', margeData);
+    
+    return margeData;
+  } catch (error: any) {
+    console.error('❌ Erreur calculerMarge:', error.response?.data || error.message);
+    throw error;
+  }
+},
 };

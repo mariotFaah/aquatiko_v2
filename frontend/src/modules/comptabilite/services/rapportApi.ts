@@ -10,17 +10,27 @@ import type {
 const API_BASE_URL = '/comptabilite';
 
 // ✅ UTILISER les mêmes fonctions helper que dans api.ts
+// CORRECTION de la fonction extractObject
 const extractObject = (response: any): any => {
   console.log('📊 Structure de la réponse rapports:', response.data);
   
-  if (response.data.success && response.data.data) {
-    return response.data.data;
-  } else if (response.data.success && response.data.message && typeof response.data.message === 'object') {
+  // ✅ CORRECTION : D'abord vérifier si message est un objet (cas TVA)
+  if (response.data.success && response.data.message && typeof response.data.message === 'object') {
+    console.log('✅ Extraction depuis response.data.message');
     return response.data.message;
-  } else if (response.data.data) {
+  }
+  // Ensuite vérifier data
+  else if (response.data.success && response.data.data) {
+    console.log('✅ Extraction depuis response.data.data');
+    return response.data.data;
+  }
+  // Sinon retourner data s'il existe
+  else if (response.data.data) {
+    console.log('✅ Extraction depuis response.data (fallback)');
     return response.data.data;
   }
   
+  console.log('✅ Extraction depuis response.data (final)');
   return response.data;
 };
 
@@ -103,7 +113,7 @@ export const rapportApi = {
   },
 
   /**
-   * Récupère la déclaration TVA avec les données RÉELLES (581,400 MGA collectée)
+   * Récupère la déclaration TVA avec les données RÉELLES
    */
   getTVA: async (date_debut?: string, date_fin?: string): Promise<RapportTVA> => {
     try {
@@ -114,21 +124,24 @@ export const rapportApi = {
       console.log('🧾 Chargement TVA avec params:', params);
       
       const response = await axios.get(`${API_BASE_URL}/rapports/tva`, { params });
-      const tva = extractObject(response);
+      const tvaData = extractObject(response);
       
-      console.log('✅ TVA chargée avec succès - Données RÉELLES:', {
-        collectee: tva.tva_collectee,
-        deductible: tva.tva_deductable,
-        a_payer: tva.tva_a_payer
-      });
+      console.log('✅ TVA chargée avec succès - Données BRUTES:', tvaData);
       
-      return tva || { 
-        tva_collectee: 0, 
-        tva_deductable: 0, 
-        tva_a_payer: 0,
+      // ✅ CORRECTION : Retourner directement les données car elles correspondent déjà à l'interface RapportTVA
+      const tva: RapportTVA = {
+        tva_collectee: tvaData.tva_collectee || 0,
+        tva_deductable: tvaData.tva_deductable || 0,
+        tva_a_payer: tvaData.tva_a_payer || 0,
         periode: `${date_debut || '2024-01-01'} à ${date_fin || new Date().toISOString().split('T')[0]}`,
-        nombre_ecritures: 0
+        nombre_ecritures: tvaData.nombre_ecritures || 0,
+        details: tvaData.details,
+        note: tvaData.note
       };
+      
+      console.log('✅ TVA transformée - Données FINALES:', tva);
+      
+      return tva;
       
     } catch (error: any) {
       console.error('❌ Erreur dans getTVA:', error.response?.data || error.message);

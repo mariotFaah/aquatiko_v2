@@ -131,22 +131,22 @@ export const ArticlesListPage: React.FC = () => {
 
   // Fonction pour obtenir le badge de statut de stock
   const getStockStatusBadge = (article: Article) => {
-    if (!article.quantite_stock && article.quantite_stock !== 0) return null;
-    
-    const status = article.statut_stock || 'en_stock';
-    const quantite = article.quantite_stock || 0;
-    
-    switch (status) {
-      case 'rupture':
-        return <span className="stock-badge stock-rupture">Rupture</span>;
-      case 'stock_faible':
-        return <span className="stock-badge stock-faible">Faible ({quantite})</span>;
-      case 'en_stock':
-        return <span className="stock-badge stock-normal">Stock ({quantite})</span>;
-      default:
-        return <span className="stock-badge stock-unknown">Inconnu</span>;
-    }
-  };
+  if (!article.quantite_stock && article.quantite_stock !== 0) return null;
+  
+  const status = article.statut_stock || 'disponible'; // ← Changer 'en_stock' par 'disponible'
+  const quantite = article.quantite_stock || 0;
+  
+  switch (status) {
+    case 'rupture':
+      return <span className="stock-badge stock-rupture">Rupture</span>;
+    case 'stock_faible':
+      return <span className="stock-badge stock-faible">Faible ({quantite})</span>;
+    case 'disponible': // ← Changer 'en_stock' par 'disponible'
+      return <span className="stock-badge stock-normal">Stock ({quantite})</span>;
+    default:
+      return <span className="stock-badge stock-unknown">Inconnu</span>;
+  }
+};
 
   if (loading) {
     return (
@@ -208,7 +208,7 @@ export const ArticlesListPage: React.FC = () => {
             className="stock-filter-select"
           >
             <option value="tous">Tous les articles</option>
-            <option value="en_stock">En stock</option>
+            <option value="disponible">En stock</option>
             <option value="stock_faible">Stock faible</option>
             <option value="rupture">En rupture</option>
           </select>

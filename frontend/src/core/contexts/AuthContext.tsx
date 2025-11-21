@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import type { User, LoginCredentials } from '../auth/types';
+import type { User, LoginCredentials, UserWithPermissions } from '../auth/types';
 import { authApi } from '../auth/services/authApi';
 
 interface AuthContextType {
@@ -7,18 +7,18 @@ interface AuthContextType {
   login: (credentials: LoginCredentials) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
+  hasPermission: (module: string, action: string) => boolean;
   hasRole: (role: User['role']) => boolean;
-  isLoading: boolean; // ✅ AJOUTER cette propriété
+  isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true); // ✅ AJOUTER l'état de loading
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Vérifier l'authentification au chargement
     const checkAuth = async () => {
       try {
         const currentUser = authApi.getCurrentUser();
@@ -28,7 +28,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch (error) {
         console.error('Erreur lors de la vérification de l\'authentification:', error);
       } finally {
-        setIsLoading(false); // ✅ FIN du loading
+        setIsLoading(false);
       }
     };
 
@@ -36,7 +36,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (credentials: LoginCredentials) => {
-    setIsLoading(true); // ✅ DÉBUT du loading pendant la connexion
+    setIsLoading(true);
     try {
       const response = await authApi.login(credentials);
       if (response.success) {
@@ -47,7 +47,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error(response.message);
       }
     } finally {
-      setIsLoading(false); // ✅ FIN du loading après connexion
+      setIsLoading(false);
     }
   };
 
@@ -62,6 +62,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return user?.role === role || user?.role === 'admin';
   };
 
+   const hasPermission = (module: string, action: string): boolean => {
+    if (!user) return false;
+    
+    // Si l'utilisateur est admin, il a tous les droits
+    if (user.role === 'admin') return true;
+    
+    // Vérifier les permissions spécifiques si elles existent
+    const userWithPermissions = user as UserWithPermissions;
+    const modulePermission = userWithPermissions.permissions?.find(
+      p => p.module === module
+    );
+    
+    return modulePermission?.actions.includes(action) || false;
+  };
+
   return (
     <AuthContext.Provider value={{ 
       user, 
@@ -69,7 +84,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       logout, 
       isAuthenticated, 
       hasRole,
-      isLoading // ✅ INCLURE dans le contexte
+      isLoading,
+      hasPermission, 
     }}>
       {children}
     </AuthContext.Provider>
