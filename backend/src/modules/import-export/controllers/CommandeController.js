@@ -10,9 +10,9 @@ class CommandeController {
     try {
       const filters = req.query;
       const commandes = await this.commandeService.getAllCommandes(filters);
-      sendSuccess(res, commandes, 'Liste des commandes récupérée avec succès');
+      sendSuccess(res, 'Liste des commandes récupérée avec succès', commandes);
     } catch (error) {
-      sendError(res, 500, error.message);
+      sendError(res, error.message, 500);
     }
   };
 
@@ -20,9 +20,9 @@ class CommandeController {
     try {
       const { id } = req.params;
       const commande = await this.commandeService.getCommandeById(parseInt(id));
-      sendSuccess(res, commande, 'Commande récupérée avec succès');
+      sendSuccess(res, 'Commande récupérée avec succès', commande);
     } catch (error) {
-      sendError(res, 404, error.message);
+      sendError(res, error.message, 404);
     }
   };
 
@@ -30,9 +30,9 @@ class CommandeController {
     try {
       const { lignes, ...commandeData } = req.body;
       const commande = await this.commandeService.createCommande(commandeData, lignes);
-      sendSuccess(res, commande, 'Commande créée avec succès', 201);
+      sendSuccess(res, 'Commande créée avec succès', commande);
     } catch (error) {
-      sendError(res, 400, error.message);
+      sendError(res, error.message, 400);
     }
   };
 
@@ -41,9 +41,9 @@ class CommandeController {
       const { id } = req.params;
       const { statut } = req.body;
       const commande = await this.commandeService.updateCommandeStatut(parseInt(id), statut);
-      sendSuccess(res, commande, 'Statut de la commande mis à jour avec succès');
+      sendSuccess(res, 'Statut de la commande mis à jour avec succès', commande);
     } catch (error) {
-      sendError(res, 400, error.message);
+      sendError(res, error.message, 400);
     }
   };
 
@@ -51,9 +51,9 @@ class CommandeController {
     try {
       const expeditionData = req.body;
       const commande = await this.commandeService.updateExpedition(expeditionData);
-      sendSuccess(res, commande, 'Expédition mise à jour avec succès');
+      sendSuccess(res, 'Expédition mise à jour avec succès', commande);
     } catch (error) {
-      sendError(res, 400, error.message);
+      sendError(res, error.message, 400);
     }
   };
 
@@ -61,9 +61,9 @@ class CommandeController {
     try {
       const coutsData = req.body;
       const commande = await this.commandeService.updateCoutsLogistiques(coutsData);
-      sendSuccess(res, commande, 'Coûts logistiques mis à jour avec succès');
+      sendSuccess(res, 'Coûts logistiques mis à jour avec succès', commande);
     } catch (error) {
-      sendError(res, 400, error.message);
+      sendError(res, error.message, 400);
     }
   };
 
@@ -71,9 +71,9 @@ class CommandeController {
     try {
       const { id } = req.params;
       const marge = await this.commandeService.calculerMarge(parseInt(id));
-      sendSuccess(res, marge, 'Calcul de marge effectué avec succès');
+      sendSuccess(res, 'Calcul de marge effectué avec succès', marge);
     } catch (error) {
-      sendError(res, 400, error.message);
+      sendError(res, error.message, 400);
     }
   };
 }

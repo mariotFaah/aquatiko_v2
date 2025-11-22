@@ -98,6 +98,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
         { name: 'Vue générale', path: '/import-export', icon: '📈' },
         { name: 'Commandes', path: '/import-export/commandes', icon: '📋' },
         { name: 'Expéditions', path: '/import-export/expeditions', icon: '🚚' },
+        { name: 'Transporteurs', path: '/import-export/transporteurs', icon: '🚛' }, // ✅ AJOUT
         { name: 'Analyses', path: '/import-export/analyses', icon: '📊' },
       ],
     },

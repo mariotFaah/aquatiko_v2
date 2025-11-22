@@ -11,7 +11,7 @@ export class ActiviteController {
     try {
       const activiteData = req.body;
       const nouvelleActivite = await this.activiteService.createActivite(activiteData);
-      createdResponse(res, nouvelleActivite, 'Activité créée avec succès');
+      createdResponse(res, 'Activité créée avec succès', nouvelleActivite);
     } catch (error) {
       console.error('Erreur ActiviteController.createActivite:', error);
       errorResponse(res, error.message, 400);
@@ -23,7 +23,7 @@ export class ActiviteController {
     try {
       const { id } = req.params;
       const activites = await this.activiteService.getActivitesByClient(parseInt(id));
-      successResponse(res, activites, 'Activités récupérées avec succès');
+      successResponse(res, 'Activités récupérées avec succès', activites);
     } catch (error) {
       console.error('Erreur ActiviteController.getActivitesByClient:', error);
       errorResponse(res, error.message, 500);
@@ -34,7 +34,7 @@ export class ActiviteController {
   getAllActivites = async (req, res) => {
     try {
       const activites = await this.activiteService.getAllActivites();
-      successResponse(res, activites, 'Activités récupérées avec succès');
+      successResponse(res, 'Activités récupérées avec succès', activites);
     } catch (error) {
       console.error('Erreur ActiviteController.getAllActivites:', error);
       errorResponse(res, error.message, 500);

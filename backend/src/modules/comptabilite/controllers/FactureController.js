@@ -14,7 +14,7 @@ export class FactureController {
   async getAll(req, res) {
     try {
       const factures = await this.facturationService.getFactures();
-      successResponse(res, factures, 'Factures récupérées avec succès');
+      successResponse(res, 'Factures récupérées avec succès', factures);
     } catch (error) {
       errorResponse(res, error.message);
     }
@@ -24,15 +24,8 @@ export class FactureController {
     try {
       const nouvelleFacture = await this.facturationService.creerFacture(req.body);
       
-      //  Régénérer les totaux AVANT de générer les écritures
-        // S'assurer que les totaux sont calculés
-        // Récupérer la facture avec les totaux actualisés
-        // Vérifier que les totaux ne sont pas nuls avant de générer les écritures
-
-
       if (req.body.statut === 'validee') {
         await this.facturationService.calculerTotalsFacture(nouvelleFacture.numero_facture);
-        
         
         const factureAvecTotaux = await this.facturationService.getFactureComplete(nouvelleFacture.numero_facture);
         
@@ -44,7 +37,7 @@ export class FactureController {
         }
       }
       
-      createdResponse(res, nouvelleFacture, 'Facture créée avec succès');
+      createdResponse(res, 'Facture créée avec succès', nouvelleFacture);
     } catch (error) {
       errorResponse(res, error.message);
     }
@@ -56,7 +49,7 @@ export class FactureController {
       if (!facture) {
         return errorResponse(res, 'Facture non trouvée', 404);
       }
-      successResponse(res, facture);
+      successResponse(res, 'Facture récupérée avec succès', facture);
     } catch (error) {
       errorResponse(res, error.message);
     }
@@ -67,19 +60,14 @@ export class FactureController {
       const numero = req.params.id;
       const factureData = req.body;
 
-      // Valider que la facture existe
       const factureExistante = await this.factureRepository.findById(numero);
       if (!factureExistante) {
-        return res.status(404).json({
-          success: false,
-          message: 'Facture non trouvée'
-        });
+        return errorResponse(res, 'Facture non trouvée', 404);
       }
 
-      // Mettre à jour la facture via le service
       const factureModifiee = await this.facturationService.updateFacture(numero, factureData);
 
-      successResponse(res, factureModifiee, 'Facture modifiée avec succès');
+      successResponse(res, 'Facture modifiée avec succès', factureModifiee);
 
     } catch (error) {
       console.error('❌ Erreur modification facture:', error);
@@ -87,38 +75,32 @@ export class FactureController {
     }
   }
 
-
-
-   async annuler(req, res) {
+  async annuler(req, res) {
     try {
       const factureAnnulee = await this.facturationService.annulerFacture(req.params.id);
-      
-      successResponse(res, factureAnnulee, 'Facture annulée avec succès');
+      successResponse(res, 'Facture annulée avec succès', factureAnnulee);
     } catch (error) {
       errorResponse(res, error.message);
     }
   }
 
-  // MODIFIER: Méthode valider pour inclure la gestion du stock
   async valider(req, res) {
     try {
       const factureValidee = await this.facturationService.validerFacture(req.params.id);
       
-      // Recalculer les totaux
       await this.facturationService.calculerTotalsFacture(req.params.id);
 
       const factureAvecTotaux = await this.facturationService.getFactureComplete(req.params.id);
       
-      // Générer les écritures comptables
       await this.journalService.genererEcritureFacture(factureAvecTotaux);
       
-      successResponse(res, factureValidee, 'Facture validée avec succès');
+      successResponse(res, 'Facture validée avec succès', factureValidee);
     } catch (error) {
       errorResponse(res, error.message);
     }
   }
 
-   async enregistrerPaiement(req, res) {
+  async enregistrerPaiement(req, res) {
     try {
       const { id } = req.params;
       const paiementData = {
@@ -128,37 +110,34 @@ export class FactureController {
 
       const resultat = await this.facturationService.enregistrerPaiement(paiementData);
       
-      createdResponse(res, resultat, 'Paiement enregistré avec succès');
+      createdResponse(res, 'Paiement enregistré avec succès', resultat);
     } catch (error) {
       errorResponse(res, error.message);
     }
   }
 
-  // 🆕 NOUVELLE MÉTHODE : Historique des paiements d'une facture
   async getHistoriquePaiements(req, res) {
     try {
       const { id } = req.params;
       const historique = await this.facturationService.getHistoriquePaiements(id);
       
-      successResponse(res, historique, 'Historique des paiements récupéré');
+      successResponse(res, 'Historique des paiements récupéré', historique);
     } catch (error) {
       errorResponse(res, error.message);
     }
   }
 
-  // 🆕 NOUVELLE MÉTHODE : Calculer les pénalités de retard
   async calculerPenalites(req, res) {
     try {
       const { id } = req.params;
       const penalites = await this.facturationService.calculerPenalites(id);
       
-      successResponse(res, penalites, 'Pénalités calculées');
+      successResponse(res, 'Pénalités calculées', penalites);
     } catch (error) {
       errorResponse(res, error.message);
     }
   }
 
-  // 🆕 NOUVELLE MÉTHODE : Configurer le paiement flexible
   async configurerPaiement(req, res) {
     try {
       const { id } = req.params;
@@ -166,18 +145,17 @@ export class FactureController {
       
       const factureConfig = await this.facturationService.configurerPaiementFlexible(id, config);
       
-      successResponse(res, factureConfig, 'Configuration de paiement mise à jour');
+      successResponse(res, 'Configuration de paiement mise à jour', factureConfig);
     } catch (error) {
       errorResponse(res, error.message);
     }
   }
 
-  // 🆕 NOUVELLE MÉTHODE : Récupérer les factures en retard
   async getFacturesEnRetard(req, res) {
     try {
       const facturesEnRetard = await this.facturationService.verifierFacturesEnRetard();
       
-      successResponse(res, facturesEnRetard, 'Factures en retard récupérées');
+      successResponse(res, 'Factures en retard récupérées', facturesEnRetard);
     } catch (error) {
       errorResponse(res, error.message);
     }

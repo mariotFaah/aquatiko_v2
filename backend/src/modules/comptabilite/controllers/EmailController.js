@@ -1,5 +1,6 @@
 // src/modules/comptabilite/controllers/EmailController.js
 import EmailService from '../services/EmailService.js';
+import { sendSuccess, sendError } from '../../../core/utils/response.js';
 
 export class EmailController {
   constructor() {
@@ -12,12 +13,8 @@ export class EmailController {
       
       const { numero_facture, email_client, nom_client, montant, jours_retard, message_personnalise } = req.body;
 
-      // Validation des données requises
       if (!numero_facture || !email_client || !nom_client || !montant) {
-        return res.status(400).json({
-          success: false,
-          message: 'Données manquantes: numero_facture, email_client, nom_client et montant sont requis'
-        });
+        return sendError(res, 'Données manquantes: numero_facture, email_client, nom_client et montant sont requis', 400);
       }
 
       const resultat = await this.emailService.envoyerRelance({
@@ -29,18 +26,11 @@ export class EmailController {
         message_personnalise
       });
 
-      res.json({
-        success: true,
-        message: 'Relance envoyée avec succès',
-        data: resultat
-      });
+      sendSuccess(res, 'Relance envoyée avec succès', resultat);
 
     } catch (error) {
       console.error('❌ Erreur EmailController.envoyerRelance:', error);
-      res.status(500).json({
-        success: false,
-        message: error.message
-      });
+      sendError(res, error.message, 500);
     }
   }
 
@@ -51,48 +41,28 @@ export class EmailController {
       const { factures } = req.body;
 
       if (!factures || !Array.isArray(factures)) {
-        return res.status(400).json({
-          success: false,
-          message: 'Tableau de factures requis'
-        });
+        return sendError(res, 'Tableau de factures requis', 400);
       }
 
       const resultat = await this.emailService.envoyerRelancesGroupees(factures);
 
-      res.json({
-        success: true,
-        message: `Relances groupées envoyées: ${resultat.reussis}/${resultat.total} réussies`,
-        data: resultat
-      });
+      sendSuccess(res, `Relances groupées envoyées: ${resultat.reussis}/${resultat.total} réussies`, resultat);
 
     } catch (error) {
       console.error('❌ Erreur EmailController.envoyerRelancesGroupees:', error);
-      res.status(500).json({
-        success: false,
-        message: error.message
-      });
+      sendError(res, error.message, 500);
     }
   }
 
   async testerConfiguration(req, res) {
     try {
       const resultat = await this.emailService.testConfiguration();
-      
-      res.json({
-        success: true,
-        message: 'Configuration email testée avec succès',
-        data: resultat
-      });
-
+      sendSuccess(res, 'Configuration email testée avec succès', resultat);
     } catch (error) {
       console.error('❌ Erreur test configuration email:', error);
-      res.status(500).json({
-        success: false,
-        message: error.message
-      });
+      sendError(res, error.message, 500);
     }
   }
 }
 
-// ✅ EXPORT CORRECT
 export default EmailController;

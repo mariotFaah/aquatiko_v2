@@ -11,7 +11,7 @@ export class ContactController {
     try {
       const { clientId } = req.params;
       const contacts = await this.contactService.getContactsByClient(parseInt(clientId));
-      successResponse(res, contacts, 'Contacts récupérés avec succès');
+      successResponse(res, 'Contacts récupérés avec succès', contacts);
     } catch (error) {
       console.error('Erreur ContactController.getContactsByClient:', error);
       errorResponse(res, error.message, 500);
@@ -23,7 +23,7 @@ export class ContactController {
     try {
       const { id } = req.params;
       const contact = await this.contactService.getContactById(parseInt(id));
-      successResponse(res, contact, 'Contact récupéré avec succès');
+      successResponse(res, 'Contact récupéré avec succès', contact);
     } catch (error) {
       console.error('Erreur ContactController.getContactById:', error);
       notFoundResponse(res, error.message);
@@ -35,7 +35,7 @@ export class ContactController {
     try {
       const contactData = req.body;
       const nouveauContact = await this.contactService.createContact(contactData);
-      createdResponse(res, nouveauContact, 'Contact créé avec succès');
+      createdResponse(res, 'Contact créé avec succès', nouveauContact);
     } catch (error) {
       console.error('Erreur ContactController.createContact:', error);
       errorResponse(res, error.message, 400);
@@ -49,7 +49,7 @@ export class ContactController {
       const contactData = req.body;
       
       const contact = await this.contactService.updateContact(parseInt(id), contactData);
-      successResponse(res, contact, 'Contact mis à jour avec succès');
+      successResponse(res, 'Contact mis à jour avec succès', contact);
     } catch (error) {
       console.error('Erreur ContactController.updateContact:', error);
       errorResponse(res, error.message, 400);
@@ -61,7 +61,7 @@ export class ContactController {
     try {
       const { id } = req.params;
       await this.contactService.deleteContact(parseInt(id));
-      successResponse(res, null, 'Contact supprimé avec succès');
+      successResponse(res, 'Contact supprimé avec succès', null);
     } catch (error) {
       console.error('Erreur ContactController.deleteContact:', error);
       errorResponse(res, error.message, 400);

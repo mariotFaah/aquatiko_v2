@@ -12,7 +12,7 @@ export class ClientController {
   getAllClients = async (req, res) => {
     try {
       const clients = await this.clientService.getAllClients();
-      successResponse(res, clients, 'Clients récupérés avec succès');
+      successResponse(res, 'Clients récupérés avec succès', clients);
     } catch (error) {
       console.error('Erreur ClientController.getAllClients:', error);
       errorResponse(res, error.message, 500);
@@ -24,7 +24,7 @@ export class ClientController {
     try {
       const { id } = req.params;
       const client = await this.clientService.getClientDetails(parseInt(id));
-      successResponse(res, client, 'Client récupéré avec succès');
+      successResponse(res, 'Client récupéré avec succès', client);
     } catch (error) {
       console.error('Erreur ClientController.getClientDetails:', error);
       notFoundResponse(res, error.message);
@@ -38,7 +38,7 @@ export class ClientController {
       const crmData = req.body;
       
       const client = await this.clientService.updateClientCRM(parseInt(id), crmData);
-      successResponse(res, client, 'Données CRM mises à jour avec succès');
+      successResponse(res, 'Données CRM mises à jour avec succès', client);
     } catch (error) {
       console.error('Erreur ClientController.updateClientCRM:', error);
       errorResponse(res, error.message, 400);
@@ -50,7 +50,7 @@ export class ClientController {
     try {
       const { id } = req.params;
       const activites = await this.clientService.getClientActivites(parseInt(id));
-      successResponse(res, activites, 'Activités récupérées avec succès');
+      successResponse(res, 'Activités récupérées avec succès', activites);
     } catch (error) {
       console.error('Erreur ClientController.getClientActivites:', error);
       errorResponse(res, error.message, 500);
@@ -62,7 +62,7 @@ export class ClientController {
     try {
       const { id } = req.params;
       const devis = await this.clientService.getClientDevis(parseInt(id));
-      successResponse(res, devis, 'Devis récupérés avec succès');
+      successResponse(res, 'Devis récupérés avec succès', devis);
     } catch (error) {
       console.error('Erreur ClientController.getClientDevis:', error);
       errorResponse(res, error.message, 500);
@@ -74,7 +74,7 @@ export class ClientController {
     try {
       const { id } = req.params;
       const contrats = await this.clientService.getClientContrats(parseInt(id));
-      successResponse(res, contrats, 'Contrats récupérés avec succès');
+      successResponse(res, 'Contrats récupérés avec succès', contrats);
     } catch (error) {
       console.error('Erreur ClientController.getClientContrats:', error);
       errorResponse(res, error.message, 500);
@@ -86,7 +86,7 @@ export class ClientController {
     try {
       const { categorie } = req.params;
       const clients = await this.clientService.getClientsByCategorie(categorie);
-      successResponse(res, clients, `Clients ${categorie} récupérés avec succès`);
+      successResponse(res, `Clients ${categorie} récupérés avec succès`, clients);
     } catch (error) {
       console.error('Erreur ClientController.getClientsByCategorie:', error);
       errorResponse(res, error.message, 500);
@@ -97,7 +97,7 @@ export class ClientController {
     try {
       const { id } = req.params;
       const activites = await this.clientService.getActivitesConsolidees(parseInt(id));
-      successResponse(res, activites, 'Activités consolidées récupérées avec succès');
+      successResponse(res, 'Activités consolidées récupérées avec succès', activites);
     } catch (error) {
       console.error('Erreur ClientController.getClientActivitesConsolidees:', error);
       errorResponse(res, error.message, 500);

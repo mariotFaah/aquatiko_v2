@@ -9,7 +9,7 @@ export class TiersController {
   async getAll(req, res) {
     try {
       const tiers = await this.tiersService.getTiers();
-      successResponse(res, tiers, 'Tiers récupérés avec succès');
+      successResponse(res, 'Tiers récupérés avec succès', tiers);
     } catch (error) {
       errorResponse(res, error.message);
     }
@@ -18,7 +18,7 @@ export class TiersController {
   async create(req, res) {
     try {
       const nouveauTiers = await this.tiersService.createTiers(req.body);
-      createdResponse(res, nouveauTiers, 'Tiers créé avec succès');
+      createdResponse(res, 'Tiers créé avec succès', nouveauTiers);
     } catch (error) {
       errorResponse(res, error.message);
     }
@@ -30,7 +30,7 @@ export class TiersController {
       if (!tiers) {
         return errorResponse(res, 'Tiers non trouvé', 404);
       }
-      successResponse(res, tiers);
+      successResponse(res, 'Tiers récupéré avec succès', tiers);
     } catch (error) {
       errorResponse(res, error.message);
     }
@@ -39,7 +39,7 @@ export class TiersController {
   async update(req, res) {
     try {
       const tiersMaj = await this.tiersService.updateTiers(req.params.id, req.body);
-      successResponse(res, tiersMaj, 'Tiers mis à jour avec succès');
+      successResponse(res, 'Tiers mis à jour avec succès', tiersMaj);
     } catch (error) {
       errorResponse(res, error.message);
     }
@@ -48,7 +48,7 @@ export class TiersController {
   async delete(req, res) {
     try {
       await this.tiersService.deleteTiers(req.params.id);
-      successResponse(res, null, 'Tiers supprimé avec succès');
+      successResponse(res, 'Tiers supprimé avec succès', null);
     } catch (error) {
       errorResponse(res, error.message);
     }

@@ -9,7 +9,7 @@ export class ReferentielController {
   async getModesPaiement(req, res) {
     try {
       const modes = await this.referentielService.getModesPaiement();
-      successResponse(res, modes, 'Modes de paiement récupérés');
+      successResponse(res, 'Modes de paiement récupérés', modes);
     } catch (error) {
       errorResponse(res, error.message);
     }
@@ -18,7 +18,7 @@ export class ReferentielController {
   async getTypesFacture(req, res) {
     try {
       const types = await this.referentielService.getTypesFacture();
-      successResponse(res, types, 'Types de facture récupérés');
+      successResponse(res, 'Types de facture récupérés', types);
     } catch (error) {
       errorResponse(res, error.message);
     }
@@ -27,7 +27,7 @@ export class ReferentielController {
   async getTauxTVA(req, res) {
     try {
       const taux = await this.referentielService.getTauxTVA();
-      successResponse(res, taux, 'Taux de TVA récupérés');
+      successResponse(res, 'Taux de TVA récupérés', taux);
     } catch (error) {
       errorResponse(res, error.message);
     }
@@ -36,18 +36,18 @@ export class ReferentielController {
   async getPlanComptable(req, res) {
     try {
       const plan = await this.referentielService.getPlanComptable();
-      successResponse(res, plan, 'Plan comptable récupéré');
+      successResponse(res, 'Plan comptable récupéré', plan);
     } catch (error) {
       errorResponse(res, error.message);
     }
   }
 
   async addCompteComptable(req, res) {
-  try {
-    const compte = await this.referentielService.addCompteComptable(req.body);
-    successResponse(res, compte, 'Compte comptable ajouté avec succès');
-  } catch (error) {
-    errorResponse(res, error.message);
+    try {
+      const compte = await this.referentielService.addCompteComptable(req.body);
+      successResponse(res, 'Compte comptable ajouté avec succès', compte);
+    } catch (error) {
+      errorResponse(res, error.message);
+    }
   }
-}
 }

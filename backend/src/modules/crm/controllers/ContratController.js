@@ -10,7 +10,7 @@ export class ContratController {
   getAllContrats = async (req, res) => {
     try {
       const contrats = await this.contratService.getAllContrats();
-      successResponse(res, contrats, 'Contrats récupérés avec succès');
+      successResponse(res, 'Contrats récupérés avec succès', contrats);
     } catch (error) {
       console.error('Erreur ContratController.getAllContrats:', error);
       errorResponse(res, error.message, 500);
@@ -22,7 +22,7 @@ export class ContratController {
     try {
       const { id } = req.params;
       const contrat = await this.contratService.getContratById(parseInt(id));
-      successResponse(res, contrat, 'Contrat récupéré avec succès');
+      successResponse(res, 'Contrat récupéré avec succès', contrat);
     } catch (error) {
       console.error('Erreur ContratController.getContratById:', error);
       notFoundResponse(res, error.message);
@@ -34,7 +34,7 @@ export class ContratController {
     try {
       const { clientId } = req.params;
       const contrats = await this.contratService.getContratsByClient(parseInt(clientId));
-      successResponse(res, contrats, 'Contrats du client récupérés avec succès');
+      successResponse(res, 'Contrats du client récupérés avec succès', contrats);
     } catch (error) {
       console.error('Erreur ContratController.getContratsByClient:', error);
       errorResponse(res, error.message, 500);
@@ -46,7 +46,7 @@ export class ContratController {
     try {
       const contratData = req.body;
       const nouveauContrat = await this.contratService.createContrat(contratData);
-      createdResponse(res, nouveauContrat, 'Contrat créé avec succès');
+      createdResponse(res, 'Contrat créé avec succès', nouveauContrat);
     } catch (error) {
       console.error('Erreur ContratController.createContrat:', error);
       errorResponse(res, error.message, 400);
@@ -60,7 +60,7 @@ export class ContratController {
       const contratData = req.body;
       
       const contrat = await this.contratService.updateContrat(parseInt(id), contratData);
-      successResponse(res, contrat, 'Contrat mis à jour avec succès');
+      successResponse(res, 'Contrat mis à jour avec succès', contrat);
     } catch (error) {
       console.error('Erreur ContratController.updateContrat:', error);
       errorResponse(res, error.message, 400);
@@ -74,7 +74,7 @@ export class ContratController {
       const { statut } = req.body;
       
       const contrat = await this.contratService.updateContratStatut(parseInt(id), statut);
-      successResponse(res, contrat, 'Statut du contrat mis à jour avec succès');
+      successResponse(res, 'Statut du contrat mis à jour avec succès', contrat);
     } catch (error) {
       console.error('Erreur ContratController.updateContratStatut:', error);
       errorResponse(res, error.message, 400);
@@ -85,7 +85,7 @@ export class ContratController {
   getContratStats = async (req, res) => {
     try {
       const stats = await this.contratService.getContratStats();
-      successResponse(res, stats, 'Statistiques des contrats récupérées avec succès');
+      successResponse(res, 'Statistiques des contrats récupérées avec succès', stats);
     } catch (error) {
       console.error('Erreur ContratController.getContratStats:', error);
       errorResponse(res, error.message, 500);

@@ -10,7 +10,7 @@ export class DevisController {
   getAllDevis = async (req, res) => {
     try {
       const devis = await this.devisService.getAllDevis();
-      successResponse(res, devis, 'Devis récupérés avec succès');
+      successResponse(res, 'Devis récupérés avec succès', devis);
     } catch (error) {
       console.error('Erreur DevisController.getAllDevis:', error);
       errorResponse(res, error.message, 500);
@@ -22,7 +22,7 @@ export class DevisController {
     try {
       const { id } = req.params;
       const devis = await this.devisService.getDevisById(parseInt(id));
-      successResponse(res, devis, 'Devis récupéré avec succès');
+      successResponse(res, 'Devis récupéré avec succès', devis);
     } catch (error) {
       console.error('Erreur DevisController.getDevisById:', error);
       notFoundResponse(res, error.message);
@@ -34,7 +34,7 @@ export class DevisController {
     try {
       const devisData = req.body;
       const nouveauDevis = await this.devisService.createDevis(devisData);
-      createdResponse(res, nouveauDevis, 'Devis créé avec succès');
+      createdResponse(res, 'Devis créé avec succès', nouveauDevis);
     } catch (error) {
       console.error('Erreur DevisController.createDevis:', error);
       errorResponse(res, error.message, 400);
@@ -48,7 +48,7 @@ export class DevisController {
       const devisData = req.body;
       
       const devis = await this.devisService.updateDevis(parseInt(id), devisData);
-      successResponse(res, devis, 'Devis mis à jour avec succès');
+      successResponse(res, 'Devis mis à jour avec succès', devis);
     } catch (error) {
       console.error('Erreur DevisController.updateDevis:', error);
       errorResponse(res, error.message, 400);
@@ -62,7 +62,7 @@ export class DevisController {
       const { statut } = req.body;
       
       const devis = await this.devisService.updateDevisStatut(parseInt(id), statut);
-      successResponse(res, devis, 'Statut du devis mis à jour avec succès');
+      successResponse(res, 'Statut du devis mis à jour avec succès', devis);
     } catch (error) {
       console.error('Erreur DevisController.updateDevisStatut:', error);
       errorResponse(res, error.message, 400);
@@ -73,7 +73,7 @@ export class DevisController {
   getDevisStats = async (req, res) => {
     try {
       const stats = await this.devisService.getDevisStats();
-      successResponse(res, stats, 'Statistiques des devis récupérées avec succès');
+      successResponse(res, 'Statistiques des devis récupérées avec succès', stats);
     } catch (error) {
       console.error('Erreur DevisController.getDevisStats:', error);
       errorResponse(res, error.message, 500);
@@ -85,7 +85,7 @@ export class DevisController {
     try {
       const { statut } = req.params;
       const devis = await this.devisService.getDevisByStatut(statut);
-      successResponse(res, devis, `Devis ${statut} récupérés avec succès`);
+      successResponse(res, `Devis ${statut} récupérés avec succès`, devis);
     } catch (error) {
       console.error('Erreur DevisController.getDevisByStatut:', error);
       errorResponse(res, error.message, 500);
@@ -102,7 +102,7 @@ export class DevisController {
         donneesContrat
       );
       
-      successResponse(res, contrat, 'Devis transformé en contrat avec succès');
+      successResponse(res, 'Devis transformé en contrat avec succès', contrat);
     } catch (error) {
       console.error('Erreur transformation devis en contrat:', error);
       errorResponse(res, error.message, 400);

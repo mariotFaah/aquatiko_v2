@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { importExportApi } from '../services/api';
-import type { Commande, ExpeditionFormData } from '../types';
+import type { Commande, ExpeditionFormData, Transporteur } from '../types';
 import { useAlertDialog } from '../../../core/hooks/useAlertDialog';
 import AlertDialog from '../../../core/components/AlertDialog/AlertDialog';
 import './ExpeditionFormPage.css';
@@ -10,8 +10,15 @@ const ExpeditionFormPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [commande, setCommande] = useState<Commande | null>(null);
+  const [transporteurs, setTransporteurs] = useState<Transporteur[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [nextNumbers, setNextNumbers] = useState({
+    bl: 1,
+    con: 1,
+    pl: 1
+  });
+
   const [formData, setFormData] = useState<ExpeditionFormData>({
     commande_id: parseInt(id!),
     numero_bl: '',
@@ -20,16 +27,18 @@ const ExpeditionFormPage: React.FC = () => {
     date_expedition: '',
     date_arrivee_prevue: '',
     transporteur: '',
+    transporteur_id: undefined,
     mode_transport: '',
     instructions_speciales: '',
     statut: 'preparation'
   });
 
-  // Utilisation du hook AlertDialog
   const { isOpen, message, title, type, alert, close } = useAlertDialog();
 
   useEffect(() => {
     loadCommande();
+    loadTransporteurs();
+    generateNextNumbers();
   }, [id]);
 
   const loadCommande = async () => {
@@ -37,7 +46,6 @@ const ExpeditionFormPage: React.FC = () => {
       const data = await importExportApi.getCommande(parseInt(id!));
       setCommande(data);
       
-      // Pré-remplir le formulaire si une expédition existe
       if (data.expedition) {
         setFormData(prev => ({
           ...prev,
@@ -47,10 +55,14 @@ const ExpeditionFormPage: React.FC = () => {
           date_expedition: data.expedition!.date_expedition ? data.expedition!.date_expedition.split('T')[0] : '',
           date_arrivee_prevue: data.expedition!.date_arrivee_prevue ? data.expedition!.date_arrivee_prevue.split('T')[0] : '',
           transporteur: data.expedition!.transporteur || '',
+          transporteur_id: data.expedition!.transporteur_id || undefined,
           mode_transport: data.expedition!.mode_transport || '',
           instructions_speciales: data.expedition!.instructions_speciales || '',
           statut: data.expedition!.statut
         }));
+      } else {
+        // Auto-générer les numéros seulement pour une nouvelle expédition
+        generateDefaultNumbers();
       }
     } catch (error) {
       console.error('Erreur chargement commande:', error);
@@ -63,33 +75,114 @@ const ExpeditionFormPage: React.FC = () => {
     }
   };
 
+  const loadTransporteurs = async () => {
+    try {
+      const transporteursData = await importExportApi.getTransporteurs();
+      setTransporteurs(transporteursData);
+    } catch (error) {
+      console.error('Erreur chargement transporteurs:', error);
+      alert('Erreur lors du chargement des transporteurs', {
+        type: 'error',
+        title: 'Erreur'
+      });
+    }
+  };
+
+  const generateNextNumbers = async () => {
+    try {
+      // Récupérer les dernières expéditions pour générer les numéros suivants
+      const expeditions = await importExportApi.getExpeditions();
+      
+      let maxBL = 0;
+      let maxCON = 0;
+      let maxPL = 0;
+
+      expeditions.forEach(exp => {
+        // Extraire le numéro de BL
+        if (exp.numero_bl && exp.numero_bl.startsWith('BL-')) {
+          const num = parseInt(exp.numero_bl.replace('BL-', ''));
+          if (num > maxBL) maxBL = num;
+        }
+        // Extraire le numéro de CON
+        if (exp.numero_connaissement && exp.numero_connaissement.startsWith('CON-')) {
+          const num = parseInt(exp.numero_connaissement.replace('CON-', ''));
+          if (num > maxCON) maxCON = num;
+        }
+        // Extraire le numéro de PL
+        if (exp.numero_packing_list && exp.numero_packing_list.startsWith('PL-')) {
+          const num = parseInt(exp.numero_packing_list.replace('PL-', ''));
+          if (num > maxPL) maxPL = num;
+        }
+      });
+
+      setNextNumbers({
+        bl: maxBL + 1,
+        con: maxCON + 1,
+        pl: maxPL + 1
+      });
+
+    } catch (error) {
+      console.error('Erreur génération numéros:', error);
+      // Utiliser des numéros par défaut basés sur l'ID de commande
+      setNextNumbers({
+        bl: parseInt(id!) * 100 + 1,
+        con: parseInt(id!) * 100 + 1,
+        pl: parseInt(id!) * 100 + 1
+      });
+    }
+  };
+
+  const generateDefaultNumbers = () => {
+    setFormData(prev => ({
+      ...prev,
+      numero_bl: `BL-${nextNumbers.bl.toString().padStart(6, '0')}`,
+      numero_connaissement: `CON-${nextNumbers.con.toString().padStart(6, '0')}`,
+      numero_packing_list: `PL-${nextNumbers.pl.toString().padStart(6, '0')}`
+    }));
+  };
+
   const handleInputChange = (field: keyof ExpeditionFormData, value: any) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
+
+    // Si on change le transporteur_id, mettre à jour aussi le nom du transporteur
+    if (field === 'transporteur_id') {
+      const selectedTransporteur = transporteurs.find(t => t.id === parseInt(value));
+      if (selectedTransporteur) {
+        setFormData(prev => ({
+          ...prev,
+          transporteur: selectedTransporteur.nom
+        }));
+      }
+    }
   };
 
   const handleSave = async () => {
     try {
       setSaving(true);
-      await importExportApi.updateExpedition(formData);
       
-      // Remplacé l'alert natif
+      // Préparer les données pour l'envoi
+      const dataToSend = {
+        ...formData,
+        // S'assurer que transporteur_id est un nombre
+        transporteur_id: formData.transporteur_id ? parseInt(formData.transporteur_id as any) : undefined
+      };
+      
+      await importExportApi.updateExpedition(dataToSend);
+      
       alert('Expédition enregistrée avec succès!', {
         type: 'success',
         title: 'Succès'
       });
       
-      // Navigation après un délai pour laisser voir le message de succès
       setTimeout(() => {
         navigate(`/import-export/commandes/${id}`);
       }, 1500);
       
     } catch (error) {
       console.error('Erreur sauvegarde expédition:', error);
-      
-      // Remplacé l'alert natif
       alert('Erreur lors de la sauvegarde de l\'expédition', {
         type: 'error',
         title: 'Erreur'
@@ -123,7 +216,6 @@ const ExpeditionFormPage: React.FC = () => {
   return (
     <div className="expedition-form-container">
       <div className="expedition-form-content">
-        {/* Header */}
         <div className="page-header">
           <div className="header-left">
             <h1>Gestion de l'Expédition</h1>
@@ -166,16 +258,24 @@ const ExpeditionFormPage: React.FC = () => {
                 </select>
               </div>
 
-              {/* Transporteur */}
+              {/* Transporteur - NOUVELLE VERSION AVEC SELECT */}
               <div className="form-group">
                 <label>Transporteur</label>
-                <input
-                  type="text"
-                  value={formData.transporteur}
-                  onChange={(e) => handleInputChange('transporteur', e.target.value)}
+                <select
+                  value={formData.transporteur_id || ''}
+                  onChange={(e) => handleInputChange('transporteur_id', e.target.value)}
                   className="form-input"
-                  placeholder="Nom du transporteur"
-                />
+                >
+                  <option value="">Sélectionnez un transporteur</option>
+                  {transporteurs.map(transporteur => (
+                    <option key={transporteur.id} value={transporteur.id}>
+                      {transporteur.nom} - {transporteur.type_transport} ({transporteur.code_transporteur})
+                    </option>
+                  ))}
+                </select>
+                <small className="field-help">
+                  {formData.transporteur_id ? `Transporteur sélectionné: ${formData.transporteur}` : 'Choisissez un transporteur dans la liste'}
+                </small>
               </div>
 
               {/* Mode de transport */}
@@ -226,6 +326,9 @@ const ExpeditionFormPage: React.FC = () => {
                   className="form-input"
                   placeholder="BL-XXXXXX"
                 />
+                <small className="field-help">
+                  Format: BL-000001
+                </small>
               </div>
 
               {/* Numéro connaissement */}
@@ -238,6 +341,9 @@ const ExpeditionFormPage: React.FC = () => {
                   className="form-input"
                   placeholder="CON-XXXXXX"
                 />
+                <small className="field-help">
+                  Format: CON-000001
+                </small>
               </div>
 
               {/* Numéro packing list */}
@@ -250,6 +356,9 @@ const ExpeditionFormPage: React.FC = () => {
                   className="form-input"
                   placeholder="PL-XXXXXX"
                 />
+                <small className="field-help">
+                  Format: PL-000001
+                </small>
               </div>
 
               {/* Instructions spéciales */}
@@ -265,7 +374,6 @@ const ExpeditionFormPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Actions */}
             <div className="form-actions">
               <button 
                 onClick={handleSave}
@@ -285,7 +393,6 @@ const ExpeditionFormPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Composant AlertDialog */}
       <AlertDialog
         isOpen={isOpen}
         title={title}

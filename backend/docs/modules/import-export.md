@@ -348,6 +348,93 @@ Validation des entrées
 Gestion centralisée des erreurs
 
 📞 Support et Maintenance
+📋 RÉSUMÉ DES NOUVELLES APIs IMPORT/EXPORT
+🚚 API TRANSPORTEURS (/api/import-export/transporteurs)
+Endpoints disponibles :
+Méthode Route Description
+GET / Liste tous les transporteurs actifs
+GET /search?q=terme Recherche de transporteurs
+GET /type/:type Transporteurs par type (maritime/aerien/terrestre)
+GET /:id  Détail d'un transporteur
+POST  / Créer un nouveau transporteur
+PUT /:id  Modifier un transporteur
+DELETE  /:id  Supprimer (désactiver) un transporteur
+Structure d'un transporteur :
+json
+{
+  "id": 1,
+  "nom": "Maersk Line",
+  "type_transport": "maritime",
+  "contact": "Jean Dupont",
+  "email": "contact@maersk.com",
+  "telephone": "+261 20 22 123 45",
+  "adresse": "Port de Toamasina",
+  "code_transporteur": "TRP-0001",
+  "actif": true,
+  "created_at": "2025-11-22T09:27:46.000Z",
+  "updated_at": "2025-11-22T09:27:46.000Z"
+}
+📄 API CONNAISSEMENTS (/api/import-export/connaissements)
+Endpoints disponibles :
+Méthode Route Description
+GET / Liste tous les connaissements
+GET /statut/:statut Connaissements par statut (emis/embarque/arrive/livre)
+GET /expedition/:id Connaissement d'une expédition
+GET /numero/:numero Connaissement par numéro (ex: CON-000001)
+GET /:id  Détail d'un connaissement
+POST  / Créer un nouveau connaissement
+PUT /:id  Modifier un connaissement
+PATCH /:id/statut Modifier le statut seulement
+DELETE  /:id  Supprimer un connaissement
+Structure d'un connaissement :
+json
+{
+  "id": 1,
+  "numero_connaissement": "CON-000001",
+  "expedition_id": 1,
+  "transporteur_id": 1,
+  "type_connaissement": "maritime",
+  "type_document": "original",
+  "date_emission": "2024-11-22",
+  "date_embarquement": "2024-11-25",
+  "port_chargement": "Port de Toamasina",
+  "port_dechargement": "Port de Marseille",
+  "consignataire": "Aquatiko SARL",
+  "destinataire": "Client Europe SA",
+  "statut": "emis",
+  "fichier_url": null,
+  "observations": null,
+  "created_at": "2025-11-22T09:45:52.000Z",
+  "updated_at": "2025-11-22T09:45:52.000Z"
+}
+🔄 MISE À JOUR DE LA TABLE EXPEDITIONS
+Nouveau champ ajouté :
+transporteur_id INT - Clé étrangère vers la table transporteurs
 
-Pour toute question, contacter l’équipe de développement Omniserve experts.
-*© 2025 Omniserve experts - Tous droits réservés*
+Le champ transporteur (texte) reste pour compatibilité
+
+🎯 FONCTIONNALITÉS CLÉS
+Auto-génération :
+✅ Codes transporteurs : TRP-0001, TRP-0002, etc.
+
+✅ Numéros connaissement : CON-000001, CON-000002, etc.
+
+Recherche et filtres :
+✅ Recherche texte sur nom, code et contact des transporteurs
+
+✅ Filtrage par type de transport
+
+✅ Filtrage par statut de connaissement
+
+Gestion des relations :
+✅ Un connaissement = une expédition + un transporteur
+
+✅ Intégration complète avec le système existant
+
+🔐 AUTHENTIFICATION REQUISE
+Toutes les routes nécessitent un token JETON dans le header :
+
+http
+Authorization: Bearer <votre_token_jwt>
+✅ STATUT : 100% FONCTIONNEL ET TESTÉ 🚀
+

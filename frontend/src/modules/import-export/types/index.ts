@@ -133,3 +133,60 @@ export interface CoutLogistiqueFormData {
   description_autres_frais?: string;
   devise_couts: string;
 }
+
+// Types pour les transporteurs
+export interface Transporteur {
+  id: number;
+  nom: string;
+  type_transport: string;
+  contact?: string;
+  email?: string;
+  telephone?: string;
+  adresse?: string;
+  code_transporteur: string;
+  actif: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+// Types pour les connaissements
+export interface Connaissement {
+  id: number;
+  numero_connaissement: string;
+  expedition_id: number;
+  transporteur_id: number;
+  type_connaissement: string;
+  type_document: string;
+  date_emission?: string;
+  date_embarquement?: string;
+  port_chargement?: string;
+  port_dechargement?: string;
+  consignataire?: string;
+  destinataire?: string;
+  statut: string;
+  fichier_url?: string;
+  observations?: string;
+  created_at: string;
+  updated_at: string;
+  
+  // Relations
+  transporteur_nom?: string;
+  transporteur_type?: string;
+  numero_bl?: string;
+  numero_commande?: string;
+}
+
+export interface ConnaissementFormData {
+  expedition_id: number;
+  transporteur_id: number;
+  type_connaissement: string;
+  type_document: string;
+  date_emission?: string;
+  date_embarquement?: string;
+  port_chargement?: string;
+  port_dechargement?: string;
+  consignataire?: string;
+  destinataire?: string;
+  statut: string;
+  observations?: string;
+}

@@ -1,5 +1,6 @@
 // src/modules/comptabilite/controllers/StatistiqueController.js
 import { StatistiqueService } from '../services/StatistiqueService.js';
+import { sendSuccess, sendError } from '../../../core/utils/response.js';
 
 export class StatistiqueController {
   constructor() {
@@ -10,19 +11,10 @@ export class StatistiqueController {
     try {
       const { date_debut, date_fin } = req.query;
       const ca = await this.statistiqueService.getChiffreAffaire(date_debut, date_fin);
-      res.status(200).json({
-        success: true,
-        data: ca,
-        message: 'Chiffre d\'affaire calculé avec succès',
-        timestamp: new Date().toISOString()
-      });
+      sendSuccess(res, 'Chiffre d\'affaire calculé avec succès', ca);
     } catch (error) {
       console.error('❌ Erreur StatistiqueController.getChiffreAffaire:', error);
-      res.status(500).json({
-        success: false,
-        message: error.message,
-        timestamp: new Date().toISOString()
-      });
+      sendError(res, error.message, 500);
     }
   }
 
@@ -30,19 +22,10 @@ export class StatistiqueController {
     try {
       const { limit = 10 } = req.query;
       const topClients = await this.statistiqueService.getTopClients(parseInt(limit));
-      res.status(200).json({
-        success: true,
-        data: topClients,
-        message: 'Top clients récupéré avec succès',
-        timestamp: new Date().toISOString()
-      });
+      sendSuccess(res, 'Top clients récupéré avec succès', topClients);
     } catch (error) {
       console.error('❌ Erreur StatistiqueController.getTopClients:', error);
-      res.status(500).json({
-        success: false,
-        message: error.message,
-        timestamp: new Date().toISOString()
-      });
+      sendError(res, error.message, 500);
     }
   }
 
@@ -50,38 +33,20 @@ export class StatistiqueController {
     try {
       const { limit = 10 } = req.query;
       const topProduits = await this.statistiqueService.getTopProduits(parseInt(limit));
-      res.status(200).json({
-        success: true,
-        data: topProduits,
-        message: 'Top produits récupéré avec succès',
-        timestamp: new Date().toISOString()
-      });
+      sendSuccess(res, 'Top produits récupéré avec succès', topProduits);
     } catch (error) {
       console.error('❌ Erreur StatistiqueController.getTopProduits:', error);
-      res.status(500).json({
-        success: false,
-        message: error.message,
-        timestamp: new Date().toISOString()
-      });
+      sendError(res, error.message, 500);
     }
   }
 
   async getIndicateurs(req, res) {
     try {
       const indicateurs = await this.statistiqueService.getIndicateurs();
-      res.status(200).json({
-        success: true,
-        data: indicateurs,
-        message: 'Indicateurs récupérés avec succès',
-        timestamp: new Date().toISOString()
-      });
+      sendSuccess(res, 'Indicateurs récupérés avec succès', indicateurs);
     } catch (error) {
       console.error('❌ Erreur StatistiqueController.getIndicateurs:', error);
-      res.status(500).json({
-        success: false,
-        message: error.message,
-        timestamp: new Date().toISOString()
-      });
+      sendError(res, error.message, 500);
     }
   }
 }

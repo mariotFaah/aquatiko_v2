@@ -10,7 +10,7 @@ export class ArticleController {
   async getAll(req, res) {
     try {
       const articles = await this.articleService.getArticles();
-      successResponse(res, articles, 'Articles récupérés avec succès');
+      successResponse(res, 'Articles récupérés avec succès', articles);
     } catch (error) {
       errorResponse(res, error.message);
     }
@@ -19,7 +19,7 @@ export class ArticleController {
   async create(req, res) {
     try {
       const nouvelArticle = await this.articleService.createArticle(req.body);
-      createdResponse(res, nouvelArticle, 'Article créé avec succès');
+      createdResponse(res, 'Article créé avec succès', nouvelArticle);
     } catch (error) {
       errorResponse(res, error.message);
     }
@@ -31,7 +31,7 @@ export class ArticleController {
       if (!article) {
         return errorResponse(res, 'Article non trouvé', 404);
       }
-      successResponse(res, article);
+      successResponse(res, 'Articles recuperee avec succes' ,article);
     } catch (error) {
       errorResponse(res, error.message);
     }
@@ -40,7 +40,7 @@ export class ArticleController {
   async update(req, res) {
     try {
       const articleMaj = await this.articleService.updateArticle(req.params.code, req.body);
-      successResponse(res, articleMaj, 'Article mis à jour avec succès');
+      successResponse(res, 'Article mis à jour avec succès',articleMaj );
     } catch (error) {
       errorResponse(res, error.message);
     }
@@ -49,7 +49,7 @@ export class ArticleController {
   async delete(req, res) {
     try {
       await this.articleService.deleteArticle(req.params.code);
-      successResponse(res, null, 'Article supprimé avec succès');
+      successResponse(res,'Article supprimé avec succès',null);
     } catch (error) {
       errorResponse(res, error.message);
     }
@@ -60,7 +60,7 @@ export class ArticleController {
     try {
       const { statut } = req.params;
       const articles = await this.articleService.getArticlesByStockStatus(statut);
-      successResponse(res, articles, `Articles avec statut ${statut} récupérés avec succès`);
+      successResponse(res, `Articles avec statut ${statut} récupérés avec succès`,articles);
     } catch (error) {
       errorResponse(res, error.message);
     }
@@ -70,7 +70,7 @@ export class ArticleController {
     try {
       const { quantite_stock } = req.body;
       const articleMaj = await this.articleService.updateStock(req.params.code, quantite_stock);
-      successResponse(res, articleMaj, 'Stock mis à jour avec succès');
+      successResponse(res,'Stock mis à jour avec succès', articleMaj );
     } catch (error) {
       errorResponse(res, error.message);
     }
@@ -80,7 +80,7 @@ export class ArticleController {
     try {
       const { quantite } = req.body;
       const articleMaj = await this.articleService.adjustStock(req.params.code, quantite);
-      successResponse(res, articleMaj, 'Stock ajusté avec succès');
+      successResponse(res, 'Stock ajusté avec succès', articleMaj);
     } catch (error) {
       errorResponse(res, error.message);
     }
@@ -91,11 +91,11 @@ export class ArticleController {
       const rupture = await this.articleService.getArticlesByStockStatus('rupture');
       const stockFaible = await this.articleService.getArticlesByStockStatus('stock_faible');
       
-      successResponse(res, {
+      successResponse(res, 'Alertes stock récupérées avec succès', {
         rupture_stock: rupture,
         stock_faible: stockFaible,
         total_alertes: rupture.length + stockFaible.length
-      }, 'Alertes stock récupérées avec succès');
+      });
     } catch (error) {
       errorResponse(res, error.message);
     }
@@ -108,7 +108,7 @@ export class ArticleController {
         req.params.code, 
         quantite ? parseInt(quantite) : 1
       );
-      successResponse(res, disponibilite, 'Disponibilité vérifiée avec succès');
+      successResponse(res, 'Disponibilité vérifiée avec succès', disponibilite);
     } catch (error) {
       errorResponse(res, error.message);
     }

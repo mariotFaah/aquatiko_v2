@@ -13,6 +13,8 @@ import ExpeditionDetailPage from '../pages/ExpeditionDetailPage';
 import ExpeditionFormPage from '../pages/ExpeditionFormPage';
 import GestionCoutsPage from '../pages/GestionCoutsPage';
 import AnalysesMargePage from '../pages/AnalysesMargePage';
+import TransporteurFormPage from '../pages/TransporteurFormPage'
+import TransporteursListPage from '../pages/TransporteursListPage'
 
 export const importExportRoutes: RouteObject[] = [
   {
@@ -68,6 +70,19 @@ export const importExportRoutes: RouteObject[] = [
       {
         path: 'analyses',
         element: <AnalysesMargePage />,
+      },
+      // Ajoutez ces routes
+      {
+        path: 'transporteurs',
+        element: <TransporteursListPage />
+      },
+      {
+        path: 'transporteurs/nouveau',
+        element: <TransporteurFormPage />
+      },
+      {
+        path: 'transporteurs/:id/modifier',
+        element: <TransporteurFormPage />
       }
     ],
   },

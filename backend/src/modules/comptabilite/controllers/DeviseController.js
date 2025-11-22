@@ -15,9 +15,12 @@ export class DeviseController {
         devise_cible, 
         date
       );
-      sendSuccess(res, { montant_converti: resultat }, 'Conversion effectuée avec succès');
+      sendSuccess(res, 'Conversion effectuée avec succès', { montant_converti: resultat });
     } catch (error) {
-      sendError(res, 500, error.message);
+      // AVANT : sendError(res, 500, error.message);
+      // APRÈS :
+      sendError(res, error.message, 500);
+      //         ↑ res   ↑ message   ↑ statusCode
     }
   }
 
@@ -30,19 +33,22 @@ export class DeviseController {
         taux,
         date_effet
       );
-      sendSuccess(res, nouveauTaux, 'Taux de change mis à jour');
+      sendSuccess(res, 'Taux de change mis à jour', nouveauTaux);
     } catch (error) {
-      sendError(res, 500, error.message);
+      // AVANT : sendError(res, 500, error.message);
+      // APRÈS :
+      sendError(res, error.message, 500);
     }
   }
 
- 
   async getTauxActifs(req, res) {
     try {
       const tauxActifs = await this.deviseService.tauxChangeRepo.findAllActifs();
-      sendSuccess(res, tauxActifs, 'Taux de change actifs récupérés');
+      sendSuccess(res, 'Taux de change actifs récupérés', tauxActifs);
     } catch (error) {
-      sendError(res, 500, error.message);
+      // AVANT : sendError(res, 500, error.message);
+      // APRÈS :
+      sendError(res, error.message, 500);
     }
   }
 }

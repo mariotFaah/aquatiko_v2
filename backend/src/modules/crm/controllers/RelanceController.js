@@ -10,7 +10,7 @@ export class RelanceController {
   getAllRelances = async (req, res) => {
     try {
       const relances = await this.relanceService.getAllRelances();
-      successResponse(res, relances, 'Relances récupérées avec succès');
+      successResponse(res, 'Relances récupérées avec succès', relances);
     } catch (error) {
       console.error('Erreur RelanceController.getAllRelances:', error);
       errorResponse(res, error.message, 500);
@@ -22,7 +22,7 @@ export class RelanceController {
     try {
       const { id } = req.params;
       const relances = await this.relanceService.getRelancesByClient(parseInt(id));
-      successResponse(res, relances, 'Relances client récupérées avec succès');
+      successResponse(res, 'Relances client récupérées avec succès', relances);
     } catch (error) {
       console.error('Erreur RelanceController.getRelancesByClient:', error);
       errorResponse(res, error.message, 500);
@@ -34,7 +34,7 @@ export class RelanceController {
     try {
       const { statut } = req.params;
       const relances = await this.relanceService.getRelancesByStatut(statut);
-      successResponse(res, relances, `Relances ${statut} récupérées avec succès`);
+      successResponse(res, `Relances ${statut} récupérées avec succès`, relances);
     } catch (error) {
       console.error('Erreur RelanceController.getRelancesByStatut:', error);
       errorResponse(res, error.message, 500);
@@ -46,7 +46,7 @@ export class RelanceController {
     try {
       const relanceData = req.body;
       const relance = await this.relanceService.createRelance(relanceData);
-      successResponse(res, relance, 'Relance créée avec succès');
+      successResponse(res, 'Relance créée avec succès', relance);
     } catch (error) {
       console.error('Erreur RelanceController.createRelance:', error);
       errorResponse(res, error.message, 400);
@@ -60,7 +60,7 @@ export class RelanceController {
       const { statut } = req.body;
       
       const relance = await this.relanceService.updateRelanceStatut(parseInt(id), statut);
-      successResponse(res, relance, 'Statut relance mis à jour avec succès');
+      successResponse(res, 'Statut relance mis à jour avec succès', relance);
     } catch (error) {
       console.error('Erreur RelanceController.updateRelanceStatut:', error);
       errorResponse(res, error.message, 400);
@@ -71,7 +71,7 @@ export class RelanceController {
   genererRelancesAutomatiques = async (req, res) => {
     try {
       const result = await this.relanceService.genererRelancesAutomatiques();
-      successResponse(res, result, 'Relances automatiques générées avec succès');
+      successResponse(res, 'Relances automatiques générées avec succès', result);
     } catch (error) {
       console.error('Erreur RelanceController.genererRelancesAutomatiques:', error);
       errorResponse(res, error.message, 500);
@@ -82,7 +82,7 @@ export class RelanceController {
   getStatsRelances = async (req, res) => {
     try {
       const stats = await this.relanceService.getStatsRelances();
-      successResponse(res, stats, 'Statistiques relances récupérées avec succès');
+      successResponse(res, 'Statistiques relances récupérées avec succès', stats);
     } catch (error) {
       console.error('Erreur RelanceController.getStatsRelances:', error);
       errorResponse(res, error.message, 500);

@@ -11,9 +11,9 @@ export class RapportController {
     try {
       const { date_fin } = req.query;
       const bilan = await this.rapportService.genererBilan(date_fin);
-      sendSuccess(res, bilan, 'Bilan généré avec succès');
+      sendSuccess(res, 'Bilan généré avec succès', bilan);
     } catch (error) {
-      sendError(res, 500, error.message);
+      sendError(res, error.message, 500);
     }
   }
 
@@ -21,9 +21,9 @@ export class RapportController {
     try {
       const { date_debut, date_fin } = req.query;
       const resultat = await this.rapportService.genererCompteResultat(date_debut, date_fin);
-      sendSuccess(res, resultat, 'Compte de résultat généré avec succès');
+      sendSuccess(res, 'Compte de résultat généré avec succès', resultat);
     } catch (error) {
-      sendError(res, 500, error.message);
+      sendError(res, error.message, 500);
     }
   }
 
@@ -31,9 +31,9 @@ export class RapportController {
     try {
       const { date_debut, date_fin } = req.query;
       const tresorerie = await this.rapportService.genererTresorerie(date_debut, date_fin);
-      sendSuccess(res, tresorerie, 'Rapport de trésorerie généré avec succès');
+      sendSuccess(res, 'Rapport de trésorerie généré avec succès', tresorerie);
     } catch (error) {
-      sendError(res, 500, error.message);
+      sendError(res, error.message, 500);
     }
   }
 
@@ -41,9 +41,9 @@ export class RapportController {
     try {
       const { date_debut, date_fin } = req.query;
       const tva = await this.rapportService.genererRapportTVA(date_debut, date_fin);
-      sendSuccess(res, tva, 'Déclaration TVA générée avec succès');
+      sendSuccess(res, 'Déclaration TVA générée avec succès', tva);
     } catch (error) {
-      sendError(res, 500, error.message);
+      sendError(res, error.message, 500);
     }
   }
 }
