@@ -8,7 +8,7 @@ import {
   updateStockSchema,
   adjustStockSchema 
 } from '../validators/articles.validator.js';
-// ✅ CORRECTION : Remplacer par le nouveau middleware
+
 import { auth, requireRole } from '../../../core/middleware/auth.js';
 
 const router = Router();
@@ -23,35 +23,35 @@ router.get('/:code/disponibilite', articleController.checkAvailability.bind(arti
 // ✅ ROUTES PROTÉGÉES - Lecture pour utilisateurs authentifiés
 router.get('/alertes/stock', 
   auth,
-  requireRole('comptable'), // ✅ CORRECTION
+  requireRole('comptable'), 
   articleController.getStockAlerts.bind(articleController)
 );
 
 // ✅ ROUTES PROTÉGÉES - Écriture pour comptables et admin
 router.post('/', 
   auth,
-  requireRole('comptable'), // ✅ CORRECTION
+  requireRole('comptable'), 
   validateRequest(createArticleSchema), 
   articleController.create.bind(articleController)
 );
 
 router.put('/:code', 
   auth,
-  requireRole('comptable'), // ✅ CORRECTION
+  requireRole('comptable'), 
   validateRequest(updateArticleSchema), 
   articleController.update.bind(articleController)
 );
 
 router.put('/:code/stock', 
   auth,
-  requireRole('comptable'), // ✅ CORRECTION
+  requireRole('comptable'), 
   validateRequest(updateStockSchema), 
   articleController.updateStock.bind(articleController)
 );
 
 router.patch('/:code/stock/adjust', 
   auth,
-  requireRole('comptable'), // ✅ CORRECTION
+  requireRole('comptable'), 
   validateRequest(adjustStockSchema), 
   articleController.adjustStock.bind(articleController)
 );
@@ -59,7 +59,7 @@ router.patch('/:code/stock/adjust',
 // ✅ ROUTE PROTÉGÉE - Suppression admin seulement
 router.delete('/:code', 
   auth,
-  requireRole('admin'), // ✅ CORRECTION
+  requireRole('admin'), 
   articleController.delete.bind(articleController)
 );
 

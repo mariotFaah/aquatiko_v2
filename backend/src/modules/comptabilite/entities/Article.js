@@ -1,4 +1,4 @@
-// src/modules/comptabilite/entities/Article.js (CORRIGÉ)
+// src/modules/comptabilite/entities/Article.js 
 export class Article {
   constructor(data) {
     this.code_article = data.code_article;
