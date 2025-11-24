@@ -27,7 +27,9 @@ export class EcritureComptableController {
       
       sendSuccess(res, 'Écritures récupérées avec succès', ecritures);
     } catch (error) {
-      sendError(res, 500, error.message);
+      // AVANT : sendError(res, 500, error.message);
+      // APRÈS :
+      sendError(res, error.message, 500);
     }
   }
 
@@ -40,12 +42,16 @@ export class EcritureComptableController {
         .first();
       
       if (!ecriture) {
-        return sendError(res, 404, 'Écriture non trouvée');
+        // AVANT : sendError(res, 404, 'Écriture non trouvée');
+        // APRÈS :
+        return sendError(res, 'Écriture non trouvée', 404);
       }
       
       sendSuccess(res, 'Écriture récupérée avec succès', ecriture);
     } catch (error) {
-      sendError(res, 500, error.message);
+      // AVANT : sendError(res, 500, error.message);
+      // APRÈS :
+      sendError(res, error.message, 500);
     }
   }
 
@@ -64,9 +70,13 @@ export class EcritureComptableController {
       };
       
       const nouvelleEcriture = await this.ecritureRepo.create(ecritureComplete);
-      sendSuccess(res, 'Écriture créée avec succès', nouvelleEcriture, 201);
+      // AVANT : sendSuccess(res, 'Écriture créée avec succès', nouvelleEcriture, 201);
+      // APRÈS :
+      sendSuccess(res, 'Écriture créée avec succès', nouvelleEcriture);
     } catch (error) {
-      sendError(res, 500, error.message);
+      // AVANT : sendError(res, 500, error.message);
+      // APRÈS :
+      sendError(res, error.message, 500);
     }
   }
 
@@ -79,7 +89,9 @@ export class EcritureComptableController {
       const ecritures = await this.ecritureRepo.findByJournal(type, date_debut, date_fin);
       sendSuccess(res, `Écritures du journal ${type} récupérées`, ecritures);
     } catch (error) {
-      sendError(res, 500, error.message);
+      // AVANT : sendError(res, 500, error.message);
+      // APRÈS :
+      sendError(res, error.message, 500);
     }
   }
 }

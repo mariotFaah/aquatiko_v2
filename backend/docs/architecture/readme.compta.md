@@ -602,5 +602,4 @@ Sécurité renforcée
 
 Maintenance simplifiée
 
-*© 2025 Aquatiko - Système de Gestion Comptable Avancé - Tous droits réservés*
 
