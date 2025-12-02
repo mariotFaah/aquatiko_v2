@@ -38,7 +38,7 @@ app.get('/api/health', async (req, res) => {
     status: 'OK', 
     timestamp: new Date().toISOString(),
     database: dbStatus ? 'Connected' : 'Disconnected',
-    modules: ['comptabilite', 'import-export', 'crm', 'auth']  // ✅ Retiré user-management
+    modules: ['comptabilite', 'import-export', 'crm', 'auth']  
   });
 });
 
@@ -46,7 +46,7 @@ app.get('/api/health', async (req, res) => {
 
 initAuthModule(app);
 
-// ✅ ROUTE TEMPORAIRE POUR TESTER LA GESTION UTILISATEURS
+
 app.get('/api/auth/users-test', auth, (req, res) => {
   if (req.user.role !== 'admin') {
     return res.status(403).json({ 
@@ -55,7 +55,7 @@ app.get('/api/auth/users-test', auth, (req, res) => {
     });
   }
   
-  // Données temporaires pour tester
+  
   res.json({
     success: true,
     message: 'Liste des utilisateurs (test)',
@@ -84,14 +84,14 @@ app.get('/api/auth/users-test', auth, (req, res) => {
   });
 });
 
-// ✅ ROUTES PROTÉGÉES PAR AUTH
+
 app.use('/api/comptabilite', auth, comptabiliteRoutes);
 app.use('/api/import-export', auth, importExportRoutes);
 
-// ✅ INITIALISATION DU MODULE CRM (avec auth intégré)
+
 initCRMModule(app);
 
-// Route 404 avec un chemin explicite
+
 app.use('/:any*', (req, res) => {
   res.status(404).json({
     success: false,
@@ -101,7 +101,6 @@ app.use('/:any*', (req, res) => {
   });
 });
 
-// Gestionnaire d'erreurs global
 app.use((err, req, res, next) => {
   console.error('Erreur:', err);
   res.status(500).json({
@@ -117,9 +116,9 @@ app.listen(PORT, async () => {
   console.log(`🚀 Serveur backend démarré sur le port ${PORT}`);
   console.log(`📊 URL: http://localhost:${PORT}`);
   console.log(`🔍 Health check: http://localhost:${PORT}/api/health`);
-  console.log(`📦 Modules activés: Comptabilité, Import/Export, CRM, Auth`); // ✅ Retiré User Management
+  console.log(`📦 Modules activés: Comptabilité, Import/Export, CRM, Auth`);  
   console.log(`🔐 API Auth disponible: http://localhost:${PORT}/api/auth`);
   
-  // Tester la connexion DB
+  
   await testConnection();
 });

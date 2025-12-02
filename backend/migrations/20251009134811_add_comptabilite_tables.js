@@ -3,7 +3,7 @@ export function up(knex) {
   return knex.schema
     .createTable('paiements', (table) => {
       table.increments('id_paiement').primary();
-      table.integer('numero_facture').unsigned().notNullable(); // Même type que factures.numero_facture
+      table.integer('numero_facture').unsigned().notNullable(); 
       table.date('date_paiement').notNullable();
       table.decimal('montant', 15, 2).notNullable();
       table.enu('mode_paiement', ['espèce', 'virement', 'chèque', 'carte']).notNullable();

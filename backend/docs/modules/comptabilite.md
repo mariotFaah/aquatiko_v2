@@ -960,7 +960,7 @@ Le module de paiement flexible est :
 
     ✅ Rétrocompatible avec l'existant
 
-P
+
 
 *© 2025 Aquatiko - Système de Gestion Comptable Avancé - Tous droits réservés*
 

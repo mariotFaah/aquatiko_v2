@@ -70,7 +70,6 @@ export const ecritureApi = {
       return ecrituresParsees;
     } catch (error: any) {
       console.error('❌ Erreur getEcrituresComptables:', error.response?.data || error.message);
-      // ✅ GÉRER le cas 204 No Content
       if (error.response?.status === 204) {
         return [];
       }
@@ -220,7 +219,6 @@ export const ecritureApi = {
     }
   },
 
-  // ✅ NOUVELLE MÉTHODE : Récupérer les écritures par période
   getEcrituresByPeriode: async (debut: string, fin: string): Promise<EcritureComptable[]> => {
     try {
       const response = await axios.get(`${API_BASE_URL}/ecritures`, {

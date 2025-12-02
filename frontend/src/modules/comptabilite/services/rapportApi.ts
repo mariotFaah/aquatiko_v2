@@ -9,12 +9,10 @@ import type {
 
 const API_BASE_URL = '/comptabilite';
 
-// ✅ UTILISER les mêmes fonctions helper que dans api.ts
-// CORRECTION de la fonction extractObject
+
 const extractObject = (response: any): any => {
   console.log('📊 Structure de la réponse rapports:', response.data);
   
-  // ✅ CORRECTION : D'abord vérifier si message est un objet (cas TVA)
   if (response.data.success && response.data.message && typeof response.data.message === 'object') {
     console.log('✅ Extraction depuis response.data.message');
     return response.data.message;
@@ -128,7 +126,6 @@ export const rapportApi = {
       
       console.log('✅ TVA chargée avec succès - Données BRUTES:', tvaData);
       
-      // ✅ CORRECTION : Retourner directement les données car elles correspondent déjà à l'interface RapportTVA
       const tva: RapportTVA = {
         tva_collectee: tvaData.tva_collectee || 0,
         tva_deductable: tvaData.tva_deductable || 0,

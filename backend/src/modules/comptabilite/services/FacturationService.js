@@ -64,7 +64,7 @@ export class FacturationService {
       throw new Error('Impossible de valider une facture sans lignes');
     }
 
-    // ✅ SEULEMENT pour les factures validées : vérifier et décrémenter le stock
+    
     await this.verifierStockFacture(lignes);
     await this.decrementerStockFacture(lignes, numero_facture);
 
@@ -158,7 +158,7 @@ export class FacturationService {
 
     const lignes = await this.ligneFactureRepository.findByFacture(numero_facture);
 
-    // ✅ SEULEMENT pour les factures validées qu'on annule : réapprovisionner le stock
+    
     await this.reapprovisionnerStockFacture(lignes, numero_facture);
 
     // Marquer la facture comme annulée

@@ -76,7 +76,8 @@ export const Header: React.FC = () => {
   // Fonction sécurisée pour obtenir le rôle
   const getRole = (): string => {
     if (!user) return '';
-    return user.code_role || '';
+    const u = user as any;
+    return u.code_role || u.role || u.codeRole || u.role_code || '';
   };
 
   return (
@@ -84,7 +85,9 @@ export const Header: React.FC = () => {
       <div className="header-container">
         <div className="header-title-section">
           <h2 className="header-title">
-            Tableau de Bord
+            
+            AQUATIKO - Plateforme de gestion intégrée
+            
           </h2>
         </div>
         

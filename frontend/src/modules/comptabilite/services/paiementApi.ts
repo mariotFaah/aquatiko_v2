@@ -4,7 +4,6 @@ import type { Paiement } from '../types';
 
 const API_BASE_URL = '/comptabilite';
 
-// ✅ UTILISER la même fonction helper que dans api.ts
 const extractData = (response: any): any[] => {
   console.log('📊 Structure de la réponse paiements:', response.data);
   
@@ -20,7 +19,6 @@ const extractData = (response: any): any[] => {
   return [];
 };
 
-// ✅ FONCTION HELPER pour extraire un objet simple
 const extractObject = (response: any): any => {
   if (response.data.success && response.data.data) {
     return response.data.data;
@@ -49,7 +47,6 @@ export const paiementApi = {
       return paiements.map(parsePaiement);
     } catch (error: any) {
       console.error('❌ Erreur getPaiements:', error.response?.data || error.message);
-      // ✅ GÉRER le cas 204 No Content
       if (error.response?.status === 204) {
         return [];
       }

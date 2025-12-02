@@ -56,6 +56,8 @@ async function creerPlanComptable() {
   } finally {
     db.destroy();
   }
+
+  
 }
 
 creerPlanComptable();

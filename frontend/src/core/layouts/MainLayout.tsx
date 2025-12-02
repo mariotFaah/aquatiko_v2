@@ -12,19 +12,15 @@ export const MainLayout: React.FC = () => {
   return (
     <div className="main-layout">
       {/* Sidebar et bouton toggle */}
-      <Sidebar 
-        isOpen={sidebarOpen} 
+      <Sidebar
+        isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen(!sidebarOpen)}
-        userRole={user?.code_role} // ✅ Passer le rôle utilisateur
       />
+      
       
       {/* Main content */}
       <div className={`main-content ${sidebarOpen ? 'sidebar-open' : ''}`}>
-        <Header 
-          user={user} // ✅ Passer les infos utilisateur
-          onLogout={logout} // ✅ Passer la fonction de déconnexion
-          onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
-        />
+        <Header {...({ user, onLogout: logout, onToggleSidebar: () => setSidebarOpen(!sidebarOpen) } as any)} />
         
         <main className="main-content-area">
           <Outlet />

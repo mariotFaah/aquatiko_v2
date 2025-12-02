@@ -4,14 +4,12 @@ dotenv.config();
 const dbConfig = {
   client: 'mysql2',
   connection: {
-    // Utilise les variables Railway en priorité, puis les variables locales
     host: process.env.MYSQLHOST || process.env.DB_HOST || '127.0.0.1',
     port: process.env.MYSQLPORT || process.env.DB_PORT || 3306,
     user: process.env.MYSQLUSER || process.env.DB_USER || 'admin',
     password: process.env.MYSQLPASSWORD || process.env.DB_PASSWORD || 'mot_de_passe',
     database: process.env.MYSQLDATABASE || process.env.DB_NAME || 'gestion_entreprise',
     charset: 'utf8mb4',
-    // SSL pour la production
     ssl: process.env.MYSQLHOST ? { rejectUnauthorized: false } : undefined
   },
   migrations: {
