@@ -2,7 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { importExportApi } from '../services/api';
 import type { Commande } from '../types';
-import './CommandesListPage.css'; 
+import { 
+  FiDownload, 
+  FiUpload, 
+  FiEye, 
+  FiEdit2, 
+  FiTruck,
+  FiPlus,
+  FiFilter
+} from 'react-icons/fi';
+import './CommandesListPage.css';
 
 const CommandesListPage: React.FC = () => {
   const [commandes, setCommandes] = useState<Commande[]>([]);
@@ -37,7 +46,7 @@ const CommandesListPage: React.FC = () => {
   };
 
   const getTypeIcon = (type: string) => {
-    return type === 'import' ? '📥' : '📤';
+    return type === 'import' ? <FiDownload className="type-icon import-icon" /> : <FiUpload className="type-icon export-icon" />;
   };
 
   if (loading) {
@@ -55,21 +64,30 @@ const CommandesListPage: React.FC = () => {
 
   return (
     <div className="commandes-container">
-
       <div className="commandes-content">
-        {/* En-tête */}
-        <div className="flex justify-between items-center mb-6">
-          
-          <Link
-            to="/import-export/commandes/nouvelle"
-            className="btn-nouvelle-commande"
-          >
-            + Nouvelle Commande
-          </Link>
+        {/* En-tête Microsoft Sage Style */}
+        <div className="page-header">
+          <div className="header-content">
+            <h1 className="page-title">Commandes Import/Export</h1>
+            <p className="page-subtitle">Gérez toutes vos commandes internationales</p>
+          </div>
+          <div className="header-actions">
+            <Link
+              to="/import-export/commandes/nouvelle"
+              className="btn-nouvelle-commande"
+            >
+              <FiPlus className="btn-icon" />
+              Nouvelle Commande
+            </Link>
+          </div>
         </div>
 
-        {/* Filtres */}
+        {/* Section Filtres */}
         <div className="filtres-section">
+          <div className="filtres-header">
+            <FiFilter className="filter-icon" />
+            <h3 className="filtres-title">Filtres</h3>
+          </div>
           <div className="filtres-grid">
             <div className="filtre-group">
               <label className="filtre-label">Type</label>
@@ -94,7 +112,7 @@ const CommandesListPage: React.FC = () => {
                 <option value="">Tous les statuts</option>
                 <option value="brouillon">Brouillon</option>
                 <option value="confirmée">Confirmée</option>
-                <option value="expédiée">Expédiée</option>
+                <option value="expédiée" >Expédiée</option>
                 <option value="livrée">Livrée</option>
                 <option value="annulée">Annulée</option>
               </select>
@@ -104,6 +122,12 @@ const CommandesListPage: React.FC = () => {
 
         {/* Liste des commandes */}
         <div className="table-container">
+          <div className="table-header">
+            <div className="table-summary">
+              {commandes.length} commande{commandes.length > 1 ? 's' : ''} trouvée{commandes.length > 1 ? 's' : ''}
+            </div>
+          </div>
+          
           <table className="commandes-table">
             <thead>
               <tr>
@@ -120,7 +144,7 @@ const CommandesListPage: React.FC = () => {
                 <tr key={commande.id}>
                   <td>
                     <div className="commande-cell">
-                      <span className="commande-icon">{getTypeIcon(commande.type)}</span>
+                      {getTypeIcon(commande.type)}
                       <div className="commande-info">
                         <div className="commande-numero">{commande.numero_commande}</div>
                         <div className="commande-type">{commande.type}</div>
@@ -128,10 +152,10 @@ const CommandesListPage: React.FC = () => {
                     </div>
                   </td>
                   <td>
-                    <div className="text-sm text-gray-900">{commande.client?.nom}</div>
+                    <div className="client-cell">{commande.client?.nom}</div>
                   </td>
                   <td>
-                    <div className="text-sm text-gray-900">{commande.fournisseur?.nom}</div>
+                    <div className="fournisseur-cell">{commande.fournisseur?.nom}</div>
                   </td>
                   <td className="montant-cell">
                     {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: commande.devise }).format(commande.montant_total)}
@@ -146,22 +170,23 @@ const CommandesListPage: React.FC = () => {
                       <Link
                         to={`/import-export/commandes/${commande.id}`}
                         className="btn-action btn-voir"
+                        title="Voir détails"
                       >
-                        Voir
+                        <FiEye />
                       </Link>
                       <Link
                         to={`/import-export/commandes/${commande.id}/edit`}
                         className="btn-action btn-modifier"
+                        title="Modifier"
                       >
-                        Modifier
+                        <FiEdit2 />
                       </Link>
-                     
                       <Link 
                         to={`/import-export/commandes/${commande.id}/expedition`}
-                        className="btn-action"
+                        className="btn-action btn-expedition"
                         title="Gérer l'expédition"
                       >
-                        🚚
+                        <FiTruck />
                       </Link>
                     </div>
                   </td>
@@ -172,8 +197,16 @@ const CommandesListPage: React.FC = () => {
 
           {commandes.length === 0 && (
             <div className="empty-state">
+              <div className="empty-icon">📋</div>
               <h3>Aucune commande trouvée</h3>
               <p>Aucune commande ne correspond à vos critères de recherche.</p>
+              <Link
+                to="/import-export/commandes/nouvelle"
+                className="btn-nouvelle-commande btn-empty"
+              >
+                <FiPlus className="btn-icon" />
+                Créer une commande
+              </Link>
             </div>
           )}
         </div>

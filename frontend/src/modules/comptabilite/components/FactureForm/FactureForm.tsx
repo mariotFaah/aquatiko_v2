@@ -1,4 +1,22 @@
 import { useState, useEffect } from 'react';
+import { 
+  FaPlus,  
+  FaSave, 
+  FaCheck, 
+  FaFileInvoice, 
+  FaUser, 
+  FaCalendarAlt,
+  FaMoneyBillWave,
+  FaExchangeAlt,
+  FaCreditCard,
+  FaCalculator,
+  FaBuilding,
+  FaTags,
+  FaPercent,
+  FaShoppingCart,
+  FaList,
+  FaDollarSign
+} from 'react-icons/fa';
 import type { Tiers, Article, FactureFormData, Facture, TauxChange, PaiementFlexibleConfig } from '../../types';
 import { comptabiliteApi } from '../../services/api';
 import { LigneFactureRow } from './LigneFactureRow';
@@ -7,6 +25,7 @@ import { DeviseSelector } from '../DeviseSelector/DeviseSelector';
 import { useAlertDialog } from '../../../../core/hooks/useAlertDialog';
 import AlertDialog from '../../../../core/components/AlertDialog/AlertDialog';
 import './FactureForm.css';
+import { useNavigate } from 'react-router-dom';
 
 const ENTREPRISE_INFO = {
   nom: 'OMNISERVE EXPERTS',
@@ -33,6 +52,7 @@ export const FactureForm: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [showValidation, setShowValidation] = useState(false);
   const [factureCreee, setFactureCreee] = useState<Facture | null>(null);
+  const navigate = useNavigate();
   
   // Utilisation du hook AlertDialog
   const { isOpen, message, title, type, alert, close } = useAlertDialog();
@@ -477,6 +497,10 @@ export const FactureForm: React.FC = () => {
         type: 'success',
         title: 'Succès'
       });
+
+      setTimeout(() => {
+      navigate('/comptabilite/factures');
+    }, 2000);
       
       if (statut === 'brouillon') {
         setFactureCreee(nouvelleFacture);
@@ -484,6 +508,7 @@ export const FactureForm: React.FC = () => {
       } else {
         resetForm();
       }
+      
     } catch (error: any) {
       console.error('❌ Erreur création facture:', error);
       alert(`Erreur: ${error.message}`, {
@@ -506,6 +531,7 @@ export const FactureForm: React.FC = () => {
       setShowValidation(false);
       setFactureCreee(null);
       resetForm();
+      navigate('/comptabilite/factures');
     } catch (error: any) {
       console.error('Erreur validation facture:', error);
       alert(`Erreur validation: ${error.message}`, {
@@ -555,14 +581,7 @@ export const FactureForm: React.FC = () => {
     setFactureCreee(null);
   };
 
-  const getDeviseSymbol = (devise: string) => {
-    const symbols: { [key: string]: string } = {
-      'MGA': 'Ar',
-      'USD': '$',
-      'EUR': '€'
-    };
-    return symbols[devise] || devise;
-  };
+ 
 
   const selectedTier = tiers.find(t => t.id_tiers === formData.facture.id_tiers);
   const lignesAvecCalculs = calculateLignesAvecMontants();
@@ -570,106 +589,233 @@ export const FactureForm: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="facture-loading">
-        <div className="facture-loading-text">Chargement des données...</div>
+      <div className="sage-loading">
+        <div className="sage-loading-spinner"></div>
+        <div className="sage-loading-text">Chargement des données...</div>
       </div>
     );
   }
 
   return (
-    <div className="facture-form">
-      <div className="facture-header">
-        <div>
-          <h2 className="facture-title">FACTURE</h2>
-          <div className="facture-info">
-            <div><strong>Date:</strong> {new Date(formData.facture.date).toLocaleDateString('fr-FR')}</div>
-            <div><strong>Facture No:</strong> {factureCreee ? factureCreee.numero_facture : 'Nouvelle'}</div>
-            <div><strong>Statut:</strong> 
-              <span className={`facture-statut ${formData.facture.statut}`}>
+    <div className="sage-facture-form">
+      {/* En-tête Microsoft Sage Style */}
+      <div className="sage-header">
+        <div className="sage-header-left">
+          <FaFileInvoice className="sage-header-icon" />
+          <div>
+            <h1 className="sage-title">Création de facture</h1>
+            <div className="sage-subtitle">Formulaire de facturation</div>
+          </div>
+        </div>
+        <div className="sage-header-right">
+          <div className="sage-header-info">
+            <div className="sage-info-item">
+              <span className="sage-info-label">Date:</span>
+              <span className="sage-info-value">{new Date(formData.facture.date).toLocaleDateString('fr-FR')}</span>
+            </div>
+            <div className="sage-info-item">
+              <span className="sage-info-label">N°:</span>
+              <span className="sage-info-value sage-facture-number">
+                {factureCreee ? factureCreee.numero_facture : 'Nouvelle'}
+              </span>
+            </div>
+            <div className="sage-info-item">
+              <span className="sage-info-label">Statut:</span>
+              <span className={`sage-statut sage-statut-${formData.facture.statut}`}>
                 {formData.facture.statut}
               </span>
             </div>
-            <div><strong>Total TTC:</strong> 
-              <span className="facture-total-ttc">
-                {formData.facture.total_ttc.toLocaleString('fr-FR', {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2
-                })} {getDeviseSymbol(currentDevise)}
-              </span>
-            </div>
-            <div className="facture-devise-selector">
-              <label><strong>Devise:</strong></label>
-              <DeviseSelector
-                value={currentDevise}
-                onChange={handleDeviseChange}
-                className="facture-devise-select"
-                disabled={showValidation}
-              />
-              {currentDevise !== 'MGA' && (
-                <div className="facture-taux-change">
-                  <small>Taux: 1 {currentDevise} = {formData.facture.taux_change || 1.0} MGA</small>
-                </div>
-              )}
-            </div>
           </div>
-        </div>
-        
-        <div>
-          <h3 className="facture-section-title">Entreprise</h3>
-          <div className="facture-entreprise-info">
-            <div><strong>Nom:</strong> {ENTREPRISE_INFO.nom}</div>
-            <div><strong>Adresse:</strong> {ENTREPRISE_INFO.adresse}</div>
-            <div><strong>Tel:</strong> {ENTREPRISE_INFO.telephone}</div>
-            <div><strong>Email:</strong> {ENTREPRISE_INFO.email}</div>
-          </div>
-        </div>
-        
-        <div>
-          <h3 className="facture-section-title">
-            {selectedTier?.type_tiers === 'fournisseur' ? 'Fournisseur' : 'Client'}
-          </h3>
-          <select
-            value={formData.facture.id_tiers}
-            onChange={(e) => handleTiersChange(parseInt(e.target.value))}
-            className="facture-client-select"
-            required
-            disabled={showValidation}
-          >
-            <option value={0}>Sélectionner un client/fournisseur</option>
-            {tiers.map(tier => (
-              <option key={tier.id_tiers} value={tier.id_tiers}>
-                {tier.type_tiers === 'fournisseur' ? '🚚 ' : '👤 '}
-                {tier.nom} - {tier.numero} 
-                {tier.devise_preferee && ` (${tier.devise_preferee})`}
-              </option>
-            ))}
-          </select>
-          
-          {selectedTier && (
-            <div className="facture-client-details">
-              <div><strong>Type:</strong> {selectedTier.type_tiers}</div>
-              <div><strong>Nom:</strong> {selectedTier.nom}</div>
-              <div><strong>Adresse:</strong> {selectedTier.adresse}</div>
-              <div><strong>Tel:</strong> {selectedTier.telephone}</div>
-              <div><strong>Email:</strong> {selectedTier.email}</div>
-              {selectedTier.devise_preferee && (
-                <div><strong>Devise préférée:</strong> {selectedTier.devise_preferee}</div>
-              )}
-            </div>
-          )}
         </div>
       </div>
 
-      {/* Section Configuration Paiement Flexible */}
-      <div className="facture-paiement-section">
-        <h3 className="facture-section-title">Configuration du Paiement</h3>
-        <div className="facture-paiement-grid">
-          <div className="facture-field">
-            <label className="facture-label">Type de paiement</label>
+      {/* Section Entreprise et Client */}
+      <div className="sage-section sage-entreprise-section">
+        <div className="sage-section-header">
+          <FaBuilding className="sage-section-icon" />
+          <h2 className="sage-section-title">Informations de l'entreprise</h2>
+        </div>
+        <div className="sage-entreprise-grid">
+          <div className="sage-entreprise-card">
+            <div className="sage-entreprise-title">OMNISERVE EXPERTS</div>
+            <div className="sage-entreprise-details">
+              <div className="sage-entreprise-detail">
+                <FaBuilding className="sage-detail-icon" />
+                <span>{ENTREPRISE_INFO.adresse}</span>
+              </div>
+              <div className="sage-entreprise-detail">
+                <FaTags className="sage-detail-icon" />
+                <span>{ENTREPRISE_INFO.telephone}</span>
+              </div>
+              <div className="sage-entreprise-detail">
+                <FaTags className="sage-detail-icon" />
+                <span>{ENTREPRISE_INFO.email}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="sage-client-card">
+            <div className="sage-client-header">
+              <FaUser className="sage-client-icon" />
+              <div>
+                <h3 className="sage-client-title">Client / Fournisseur</h3>
+                <select
+                  value={formData.facture.id_tiers}
+                  onChange={(e) => handleTiersChange(parseInt(e.target.value))}
+                  className="sage-client-select"
+                  required
+                  disabled={showValidation}
+                >
+                  <option value={0}>Sélectionner un client ou fournisseur...</option>
+                  {tiers.map(tier => (
+                    <option key={tier.id_tiers} value={tier.id_tiers}>
+                      {tier.type_tiers === 'fournisseur' ? '🚚 ' : '👤 '}
+                      {tier.nom} - {tier.numero} 
+                      {tier.devise_preferee && ` (${tier.devise_preferee})`}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            
+            {selectedTier && (
+              <div className="sage-client-details">
+                <div className="sage-client-detail">
+                  <span className="sage-detail-label">Type:</span>
+                  <span className="sage-detail-value">{selectedTier.type_tiers}</span>
+                </div>
+                <div className="sage-client-detail">
+                  <span className="sage-detail-label">Nom:</span>
+                  <span className="sage-detail-value">{selectedTier.nom}</span>
+                </div>
+                <div className="sage-client-detail">
+                  <span className="sage-detail-label">Adresse:</span>
+                  <span className="sage-detail-value">{selectedTier.adresse}</span>
+                </div>
+                <div className="sage-client-detail">
+                  <span className="sage-detail-label">Téléphone:</span>
+                  <span className="sage-detail-value">{selectedTier.telephone}</span>
+                </div>
+                {selectedTier.devise_preferee && (
+                  <div className="sage-client-detail">
+                    <span className="sage-detail-label">Devise préférée:</span>
+                    <span className="sage-detail-value sage-devise-pref">
+                      {selectedTier.devise_preferee}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Section Paramètres de la facture */}
+      <div className="sage-section sage-parametres-section">
+        <div className="sage-section-header">
+          <FaCalendarAlt className="sage-section-icon" />
+          <h2 className="sage-section-title">Paramètres de la facture</h2>
+        </div>
+        <div className="sage-parametres-grid">
+          <div className="sage-parametre-field">
+            <label className="sage-field-label">
+              <FaCalendarAlt className="sage-field-icon" />
+              Date de facture
+            </label>
+            <input
+              type="date"
+              value={formData.facture.date}
+              onChange={(e) => handleFactureChange('date', e.target.value)}
+              className="sage-field-input"
+              disabled={showValidation}
+            />
+          </div>
+          
+          <div className="sage-parametre-field">
+            <label className="sage-field-label">
+              <FaFileInvoice className="sage-field-icon" />
+              Type de document
+            </label>
+            <select
+              value={formData.facture.type_facture}
+              onChange={(e) => handleFactureChange('type_facture', e.target.value)}
+              className="sage-field-select"
+              disabled={showValidation}
+            >
+              <option value="facture">Facture</option>
+              <option value="proforma">Proforma</option>
+              <option value="avoir">Avoir</option>
+            </select>
+          </div>
+          
+          <div className="sage-parametre-field">
+            <label className="sage-field-label">
+              <FaExchangeAlt className="sage-field-icon" />
+              Devise
+            </label>
+            <DeviseSelector
+              value={currentDevise}
+              onChange={handleDeviseChange}
+              className="sage-field-select"
+              disabled={showValidation}
+            />
+            {currentDevise !== 'MGA' && (
+              <div className="sage-taux-change-info">
+                <small>Taux: 1 {currentDevise} = {formData.facture.taux_change || 1.0} MGA</small>
+              </div>
+            )}
+          </div>
+          
+          <div className="sage-parametre-field">
+            <label className="sage-field-label">
+              <FaCreditCard className="sage-field-icon" />
+              Mode de règlement
+            </label>
+            <select
+              value={formData.facture.reglement}
+              onChange={(e) => handleFactureChange('reglement', e.target.value)}
+              className="sage-field-select"
+              disabled={showValidation}
+            >
+              <option value="virement">Virement</option>
+              <option value="cheque">Chèque</option>
+              <option value="espece">Espèce</option>
+              <option value="carte">Carte</option>
+            </select>
+          </div>
+          
+          <div className="sage-parametre-field">
+            <label className="sage-field-label">
+              <FaCalendarAlt className="sage-field-icon" />
+              Date d'échéance
+            </label>
+            <input
+              type="date"
+              value={formData.facture.echeance}
+              onChange={(e) => handleFactureChange('echeance', e.target.value)}
+              className="sage-field-input"
+              disabled={showValidation}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Section Configuration du paiement flexible */}
+      <div className="sage-section sage-paiement-section">
+        <div className="sage-section-header">
+          <FaMoneyBillWave className="sage-section-icon" />
+          <h2 className="sage-section-title">Configuration du paiement</h2>
+        </div>
+        <div className="sage-paiement-grid">
+          <div className="sage-paiement-field">
+            <label className="sage-field-label">
+              <FaCreditCard className="sage-field-icon" />
+              Type de paiement
+            </label>
             <select
               value={paiementFlexible.type_paiement}
               onChange={(e) => handlePaiementFlexibleChange('type_paiement', e.target.value)}
-              className="facture-select"
+              className="sage-field-select"
               disabled={showValidation}
             >
               <option value="comptant">💳 Paiement comptant (immédiat)</option>
@@ -682,36 +828,45 @@ export const FactureForm: React.FC = () => {
           {/* Configuration pour paiement flexible */}
           {paiementFlexible.type_paiement === 'flexible' && (
             <>
-              <div className="facture-field">
-                <label className="facture-label">Date finale de paiement</label>
+              <div className="sage-paiement-field">
+                <label className="sage-field-label">
+                  <FaCalendarAlt className="sage-field-icon" />
+                  Date finale de paiement
+                </label>
                 <input
                   type="date"
                   value={paiementFlexible.date_finale_paiement}
                   onChange={(e) => handlePaiementFlexibleChange('date_finale_paiement', e.target.value)}
-                  className="facture-input"
+                  className="sage-field-input"
                   disabled={showValidation}
                   min={formData.facture.date}
                 />
               </div>
-              <div className="facture-field">
-                <label className="facture-label">Montant minimum par paiement ({currentDevise})</label>
+              <div className="sage-paiement-field">
+                <label className="sage-field-label">
+                  <FaMoneyBillWave className="sage-field-icon" />
+                  Montant minimum ({currentDevise})
+                </label>
                 <input
                   type="number"
                   value={paiementFlexible.montant_minimum_paiement}
                   onChange={(e) => handlePaiementFlexibleChange('montant_minimum_paiement', Number(e.target.value))}
-                  className="facture-input"
+                  className="sage-field-input"
                   disabled={showValidation}
                   min="0"
                   step="1000"
                 />
               </div>
-              <div className="facture-field">
-                <label className="facture-label">Pénalité de retard (%)</label>
+              <div className="sage-paiement-field">
+                <label className="sage-field-label">
+                  <FaPercent className="sage-field-icon" />
+                  Pénalité de retard (%)
+                </label>
                 <input
                   type="number"
                   value={paiementFlexible.penalite_retard}
                   onChange={(e) => handlePaiementFlexibleChange('penalite_retard', Number(e.target.value))}
-                  className="facture-input"
+                  className="sage-field-input"
                   disabled={showValidation}
                   min="0"
                   max="20"
@@ -724,30 +879,36 @@ export const FactureForm: React.FC = () => {
           {/* Configuration pour acompte */}
           {paiementFlexible.type_paiement === 'acompte' && (
             <>
-              <div className="facture-field">
-                <label className="facture-label">Montant d'acompte ({currentDevise})</label>
+              <div className="sage-paiement-field">
+                <label className="sage-field-label">
+                  <FaMoneyBillWave className="sage-field-icon" />
+                  Montant d'acompte ({currentDevise})
+                </label>
                 <input
                   type="number"
                   value={paiementFlexible.montant_acompte}
                   onChange={(e) => handlePaiementFlexibleChange('montant_acompte', Number(e.target.value))}
-                  className="facture-input"
+                  className="sage-field-input"
                   disabled={showValidation}
                   min="0"
                   max={formData.facture.total_ttc}
                   step="1000"
                 />
-                <small className="facture-help-text">
+                <small className="sage-field-help">
                   {paiementFlexible.montant_acompte > 0 && (
                     <>Soit {((paiementFlexible.montant_acompte / formData.facture.total_ttc) * 100).toFixed(1)}% du total</>
                   )}
                 </small>
               </div>
-              <div className="facture-field">
-                <label className="facture-label">Mode de paiement acompte</label>
+              <div className="sage-paiement-field">
+                <label className="sage-field-label">
+                  <FaCreditCard className="sage-field-icon" />
+                  Mode de paiement acompte
+                </label>
                 <select
                   value={paiementFlexible.mode_paiement_acompte}
                   onChange={(e) => handlePaiementFlexibleChange('mode_paiement_acompte', e.target.value)}
-                  className="facture-select"
+                  className="sage-field-select"
                   disabled={showValidation}
                 >
                   <option value="virement">Virement</option>
@@ -761,13 +922,16 @@ export const FactureForm: React.FC = () => {
 
           {/* Configuration pour échéance */}
           {paiementFlexible.type_paiement === 'echeance' && (
-            <div className="facture-field">
-              <label className="facture-label">Date d'échéance</label>
+            <div className="sage-paiement-field">
+              <label className="sage-field-label">
+                <FaCalendarAlt className="sage-field-icon" />
+                Date d'échéance
+              </label>
               <input
                 type="date"
                 value={paiementFlexible.date_finale_paiement}
                 onChange={(e) => handlePaiementFlexibleChange('date_finale_paiement', e.target.value)}
-                className="facture-input"
+                className="sage-field-input"
                 disabled={showValidation}
                 min={formData.facture.date}
               />
@@ -776,8 +940,9 @@ export const FactureForm: React.FC = () => {
         </div>
 
         {/* Résumé du type de paiement */}
-        <div className="facture-paiement-resume">
-          <div className={`facture-paiement-badge facture-paiement-${paiementFlexible.type_paiement}`}>
+        <div className="sage-paiement-resume">
+          <div className={`sage-paiement-badge sage-paiement-${paiementFlexible.type_paiement}`}>
+            <FaCreditCard className="sage-badge-icon" />
             {paiementFlexible.type_paiement === 'comptant' && '💳 Paiement immédiat à la validation'}
             {paiementFlexible.type_paiement === 'flexible' && '🔄 Paiements échelonnés acceptés'}
             {paiementFlexible.type_paiement === 'acompte' && `💰 Acompte de ${paiementFlexible.montant_acompte} ${currentDevise}`}
@@ -786,84 +951,51 @@ export const FactureForm: React.FC = () => {
         </div>
       </div>
 
-      <div className="facture-details">
-        <div className="facture-field">
-          <label className="facture-label">Devise</label>
-          <DeviseSelector
-            value={currentDevise}
-            onChange={handleDeviseChange}
-            className="facture-select"
-            disabled={showValidation}
-          />
+      {/* Section Articles */}
+      <div className="sage-section sage-articles-section">
+        <div className="sage-section-header">
+          <FaShoppingCart className="sage-section-icon" />
+          <h2 className="sage-section-title">Articles et services</h2>
         </div>
         
-        <div className="facture-field">
-          <label className="facture-label">Type de document</label>
-          <select
-            value={formData.facture.type_facture}
-            onChange={(e) => handleFactureChange('type_facture', e.target.value)}
-            className="facture-select"
-            disabled={showValidation}
-          >
-            <option value="facture">Facture</option>
-            <option value="proforma">Proforma</option>
-            <option value="avoir">Avoir</option>
-          </select>
-        </div>
-        
-        <div className="facture-field">
-          <label className="facture-label">Mode de règlement</label>
-          <select
-            value={formData.facture.reglement}
-            onChange={(e) => handleFactureChange('reglement', e.target.value)}
-            className="facture-select"
-            disabled={showValidation}
-          >
-            <option value="virement">Virement</option>
-            <option value="cheque">Chèque</option>
-            <option value="espece">Espèce</option>
-            <option value="carte">Carte</option>
-          </select>
-        </div>
-        
-        <div className="facture-field">
-          <label className="facture-label">Date d'échéance</label>
-          <input
-            type="date"
-            value={formData.facture.echeance}
-            onChange={(e) => handleFactureChange('echeance', e.target.value)}
-            className="facture-input"
-            disabled={showValidation}
-          />
-        </div>
-      </div>
-
-      <div className="facture-articles-section">
-        <div className="facture-articles-header">
-          <h3 className="facture-articles-title">Articles et Services</h3>
-          {!showValidation && (
-            <button
-              type="button"
-              onClick={addLigne}
-              className="facture-add-button"
-            >
-              + Ajouter une ligne
-            </button>
-          )}
-        </div>
-
-        <div className="facture-table-container">
-          <table className="facture-table">
+        <div className="sage-table-container">
+          <table className="sage-table">
             <thead>
               <tr>
-                <th>Référence</th>
-                <th>Libellé</th>
-                <th>PU ({currentDevise})</th>
-                <th>Quantité</th>
-                <th>Remise %</th>
-                <th>Montant HT ({currentDevise})</th>
-                <th>TVA %</th>
-                {!showValidation && <th>Actions</th>}
+                <th className="sage-table-header">
+                  <FaTags className="sage-table-icon" />
+                  Référence
+                </th>
+                <th className="sage-table-header">
+                  <FaList className="sage-table-icon" />
+                  Libellé
+                </th>
+                <th className="sage-table-header">
+                  <FaDollarSign className="sage-table-icon" />
+                  PU ({currentDevise})
+                </th>
+                <th className="sage-table-header">
+                  <FaCalculator className="sage-table-icon" />
+                  Quantité
+                </th>
+                <th className="sage-table-header">
+                  <FaPercent className="sage-table-icon" />
+                  Remise %
+                </th>
+                <th className="sage-table-header">
+                  <FaMoneyBillWave className="sage-table-icon" />
+                  Montant HT
+                </th>
+                <th className="sage-table-header">
+                  <FaPercent className="sage-table-icon" />
+                  TVA %
+                </th>
+                {!showValidation && (
+                  <th className="sage-table-header">
+                    <FaList className="sage-table-icon" />
+                    Actions
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -882,8 +1014,23 @@ export const FactureForm: React.FC = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Bouton Nouvelle Ligne en bas */}
+        {!showValidation && (
+          <div className="sage-add-ligne-bottom">
+            <button
+              type="button"
+              onClick={addLigne}
+              className="sage-add-ligne-button"
+            >
+              <FaPlus className="sage-button-icon" />
+              Nouvelle ligne
+            </button>
+          </div>
+        )}
       </div>
 
+      {/* Section Calculs */}
       <CalculsFacture 
         totalHT={formData.facture.total_ht}
         totalTVA={formData.facture.total_tva}
@@ -894,64 +1041,59 @@ export const FactureForm: React.FC = () => {
         taux_change={formData.facture.taux_change || 1.0}
       />
 
-      {/* Section pour les informations de paiement flexible */}
-      <div className="facture-paiement-resume-section">
-        <h3 className="facture-section-title">Configuration du Paiement</h3>
-        <div className={`facture-paiement-badge facture-paiement-${paiementFlexible.type_paiement}`}>
-          {paiementFlexible.type_paiement === 'comptant' && '💳 Paiement immédiat à la validation'}
-          {paiementFlexible.type_paiement === 'flexible' && `🔄 Paiements échelonnés jusqu'au ${new Date(paiementFlexible.date_finale_paiement).toLocaleDateString('fr-FR')}`}
-          {paiementFlexible.type_paiement === 'acompte' && `💰 Acompte de ${paiementFlexible.montant_acompte.toLocaleString('fr-FR')} ${currentDevise} requis`}
-          {paiementFlexible.type_paiement === 'echeance' && `📅 Paiement unique le ${new Date(paiementFlexible.date_finale_paiement).toLocaleDateString('fr-FR')}`}
-        </div>
-        
-        {paiementFlexible.type_paiement === 'acompte' && paiementFlexible.montant_acompte > 0 && formData.facture.total_ttc > 0 && (
-          <div className="facture-acompte-details">
-            <small>
-              Solde à payer: {(formData.facture.total_ttc - paiementFlexible.montant_acompte).toLocaleString('fr-FR')} {currentDevise}
-              ({(((formData.facture.total_ttc - paiementFlexible.montant_acompte) / formData.facture.total_ttc) * 100).toFixed(1)}% du total)
-            </small>
-          </div>
-        )}
-      </div>
-
-      <div className="facture-actions">
+      {/* Section Actions */}
+      <div className="sage-actions-section">
         {!showValidation ? (
           <>
             <button
               type="button"
               onClick={(e) => handleSubmit(e, 'brouillon')}
               disabled={submitting}
-              className="facture-draft-button"
+              className="sage-button sage-button-draft"
             >
-              {submitting ? 'Création en cours...' : 'Enregistrer Brouillon'}
+              <FaSave className="sage-button-icon" />
+              {submitting ? 'Création en cours...' : 'Enregistrer brouillon'}
             </button>
             <button
               type="button"
               onClick={(e) => handleSubmit(e, 'validee')}
               disabled={submitting}
-              className="facture-submit-button"
+              className="sage-button sage-button-submit"
             >
-              {submitting ? 'Création en cours...' : 'Créer et Valider la Facture'}
+              <FaCheck className="sage-button-icon" />
+              {submitting ? 'Création en cours...' : 'Créer et valider'}
             </button>
           </>
         ) : (
-          <div className="facture-validation-actions">
-            <p>Facture <strong>{factureCreee?.numero_facture}</strong> créée en brouillon</p>
-            <div className="facture-validation-buttons">
+          <div className="sage-validation-section">
+            <div className="sage-validation-message">
+              <FaFileInvoice className="sage-validation-icon" />
+              <div>
+                <div className="sage-validation-title">
+                  Facture <strong>{factureCreee?.numero_facture}</strong> créée en brouillon
+                </div>
+                <div className="sage-validation-subtitle">
+                  Vous pouvez maintenant valider cette facture ou créer une nouvelle facture
+                </div>
+              </div>
+            </div>
+            <div className="sage-validation-actions">
               <button
                 type="button"
                 onClick={() => factureCreee && validerFacture(factureCreee.numero_facture!)}
                 disabled={submitting}
-                className="facture-validate-button"
+                className="sage-button sage-button-validate"
               >
-                {submitting ? 'Validation...' : '✅ Valider cette Facture'}
+                <FaCheck className="sage-button-icon" />
+                {submitting ? 'Validation...' : 'Valider cette facture'}
               </button>
               <button
                 type="button"
                 onClick={resetForm}
-                className="facture-new-button"
+                className="sage-button sage-button-new"
               >
-                📝 Nouvelle Facture
+                <FaPlus className="sage-button-icon" />
+                Nouvelle facture
               </button>
             </div>
           </div>

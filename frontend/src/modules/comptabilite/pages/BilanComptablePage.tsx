@@ -87,10 +87,7 @@ export const BilanComptablePage: React.FC = () => {
     <div className="bilan-comptable-page">
       <div className="page-header">
         <h1>Bilan Comptable</h1>
-        <p>Actif et passif à la date du bilan - Données réelles du backend</p>
-        <div className="success-alert">
-          ✅ Écritures comptables corrigées - Affichage normal
-        </div>
+        
       </div>
 
       <div className="filters-section">

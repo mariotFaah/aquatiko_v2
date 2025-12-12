@@ -6,6 +6,12 @@
   min-height: 100vh;
 }
 
+.tiers-page {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
 .tiers-loading {
   display: flex;
   justify-content: center;
@@ -219,4 +225,68 @@
 .tiers-table td:nth-child(4) { /* Téléphone */
   font-family: 'Courier New', monospace;
   font-size: 13px;
+}
+
+/* Styles pour les icônes dans les boutons */
+.btn-icon {
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+.tiers-edit-btn .btn-icon {
+  margin-right: 0;
+}
+
+.tiers-add-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background-color: #0078d4;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.tiers-add-btn:hover {
+  background-color: #106ebe;
+}
+
+.tiers-edit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  background-color: #ffb900;
+  color: #323130;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  min-width: 40px;
+  min-height: 36px;
+}
+
+.tiers-edit-btn:hover {
+  background-color: #f2aa00;
+}
+
+/* Assurez-vous que les icônes sont visibles */
+.tiers-edit-btn svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.tiers-add-btn svg {
+  width: 18px;
+  height: 18px;
+  display: block;
 }

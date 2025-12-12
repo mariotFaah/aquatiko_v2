@@ -1,6 +1,16 @@
 // src/core/components/Header/Header.tsx
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { 
+  FiBell,
+  FiUser,
+  FiChevronDown,
+  FiChevronUp,
+  FiSun,
+  FiMoon,
+  FiLogOut,
+  FiCheck
+} from 'react-icons/fi';
 import './Header.css';
 
 export const Header: React.FC = () => {
@@ -85,15 +95,14 @@ export const Header: React.FC = () => {
       <div className="header-container">
         <div className="header-title-section">
           <h2 className="header-title">
-            
             AQUATIKO - Plateforme de gestion intégrée
-            
           </h2>
         </div>
         
         <div className="header-actions">
           <button className="header-notification">
-            🔔
+            <FiBell size={20} />
+            <span className="notification-badge">3</span>
           </button>
           
           <div className="header-profile" ref={profileMenuRef}>
@@ -108,7 +117,7 @@ export const Header: React.FC = () => {
                 {getDisplayName()}
               </span>
               <span className={`header-arrow ${isProfileMenuOpen ? 'open' : ''}`}>
-                ▼
+                {isProfileMenuOpen ? <FiChevronUp size={16} /> : <FiChevronDown size={16} />}
               </span>
             </button>
 
@@ -116,12 +125,15 @@ export const Header: React.FC = () => {
               <div className="header-profile-menu">
                 <div className="profile-menu-header">
                   <div className="menu-avatar">
-                    {getUserInitials()}
+                    <FiUser size={24} />
                   </div>
                   <div className="menu-user-info">
                     <div className="menu-username">{getDisplayName()}</div>
                     <div className="menu-user-email">{getEmail()}</div>
-                    <div className="menu-user-role">{getRole()}</div>
+                    <div className="menu-user-role">
+                      {getRole()}
+                      {isDarkMode && <FiCheck size={12} className="dark-mode-check" />}
+                    </div>
                   </div>
                 </div>
 
@@ -132,7 +144,7 @@ export const Header: React.FC = () => {
                   onClick={toggleDarkMode}
                 >
                   <span className="menu-item-icon">
-                    {isDarkMode ? '☀️' : '🌙'}
+                    {isDarkMode ? <FiSun size={18} /> : <FiMoon size={18} />}
                   </span>
                   <span className="menu-item-text">
                     {isDarkMode ? 'Mode clair' : 'Mode sombre'}
@@ -145,7 +157,9 @@ export const Header: React.FC = () => {
                   className="profile-menu-item logout"
                   onClick={handleLogout}
                 >
-                  <span className="menu-item-icon">🚪</span>
+                  <span className="menu-item-icon">
+                    <FiLogOut size={18} />
+                  </span>
                   <span className="menu-item-text">Déconnexion</span>
                 </button>
               </div>

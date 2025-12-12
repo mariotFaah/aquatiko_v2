@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { FiPlus, FiEdit } from 'react-icons/fi';
 import './TiersListPage.css';
 import { comptabiliteApi } from '../services/api';
 import type { Tiers } from '../types';
@@ -59,7 +60,10 @@ export const TiersListPage: React.FC = () => {
           <h1 className="tiers-title">Clients & Fournisseurs</h1>
           <p className="tiers-subtitle">Gérez vos contacts (clients et fournisseurs)</p>
         </div>
-        <button className="tiers-add-btn" onClick={handleAdd}>+ Nouveau</button>
+        <button className="tiers-add-btn" onClick={handleAdd}>
+          <FiPlus className="btn-icon" />
+          Nouveau
+        </button>
       </div>
 
       <div className="tiers-table-container">
@@ -83,7 +87,13 @@ export const TiersListPage: React.FC = () => {
                 <td>{t.telephone}</td>
                 <td>{t.adresse}</td>
                 <td className="tiers-actions">
-                  <button className="tiers-edit-btn" onClick={() => handleEdit(t)}>Modifier</button>
+                  <button 
+                    className="tiers-edit-btn" 
+                    onClick={() => handleEdit(t)}
+                    title="Modifier"
+                  >
+                    <FiEdit className="btn-icon" />
+                  </button>
                 </td>
               </tr>
             ))}

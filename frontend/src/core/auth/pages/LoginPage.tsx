@@ -2,6 +2,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { 
+  FiEye,
+  FiEyeOff,
+  FiAlertCircle,
+  FiShield,
+  FiLock,
+  FiMail,
+  FiCheck
+} from 'react-icons/fi';
 import './LoginPage.css';
 
 export const LoginPage: React.FC = () => {
@@ -84,12 +93,14 @@ export const LoginPage: React.FC = () => {
             <form className="login-form" onSubmit={handleSubmit}>
               {error && (
                 <div className="error-message">
-                  ⚠️ {error}
+                  <FiAlertCircle className="error-icon" />
+                  <span>{error}</span>
                 </div>
               )}
 
               <div className="form-group">
                 <label htmlFor="email" className="form-label">
+                  <FiMail className="input-icon" />
                   Email
                 </label>
                 <input
@@ -108,6 +119,7 @@ export const LoginPage: React.FC = () => {
 
               <div className="form-group">
                 <label htmlFor="password" className="form-label">
+                  <FiLock className="input-icon" />
                   Mot de passe
                 </label>
                 <div className="password-input-container">
@@ -131,7 +143,7 @@ export const LoginPage: React.FC = () => {
                     disabled={isSubmitting}
                     title={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
                   >
-                    {showPassword ? '🙈' : '👁️'}
+                    {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
                   </button>
                 </div>
               </div>
@@ -144,7 +156,10 @@ export const LoginPage: React.FC = () => {
                     onChange={(e) => setRememberMe(e.target.checked)}
                     disabled={isSubmitting}
                   />
-                  <span>Se souvenir de moi</span>
+                  <span className="checkbox-custom">
+                    {rememberMe && <FiCheck size={14} />}
+                  </span>
+                  <span className="remember-text">Se souvenir de moi</span>
                 </label>
                 <a href="#" className="forgot-password" onClick={(e) => {
                   e.preventDefault();
@@ -170,10 +185,10 @@ export const LoginPage: React.FC = () => {
               </button>
 
               <div className="login-footer">
-                <p className="version-info">Version 2.0 © 2024 OMNISERVE EXPERTS</p>
+                <p className="version-info">Version 2.0 © 2025 OMNISERVE EXPERTS</p>
                 <p className="security-info">
-                  <span className="security-icon">🛡️</span>
-                  Connexion sécurisée
+                  <FiShield className="security-icon" />
+                  <span>Connexion sécurisée</span>
                 </p>
               </div>
             </form>

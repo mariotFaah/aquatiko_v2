@@ -1,213 +1,228 @@
-// src/modules/comptabilite/pages/RapportsPage.tsx - VERSION 100% CAHIER DES CHARGES
 import React from 'react';
 import { Link } from 'react-router-dom';
+import {
+  FaChartBar,
+  FaCalendarAlt,
+  FaBook,
+  FaBalanceScale,
+  FaFileInvoiceDollar,
+  FaChartLine,
+  FaReceipt,
+  FaMoneyBillWave,
+  FaExchangeAlt,
+  FaCreditCard,
+  FaCheckCircle,
+  FaRocket,
+  FaDatabase
+} from 'react-icons/fa';
 import './RapportsPage.css';
 
 export const RapportsPage: React.FC = () => {
   const rapports = [
-    // SECTION C: SUIVI DES PAIEMENTS (partiels, échéances)
+    // SECTION C: SUIVI DES PAIEMENTS
     {
       title: 'Suivi des Paiements',
-      description: 'Gestion des paiements partiels et validation',
+      description: 'Gestion des paiements partiels',
       path: '/comptabilite/paiements',
-      icon: '💳',
+      icon: <FaCreditCard />,
       color: '#8B5CF6'
     },
     {
       title: 'Échéances Clients',
-      description: 'Suivi des dates limites et alertes de retard',
+      description: 'Dates limites et alertes',
       path: '/comptabilite/echeances',
-      icon: '📅',
+      icon: <FaCalendarAlt />,
       color: '#EF4444'
     },
     
-    // SECTION D: JOURNAUX COMPTABLES (ventes, achats, banque, caisse)
+    // SECTION D: JOURNAUX COMPTABLES
     {
       title: 'Journal Comptable',
-      description: 'Ventes, achats, banque, caisse - écritures automatiques',
+      description: 'Ventes, achats, banque',
       path: '/comptabilite/journal',
-      icon: '📒',
+      icon: <FaBook />,
       color: '#3B82F6'
     },
     {
       title: 'Balance Comptable',
-      description: 'Balance générale des comptes avec soldes',
+      description: 'Balance générale des comptes',
       path: '/comptabilite/balance',
-      icon: '⚖️',
+      icon: <FaBalanceScale />,
       color: '#10B981'
     },
     
-    // SECTION E: ÉTATS FINANCIERS (bilan, compte de résultat, TVA, trésorerie)
+    // SECTION E: ÉTATS FINANCIERS
     {
       title: 'Bilan Comptable',
-      description: 'Bilan actif/passif à une date donnée',
+      description: 'Actif/passif à date donnée',
       path: '/comptabilite/bilan',
-      icon: '📊',
+      icon: <FaChartBar />,
       color: '#F59E0B'
     },
     {
       title: 'Compte de Résultat',
-      description: 'Produits et charges sur une période',
+      description: 'Produits et charges',
       path: '/comptabilite/compte-resultat',
-      icon: '📈',
+      icon: <FaChartLine />,
       color: '#06B6D4'
     },
     {
       title: 'Déclaration TVA',
-      description: 'Calcul et déclaration de la TVA',
+      description: 'Calcul et déclaration TVA',
       path: '/comptabilite/tva',
-      icon: '🧾',
+      icon: <FaReceipt />,
       color: '#EC4899'
     },
     {
       title: 'Trésorerie',
-      description: 'Situation de trésorerie et prévisions',
+      description: 'Situation et prévisions',
       path: '/comptabilite/tresorerie',
-      icon: '💰',
+      icon: <FaMoneyBillWave />,
       color: '#84CC16'
     },
     
-    // SECTION A: MULTI-DEVISES (Ariary, USD, EUR...)
+    // SECTION A: MULTI-DEVISES
     {
       title: 'Taux de Change',
-      description: 'Gestion Ariary, USD, EUR avec conversion automatique',
+      description: 'Gestion multi-devises',
       path: '/comptabilite/taux-change',
-      icon: '🔄',
+      icon: <FaExchangeAlt />,
       color: '#F97316'
     }
   ];
 
   return (
-    <div className="rapports-page">
-      <div className="page-header">
-        <h1>Tableau de Bord Comptable</h1>
-        <p>Module complet conforme au cahier des charges - Sections A, B, C, D, E</p>
+    <div className="sage-rapports-page">
+      {/* Header Microsoft Sage Style */}
+      <div className="sage-header">
+        <div className="sage-header-left">
+          <FaChartBar className="sage-header-icon" />
+          <div>
+            <h1 className="sage-page-title">Tableau de Bord Comptable</h1>
+            <p className="sage-page-subtitle">Module complet conforme au cahier des charges</p>
+          </div>
+        </div>
       </div>
 
-      {/* Sections exactement conformes au cahier des charges */}
-      <div className="sections-container">
+      {/* Stats Overview */}
+      <div className="sage-stats-overview">
+        <div className="sage-stat-card">
+          <div className="sage-stat-icon sage-stat-complete">
+            <FaCheckCircle />
+          </div>
+          <div className="sage-stat-info">
+            <div className="sage-stat-value">Sections A-E</div>
+            <div className="sage-stat-label">Cahier des Charges</div>
+          </div>
+        </div>
         
-        {/* SECTION C: SUIVI DES PAIEMENTS (partiels, échéances) 
-        <div className="section">
-          <h2 className="section-title">C. Suivi des Paiements</h2>
-          <p className="section-description">Paiements partiels et échéances - Conforme au point C du cahier</p>
-          <div className="rapports-grid">
-            {rapports.slice(0, 2).map((rapport) => (
-              <Link key={rapport.path} to={rapport.path} className="rapport-card">
-                <div className="rapport-icon" style={{ backgroundColor: rapport.color }}>
-                  {rapport.icon}
-                </div>
-                <div className="rapport-content">
-                  <h3>{rapport.title}</h3>
-                  <p>{rapport.description}</p>
-                </div>
-                <div className="rapport-arrow">→</div>
-              </Link>
-            ))}
+        <div className="sage-stat-card">
+          <div className="sage-stat-icon sage-stat-operational">
+            <FaRocket />
           </div>
-        </div> */}
-
-        {/* SECTION D: JOURNAUX COMPTABLES (ventes, achats, banque, caisse) */}
-        <div className="section">
-          <h2 className="section-title">D. Journaux Comptables</h2>
-          <p className="section-description">Ventes, achats, banque, caisse - Conforme au point D du cahier</p>
-          <div className="rapports-grid">
-            {rapports.slice(2, 4).map((rapport) => (
-              <Link key={rapport.path} to={rapport.path} className="rapport-card">
-                <div className="rapport-icon" style={{ backgroundColor: rapport.color }}>
-                  {rapport.icon}
-                </div>
-                <div className="rapport-content">
-                  <h3>{rapport.title}</h3>
-                  <p>{rapport.description}</p>
-                </div>
-                <div className="rapport-arrow">→</div>
-              </Link>
-            ))}
+          <div className="sage-stat-info">
+            <div className="sage-stat-value">100%</div>
+            <div className="sage-stat-label">Opérationnel</div>
           </div>
         </div>
-
-        {/* SECTION E: ÉTATS FINANCIERS (bilan, compte de résultat, TVA, trésorerie) */}
-        <div className="section">
-          <h2 className="section-title">E. États Financiers</h2>
-          <p className="section-description">Bilan, compte de résultat, TVA, trésorerie - Conforme au point E du cahier</p>
-          <div className="rapports-grid">
-            {rapports.slice(4, 8).map((rapport) => (
-              <Link key={rapport.path} to={rapport.path} className="rapport-card">
-                <div className="rapport-icon" style={{ backgroundColor: rapport.color }}>
-                  {rapport.icon}
-                </div>
-                <div className="rapport-content">
-                  <h3>{rapport.title}</h3>
-                  <p>{rapport.description}</p>
-                </div>
-                <div className="rapport-arrow">→</div>
-              </Link>
-            ))}
+        
+        <div className="sage-stat-card">
+          <div className="sage-stat-icon sage-stat-data">
+            <FaDatabase />
+          </div>
+          <div className="sage-stat-info">
+            <div className="sage-stat-value">9+</div>
+            <div className="sage-stat-label">Paiements actifs</div>
           </div>
         </div>
-
-        {/* SECTION A: MULTI-DEVISES (Ariary, USD, EUR...) */}
-        <div className="section">
-          <h2 className="section-title">A. Multi-devises</h2>
-          <p className="section-description">Ariary, USD, EUR... - Conforme au point A du cahier</p>
-          <div className="rapports-grid">
-            {rapports.slice(8).map((rapport) => (
-              <Link key={rapport.path} to={rapport.path} className="rapport-card">
-                <div className="rapport-icon" style={{ backgroundColor: rapport.color }}>
-                  {rapport.icon}
-                </div>
-                <div className="rapport-content">
-                  <h3>{rapport.title}</h3>
-                  <p>{rapport.description}</p>
-                </div>
-                <div className="rapport-arrow">→</div>
-              </Link>
-            ))}
-          </div>
-        </div>
-
       </div>
 
-      {/* Section B: Facturation - Implémentée mais pas dans ce tableau de bord */}
-      <div className="facturation-notice">
-        <div className="notice-card">
-          <div className="notice-icon">🧾</div>
-          <div className="notice-content">
-            <h3>B. Facturation clients/fournisseurs</h3>
-            <p>
-              <strong>Proforma, factures, avoirs</strong> - Complètement implémenté dans le module.<br/>
-              Accédez via le menu: <strong>Comptabilité → Factures</strong>
-            </p>
-            <Link to="/comptabilite/factures" className="notice-link">
-              Voir la gestion des factures →
+      {/* Journaux Comptables */}
+      <div className="sage-section">
+        <div className="sage-section-header">
+          <FaBook className="sage-section-icon" />
+          <h2 className="sage-section-title">Journaux Comptables</h2>
+        </div>
+        <div className="sage-cards-grid">
+          {rapports.slice(2, 4).map((rapport) => (
+            <Link key={rapport.path} to={rapport.path} className="sage-card">
+              <div className="sage-card-icon" style={{ color: rapport.color }}>
+                {rapport.icon}
+              </div>
+              <div className="sage-card-content">
+                <h3 className="sage-card-title">{rapport.title}</h3>
+                <p className="sage-card-description">{rapport.description}</p>
+              </div>
+              <div className="sage-card-arrow">
+                <span>→</span>
+              </div>
             </Link>
-          </div>
+          ))}
         </div>
       </div>
 
-      <div className="quick-stats">
-        <div className="stat-card">
-          <div className="stat-icon">📋</div>
-          <div className="stat-info">
-            <span className="stat-value">Cahier des Charges</span>
-            <span className="stat-label">Sections A-E ✅</span>
-          </div>
+      {/* États Financiers */}
+      <div className="sage-section">
+        <div className="sage-section-header">
+          <FaChartBar className="sage-section-icon" />
+          <h2 className="sage-section-title">États Financiers</h2>
         </div>
-        
-        <div className="stat-card">
-          <div className="stat-icon">🚀</div>
-          <div className="stat-info">
-            <span className="stat-value">Module Comptable</span>
-            <span className="stat-label">100% Opérationnel</span>
-          </div>
+        <div className="sage-cards-grid">
+          {rapports.slice(4, 8).map((rapport) => (
+            <Link key={rapport.path} to={rapport.path} className="sage-card">
+              <div className="sage-card-icon" style={{ color: rapport.color }}>
+                {rapport.icon}
+              </div>
+              <div className="sage-card-content">
+                <h3 className="sage-card-title">{rapport.title}</h3>
+                <p className="sage-card-description">{rapport.description}</p>
+              </div>
+              <div className="sage-card-arrow">
+                <span>→</span>
+              </div>
+            </Link>
+          ))}
         </div>
-        
-        <div className="stat-card">
-          <div className="stat-icon">💾</div>
-          <div className="stat-info">
-            <span className="stat-value">Données Réelles</span>
-            <span className="stat-label">9 paiements actifs</span>
+      </div>
+
+      {/* Multi-devises */}
+      <div className="sage-section">
+        <div className="sage-section-header">
+          <FaExchangeAlt className="sage-section-icon" />
+          <h2 className="sage-section-title">Multi-devises</h2>
+        </div>
+        <div className="sage-cards-grid">
+          {rapports.slice(8).map((rapport) => (
+            <Link key={rapport.path} to={rapport.path} className="sage-card">
+              <div className="sage-card-icon" style={{ color: rapport.color }}>
+                {rapport.icon}
+              </div>
+              <div className="sage-card-content">
+                <h3 className="sage-card-title">{rapport.title}</h3>
+                <p className="sage-card-description">{rapport.description}</p>
+              </div>
+              <div className="sage-card-arrow">
+                <span>→</span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* Facturation Notice */}
+      <div className="sage-notice-section">
+        <div className="sage-notice-card">
+          <div className="sage-notice-icon">
+            <FaFileInvoiceDollar />
+          </div>
+          <div className="sage-notice-content">
+            <h3 className="sage-notice-title">Facturation clients/fournisseurs</h3>
+            <p className="sage-notice-description">
+              Proforma, factures, avoirs - Complètement implémenté
+            </p>
+            <Link to="/comptabilite/factures" className="sage-notice-link">
+              Accéder à la gestion des factures
+            </Link>
           </div>
         </div>
       </div>

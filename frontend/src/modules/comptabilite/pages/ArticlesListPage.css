@@ -27,14 +27,16 @@
 }
 
 .articles-add-btn {
-  background: #10b981;
+  background-color: #007bff;
   color: white;
   border: none;
-  padding: 0.75rem 1.5rem;
+  padding: 12px 24px;
   border-radius: 6px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .articles-add-btn:hover {

@@ -6,6 +6,7 @@ import MontantDevise from '../components/MontantDevise/MontantDevise';
 import { useAlertDialog } from '../../../core/hooks/useAlertDialog';
 import AlertDialog from '../../../core/components/AlertDialog/AlertDialog';
 import './JournalComptablePage.css';
+import { FaSearch, FaSync, FaTrashAlt } from 'react-icons/fa';
 
 export const JournalComptablePage: React.FC = () => {
   const [ecritures, setEcritures] = useState<EcritureComptable[]>([]);
@@ -106,49 +107,53 @@ export const JournalComptablePage: React.FC = () => {
         <p>Consultation des écritures comptables</p>
       </div>
 
-      {/* Filtres */}
+      {/* Filtres - MODIFIÉ POUR ALIGNEMENT HORIZONTAL */}
       <div className="filters-section">
         <form onSubmit={handleSearch} className="filters-form">
-          <div className="filter-row">
-            <div className="filter-group">
-              <label className="filter-label">Date début</label>
-              <input
-                type="date"
-                value={filters.date_debut}
-                onChange={(e) => handleFilterChange('date_debut', e.target.value)}
-                className="filter-input"
-                disabled={loading}
-              />
-            </div>
 
-            <div className="filter-group">
-              <label className="filter-label">Date fin</label>
-              <input
-                type="date"
-                value={filters.date_fin}
-                onChange={(e) => handleFilterChange('date_fin', e.target.value)}
-                className="filter-input"
-                disabled={loading}
-              />
-            </div>
+          <div className="filter-group">
+            <label className="filter-label">Journal</label>
+            <select
+              value={filters.journal}
+              onChange={(e) => handleFilterChange('journal', e.target.value)}
+              className="filter-select"
+              disabled={loading}
+            >
+              <option value="">Tous les journaux</option>
+              <option value="ventes">Ventes</option>
+              <option value="achats">Achats</option>
+              <option value="banque">Banque</option>
+              <option value="caisse">Caisse</option>
+            </select>
+          </div>
+          <div className="filter-group">
+            <label className="filter-label">Date début</label>
+            <input
+              type="date"
+              value={filters.date_debut}
+              onChange={(e) => handleFilterChange('date_debut', e.target.value)}
+              className="filter-input"
+              disabled={loading}
+            />
+          </div>
 
-            <div className="filter-group">
-              <label className="filter-label">Journal</label>
-              <select
-                value={filters.journal}
-                onChange={(e) => handleFilterChange('journal', e.target.value)}
-                className="filter-select"
-                disabled={loading}
-              >
-                <option value="">Tous les journaux</option>
-                <option value="ventes">📈 Ventes</option>
-                <option value="achats">📉 Achats</option>
-                <option value="banque">🏦 Banque</option>
-                <option value="caisse">💰 Caisse</option>
-              </select>
-            </div>
+          <div className="filter-group">
+            <label className="filter-label">Date fin</label>
+            <input
+              type="date"
+              value={filters.date_fin}
+              onChange={(e) => handleFilterChange('date_fin', e.target.value)}
+              className="filter-input"
+              disabled={loading}
+            />
+          </div>
 
-            <div className="filter-actions">
+          
+
+          {/* Boutons dans un groupe de filtre pour alignement horizontal */}
+          <div className="filter-group">
+            <label className="filter-label" style={{ visibility: 'hidden' }}>Actions</label>
+            <div className="filter-actions-horizontal">
               <button 
                 type="submit" 
                 className="search-button"
@@ -156,11 +161,14 @@ export const JournalComptablePage: React.FC = () => {
               >
                 {searching ? (
                   <>
-                    <div className="search-spinner"></div>
+                    <FaSync className="spinning-icon" />
                     Recherche...
                   </>
                 ) : (
-                  '🔍 Rechercher'
+                  <>
+                    <FaSearch className="button-icon" />
+                    Rechercher
+                  </>
                 )}
               </button>
               
@@ -170,7 +178,8 @@ export const JournalComptablePage: React.FC = () => {
                 onClick={handleResetFilters}
                 disabled={loading}
               >
-                🗑️ Réinitialiser
+                <FaTrashAlt className="button-icon" />
+                Réinitialiser
               </button>
             </div>
           </div>

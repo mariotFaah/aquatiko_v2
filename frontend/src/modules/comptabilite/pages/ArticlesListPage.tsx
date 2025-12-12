@@ -1,5 +1,6 @@
 // src/modules/comptabilite/pages/ArticlesListPage.tsx
 import React, { useState, useEffect } from 'react';
+import { FiEdit, FiTrash2, FiPlus, FiAlertTriangle } from 'react-icons/fi';
 import './ArticlesListPage.css';
 import { comptabiliteApi } from '../services/api';
 import type { Article } from '../types';
@@ -169,7 +170,8 @@ export const ArticlesListPage: React.FC = () => {
           onClick={handleAdd}
           disabled={loading}
         >
-          + Nouvel Article
+          <FiPlus className="btn-icon" />
+          Nouvel Article
         </button>
       </div>
 
@@ -220,7 +222,8 @@ export const ArticlesListPage: React.FC = () => {
             window.location.href = '#/comptabilite/stock-alerts';
           }}
         >
-          🚨 Alertes de Stock
+          <FiAlertTriangle className="alert-icon" />
+          Alertes de Stock
         </button>
       </div>
 
@@ -269,27 +272,30 @@ export const ArticlesListPage: React.FC = () => {
                   {getStockStatusBadge(article)}
                 </td>
                 <td className="articles-actions">
-                  <button 
-                    className="articles-edit-btn" 
-                    onClick={() => handleEdit(article)}
-                    disabled={deleting === article.code_article}
-                  >
-                    ✏️ Modifier
-                  </button>
-                  <button 
-                    className="articles-delete-btn" 
-                    onClick={() => handleDelete(article.code_article)}
-                    disabled={deleting === article.code_article}
-                  >
-                    {deleting === article.code_article ? (
-                      <>
-                        <div className="articles-deleting-spinner"></div>
-                        Suppression...
-                      </>
-                    ) : (
-                      '🗑️ Supprimer'
-                    )}
-                  </button>
+                  <div className="action-buttons">
+                    <button 
+                      className="articles-edit-btn" 
+                      onClick={() => handleEdit(article)}
+                      disabled={deleting === article.code_article}
+                      title="Modifier"
+                    >
+                      <FiEdit className="btn-icon" />
+                    </button>
+                    <button 
+                      className="articles-delete-btn" 
+                      onClick={() => handleDelete(article.code_article)}
+                      disabled={deleting === article.code_article}
+                      title="Supprimer"
+                    >
+                      {deleting === article.code_article ? (
+                        <>
+                          <div className="articles-deleting-spinner"></div>
+                        </>
+                      ) : (
+                        <FiTrash2 className="btn-icon" />
+                      )}
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -302,7 +308,8 @@ export const ArticlesListPage: React.FC = () => {
             <h3>Aucun article trouvé</h3>
             <p>Cliquez sur "Nouvel Article" pour commencer à créer votre catalogue.</p>
             <button className="articles-empty-btn" onClick={handleAdd}>
-              + Créer votre premier article
+              <FiPlus className="btn-icon" />
+              Créer votre premier article
             </button>
           </div>
         )}

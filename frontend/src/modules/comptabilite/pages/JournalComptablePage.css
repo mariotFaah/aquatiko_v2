@@ -56,19 +56,109 @@
   min-width: 150px;
 }
 
+/* BOUTONS MICROSOFT SAGE - MODIFIÉS */
 .search-button {
-  background: #3b82f6;
+  background: linear-gradient(135deg, #0078d4 0%, #106ebe 100%);
   color: white;
   border: none;
-  border-radius: 6px;
-  padding: 8px 20px;
+  border-radius: 4px;
+  padding: 8px 16px;
   font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
   height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  min-width: 120px;
 }
 
 .search-button:hover {
-  background: #2563eb;
+  background: linear-gradient(135deg, #106ebe 0%, #005a9e 100%);
+  box-shadow: 0 2px 4px rgba(0, 120, 212, 0.3);
+  transform: translateY(-1px);
+}
+
+.search-button:active {
+  background: linear-gradient(135deg, #005a9e 0%, #004578 100%);
+  transform: translateY(0);
+}
+
+.search-button:disabled {
+  background: #c7e0f4;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.reset-button {
+  background: white;
+  color: #323130;
+  border: 1px solid #8a8886;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  min-width: 120px;
+}
+
+.reset-button:hover {
+  background: #f3f2f1;
+  border-color: #605e5c;
+  box-shadow: 0 2px 4px rgba(96, 94, 92, 0.2);
+  transform: translateY(-1px);
+}
+
+.reset-button:active {
+  background: #edebe9;
+  transform: translateY(0);
+}
+
+.reset-button:disabled {
+  background: #f3f2f1;
+  color: #a19f9d;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Alignement horizontal des boutons */
+.filter-actions-horizontal {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Ajustement des boutons pour alignement avec les champs */
+.filter-group .search-button,
+.filter-group .reset-button {
+  margin-top: 0;
+}
+
+/* Icônes dans les boutons */
+.button-icon {
+  font-size: 14px;
+}
+
+/* Animation pour l'icône de chargement */
+.spinning-icon {
+  animation: spin 1s linear infinite;
+  font-size: 14px;
+  margin-right: 6px;
+}
+
+/* Suppression du .search-spinner redondant */
+.search-spinner {
+  display: none;
 }
 
 .results-section {
@@ -254,20 +344,20 @@
     width: 100%;
   }
   
+  .filter-actions-horizontal {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .filter-group .search-button,
+  .filter-group .reset-button {
+    width: 100%;
+    min-width: unset;
+  }
+  
   .summary-cards {
     grid-template-columns: 1fr;
   }
-}
-
-
-.search-spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid transparent;
-  border-top: 2px solid currentColor;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-right: 8px;
 }
 
 .quick-stats {

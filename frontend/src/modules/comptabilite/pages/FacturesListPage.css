@@ -6,6 +6,117 @@
   background: #faf9f8;
 }
 
+/* ===== STYLES SPÉCIFIQUES POUR LES BOUTONS D'ACTION ===== */
+.ms-crm-actions-container {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+.ms-crm-btn-icon {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  padding: 8px !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0;
+}
+
+.ms-crm-btn-icon:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Bouton voir (violet) */
+.ms-crm-btn-view {
+  background-color: #8661c5 !important;
+  color: white !important;
+  border-color: #8661c5 !important;
+}
+
+.ms-crm-btn-view:hover {
+  background-color: #7a56b8 !important;
+  border-color: #7a56b8 !important;
+}
+
+/* Bouton modifier (jaune) */
+.ms-crm-btn-edit {
+  background-color: #ffb900 !important;
+  color: #323130 !important;
+  border-color: #ffb900 !important;
+}
+
+.ms-crm-btn-edit:hover {
+  background-color: #f2aa00 !important;
+  border-color: #f2aa00 !important;
+}
+
+/* Bouton valider (vert) */
+.ms-crm-btn-success {
+  background-color: #107c10 !important;
+  color: white !important;
+  border-color: #107c10 !important;
+}
+
+.ms-crm-btn-success:hover {
+  background-color: #0e700e !important;
+  border-color: #0e700e !important;
+}
+
+/* Bouton annuler (rouge) */
+.ms-crm-btn-danger {
+  background-color: #d13438 !important;
+  color: white !important;
+  border-color: #d13438 !important;
+}
+
+.ms-crm-btn-danger:hover {
+  background-color: #c02c30 !important;
+  border-color: #c02c30 !important;
+}
+
+/* Icônes dans les boutons */
+.action-icon {
+  width: 16px !important;
+  height: 16px !important;
+  display: block !important;
+  margin: 0 !important;
+  color: inherit !important;
+}
+
+.ms-crm-btn-icon svg {
+  display: block !important;
+  width: 16px !important;
+  height: 16px !important;
+  stroke: currentColor !important;
+  fill: none !important;     /* IMPORTANT — empêche l’icône d’être pleine */
+  color: inherit !important;
+}
+
+
+/* Force l'affichage des icônes */
+.ms-crm-btn-icon:not(:empty) {
+  color: inherit !important;
+}
+
+
+
+
+
+/* Assure que les boutons sont correctement positionnés */
+.ms-crm-table-cell .ms-crm-actions-container {
+  min-height: 36px;
+}
 /* ===== HEADER STYLES ===== */
 .ms-crm-header {
   display: flex;
@@ -752,3 +863,4 @@
     min-width: 100%;
   }
 }
+

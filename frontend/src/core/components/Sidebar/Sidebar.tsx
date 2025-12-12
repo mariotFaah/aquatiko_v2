@@ -1,6 +1,33 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext'; 
+import {
+  FiHome,
+  FiDollarSign,
+  FiGlobe,
+  FiUsers,
+  FiSettings,
+  FiTrendingUp,
+  FiFileText,
+  FiUser,
+  FiPackage,
+  FiCheckSquare,
+  FiBook,
+  FiBarChart2,
+  FiFile,
+  FiList,
+  FiTruck,
+  FiPieChart,
+  FiUserCheck,
+  FiFilePlus,
+  FiFileMinus,
+  FiCalendar,
+  FiBell,
+  FiChevronDown,
+  FiChevronRight,
+  FiChevronLeft,
+  FiRefreshCw
+} from 'react-icons/fi';
 import './Sidebar.css';
 
 interface SidebarProps {
@@ -12,9 +39,9 @@ interface SidebarProps {
 interface MenuItemBase {
   name: string;
   path: string;
-  icon: string;
+  icon: React.ReactNode;
   badge?: string | null;
-  requiredRole?: ('admin' | 'comptable' | 'commercial')[]; // ✅ CORRIGER le type
+  requiredRole?: ('admin' | 'comptable' | 'commercial')[];
 }
 
 interface MenuItemWithChildren extends MenuItemBase {
@@ -52,8 +79,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
 
   // ✅ CORRIGER la fonction hasAccess
   const hasAccess = (item: MenuItemBase): boolean => {
-    if (!item.requiredRole) return true; // Pas de restriction
-    if (!user) return false; // Utilisateur non connecté
+    if (!item.requiredRole) return true;
+    if (!user) return false;
     
     // Admin a accès à tout
     if (user.role === 'admin') return true;
@@ -66,66 +93,66 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
     { 
       name: 'Tableau de Bord', 
       path: '/', 
-      icon: '📊',
+      icon: <FiHome size={20} />,
       badge: null
     },
     {
       name: 'Comptabilité',
       path: '/comptabilite',
-      icon: '💰',
+      icon: <FiDollarSign size={20} />,
       badge: '3',
       requiredRole: ['admin', 'comptable'],
       children: [
-        { name: 'Vue générale', path: '/comptabilite', icon: '📈' },
-        { name: 'Factures', path: '/comptabilite/factures', icon: '🧾' },
-        { name: 'Tiers', path: '/comptabilite/tiers', icon: '👥' },
-        { name: 'Articles', path: '/comptabilite/articles', icon: '📦' },
-        { name: 'Suivi Paiements', path: '/comptabilite/suivi-paiements', icon: '📋' },
-        { name: 'Journal', path: '/comptabilite/journal', icon: '📔' },
-        { name: 'Balance', path: '/comptabilite/balance', icon: '⚖️' },
-        { name: 'Bilan', path: '/comptabilite/bilan', icon: '📊' },
-        { name: 'Declaration TVA', path: '/comptabilite/tva', icon: '🧾' },
-        { name: 'Taux Change', path: '/comptabilite/taux-change', icon: '💹' }
+        { name: 'Vue générale', path: '/comptabilite', icon: <FiTrendingUp size={16} /> },
+        { name: 'Factures', path: '/comptabilite/factures', icon: <FiFileText size={16} /> },
+        { name: 'Tiers', path: '/comptabilite/tiers', icon: <FiUsers size={16} /> },
+        { name: 'Articles', path: '/comptabilite/articles', icon: <FiPackage size={16} /> },
+        { name: 'Suivi Paiements', path: '/comptabilite/suivi-paiements', icon: <FiCheckSquare size={16} /> },
+        { name: 'Journal', path: '/comptabilite/journal', icon: <FiBook size={16} /> },
+        { name: 'Balance', path: '/comptabilite/balance', icon: <FiBarChart2 size={16} /> }, // Remplacé FiScale par FiBarChart2
+        { name: 'Bilan', path: '/comptabilite/bilan', icon: <FiBarChart2 size={16} /> },
+        { name: 'Declaration TVA', path: '/comptabilite/tva', icon: <FiFile size={16} /> },
+        { name: 'Taux Change', path: '/comptabilite/taux-change', icon: <FiRefreshCw size={16} /> } // Remplacé par FiRefreshCw
       ],
     },
     {
       name: 'Import-Export',
       path: '/import-export',
-      icon: '🌐',
+      icon: <FiGlobe size={20} />,
       badge: 'New',
       requiredRole: ['admin', 'commercial'],
       children: [
-        { name: 'Vue générale', path: '/import-export', icon: '📈' },
-        { name: 'Commandes', path: '/import-export/commandes', icon: '📋' },
-        { name: 'Expéditions', path: '/import-export/expeditions', icon: '🚚' },
-        { name: 'Transporteurs', path: '/import-export/transporteurs', icon: '🚛' }, // ✅ AJOUT
-        { name: 'Analyses', path: '/import-export/analyses', icon: '📊' },
+        { name: 'Vue générale', path: '/import-export', icon: <FiTrendingUp size={16} /> },
+        { name: 'Commandes', path: '/import-export/commandes', icon: <FiList size={16} /> },
+        { name: 'Expéditions', path: '/import-export/expeditions', icon: <FiTruck size={16} /> },
+        { name: 'Transporteurs', path: '/import-export/transporteurs', icon: <FiTruck size={16} /> },
+        { name: 'Analyses', path: '/import-export/analyses', icon: <FiPieChart size={16} /> },
       ],
     },
     {
       name: 'CRM',
       path: '/crm',
-      icon: '🤝',
+      icon: <FiUserCheck size={20} />,
       badge: '12',
       requiredRole: ['admin', 'commercial'],
       children: [
-        { name: 'Vue générale', path: '/crm', icon: '📈' },
-        { name: 'Clients', path: '/crm/clients', icon: '👥' },
-        { name: 'Devis', path: '/crm/devis', icon: '📄' },
-        { name: 'Contrats', path: '/crm/contrats', icon: '📑' },
-        { name: 'Activités', path: '/crm/activites', icon: '📋' },
-        { name: 'Contacts', path: '/crm/contacts', icon: '👤' },
-        { name: 'Relances', path: '/crm/relances', icon: '🔔' },
+        { name: 'Vue générale', path: '/crm', icon: <FiTrendingUp size={16} /> },
+        { name: 'Clients', path: '/crm/clients', icon: <FiUsers size={16} /> },
+        { name: 'Devis', path: '/crm/devis', icon: <FiFilePlus size={16} /> },
+        { name: 'Contrats', path: '/crm/contrats', icon: <FiFileMinus size={16} /> },
+        { name: 'Activités', path: '/crm/activites', icon: <FiCalendar size={16} /> },
+        { name: 'Contacts', path: '/crm/contacts', icon: <FiUser size={16} /> },
+        { name: 'Relances', path: '/crm/relances', icon: <FiBell size={16} /> },
       ],
     },
     {
       name: 'Administration',
       path: '/admin',
-      icon: '⚙️',
+      icon: <FiSettings size={20} />,
       badge: null,
       requiredRole: ['admin'],
       children: [
-        { name: 'Gestion Utilisateurs', path: '/admin/users', icon: '👥' },
+        { name: 'Gestion Utilisateurs', path: '/admin/users', icon: <FiUsers size={16} /> },
       ],
     },
   ];
@@ -172,7 +199,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
           )}
           
           <button onClick={onToggle} className="sidebar-toggle inside">
-            {isOpen ? '‹' : '›'}
+            {isOpen ? <FiChevronLeft size={20} /> : <FiChevronRight size={20} />}
           </button>
         </div>
 
@@ -198,7 +225,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                               <span className="sidebar-badge">{item.badge}</span>
                             )}
                             <span className="sidebar-arrow">
-                              {openSubmenus[item.name] ? '▾' : '▸'}
+                              {openSubmenus[item.name] ? <FiChevronDown size={14} /> : <FiChevronRight size={14} />}
                             </span>
                           </div>
                         </>

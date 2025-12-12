@@ -1,11 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { 
+  FaArrowLeft, 
+  FaCheck, 
+  FaTimes, 
+  FaPrint, 
+  FaEdit, 
+  FaFilePdf, 
+
+  FaBuilding,
+  FaUser,
+  FaCalendarAlt,
+  FaMoneyBillWave,
+  FaCreditCard,
+  FaPercentage,
+  FaShoppingCart,
+  FaCalculator,
+  FaHistory,
+  FaStickyNote,
+
+  FaFileInvoiceDollar,
+  FaClock,
+  FaExclamationTriangle,
+  FaCheckCircle,
+  FaBan,
+  FaExchangeAlt,
+
+  FaDollarSign
+} from 'react-icons/fa';
 import type { Facture } from '../types';
 import { comptabiliteApi } from '../services/api';
 import { useAlertDialog } from '../../../core/hooks/useAlertDialog';
 import AlertDialog from '../../../core/components/AlertDialog/AlertDialog';
 import { ExportPDFButton } from '../components/ExportPDFButton/ExportPDFButton';
-import {ExportExcelButton} from '../components/ExportExcelButton/ExportExcelButton'
+import { ExportExcelButton } from '../components/ExportExcelButton/ExportExcelButton';
 import './FactureDetailPage.css';
 
 export const FactureDetailPage: React.FC = () => {
@@ -114,44 +142,66 @@ export const FactureDetailPage: React.FC = () => {
 
   const getStatutLabel = (statut: string) => {
     const labels: { [key: string]: string } = {
-      validee: '✅ Validée',
-      brouillon: '📝 Brouillon',
-      annulee: '❌ Annulée',
-      partiellement_payee: '🔄 Partiellement payée',
-      payee: '💰 Payée',
-      en_retard: '⏰ En retard',
-      non_payee: '💳 Non payée'
+      validee: 'Validée',
+      brouillon: 'Brouillon',
+      annulee: 'Annulée',
+      partiellement_payee: 'Partiellement payée',
+      payee: 'Payée',
+      en_retard: 'En retard',
+      non_payee: 'Non payée'
     };
     return labels[statut] || statut;
   };
 
+  const getStatutIcon = (statut: string) => {
+    const icons = {
+      validee: FaCheckCircle,
+      brouillon: FaClock,
+      annulee: FaBan,
+      partiellement_payee: FaPercentage,
+      payee: FaCheckCircle,
+      en_retard: FaExclamationTriangle,
+      non_payee: FaClock
+    };
+    return icons[statut as keyof typeof icons] || FaClock;
+  };
+
   const getTypeLabel = (type: string) => {
     const labels: { [key: string]: string } = {
-      facture: '📄 Facture',
-      proforma: '📋 Proforma',
-      avoir: '🧾 Avoir'
+      facture: 'Facture',
+      proforma: 'Proforma',
+      avoir: 'Avoir'
     };
     return labels[type] || type;
   };
 
+  const getTypeIcon = (type: string) => {
+    const icons = {
+      facture: FaFileInvoiceDollar,
+      proforma: FaFilePdf,
+      avoir: FaFileInvoiceDollar
+    };
+    return icons[type as keyof typeof icons] || FaFileInvoiceDollar;
+  };
+
   const getPaiementLabel = (typePaiement: string = 'comptant') => {
     const labels: { [key: string]: string } = {
-      comptant: '💳 Comptant',
-      flexible: '🔄 Flexible',
-      acompte: '💰 Acompte',
-      echeance: '📅 Échéance'
+      comptant: 'Comptant',
+      flexible: 'Flexible',
+      acompte: 'Acompte',
+      echeance: 'Échéance'
     };
     return labels[typePaiement] || typePaiement;
   };
 
-  const getPaiementClass = (typePaiement: string = 'comptant') => {
-    const classes = {
-      comptant: 'facture-detail-paiement-comptant',
-      flexible: 'facture-detail-paiement-flexible',
-      acompte: 'facture-detail-paiement-acompte',
-      echeance: 'facture-detail-paiement-echeance'
+  const getPaiementIcon = (typePaiement: string = 'comptant') => {
+    const icons = {
+      comptant: FaCreditCard,
+      flexible: FaMoneyBillWave,
+      acompte: FaMoneyBillWave,
+      echeance: FaCalendarAlt
     };
-    return `${classes[typePaiement as keyof typeof classes] || 'facture-detail-paiement-default'} facture-detail-paiement-badge`;
+    return icons[typePaiement as keyof typeof icons] || FaCreditCard;
   };
 
   // Calculer la progression du paiement
@@ -161,7 +211,6 @@ export const FactureDetailPage: React.FC = () => {
     return Math.min(100, (paye / facture.total_ttc) * 100);
   };
 
-  
   // Calculer les jours restants
   const getJoursRestants = (): number | null => {
     if (!facture?.date_finale_paiement || facture.statut === 'payee') return null;
@@ -174,23 +223,26 @@ export const FactureDetailPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="facture-detail-loading">
-        <div className="facture-detail-loading-spinner"></div>
-        <div className="facture-detail-loading-text">Chargement de la facture...</div>
+      <div className="sage-detail-loading">
+        <div className="sage-loading-spinner"></div>
+        <div className="sage-loading-text">Chargement de la facture...</div>
       </div>
     );
   }
 
   if (!facture) {
     return (
-      <div className="facture-detail-error">
-        <div className="facture-detail-error-icon">❌</div>
-        <div className="facture-detail-error-text">Facture non trouvée</div>
-        <p className="facture-detail-error-description">
+      <div className="sage-detail-error">
+        <div className="sage-error-icon">
+          <FaTimes />
+        </div>
+        <div className="sage-error-title">Facture non trouvée</div>
+        <p className="sage-error-description">
           La facture que vous recherchez n'existe pas ou a été supprimée.
         </p>
-        <Link to="/comptabilite/factures" className="facture-detail-back-button">
-          ← Retour à la liste des factures
+        <Link to="/comptabilite/factures" className="sage-button sage-button-secondary">
+          <FaArrowLeft className="sage-button-icon" />
+          Retour à la liste des factures
         </Link>
       </div>
     );
@@ -206,33 +258,41 @@ export const FactureDetailPage: React.FC = () => {
   const progressionPaiement = calculerProgressionPaiement();
   const joursRestants = getJoursRestants();
   const deviseSymbol = getDeviseSymbol(facture.devise);
+  const StatutIcon = getStatutIcon(facture.statut);
+  const TypeIcon = getTypeIcon(facture.type_facture);
+  const PaiementIcon = getPaiementIcon(facture.type_paiement);
 
   return (
-    <div className="facture-detail-page">
+    <div className="sage-detail-page">
       {/* En-tête de page */}
-      <div className="facture-detail-header">
-        <div>
-          <h1 className="facture-detail-title">
-            {getTypeLabel(facture.type_facture)} #{facture.numero_facture}
-          </h1>
-          <p className="facture-detail-subtitle">
-            Détail du document - {facture.type_facture}
-          </p>
+      <div className="sage-detail-header">
+        <div className="sage-header-left">
+          <FaFileInvoiceDollar className="sage-header-icon" />
+          <div>
+            <h1 className="sage-detail-title">
+              {getTypeLabel(facture.type_facture)} #{facture.numero_facture}
+            </h1>
+            <p className="sage-detail-subtitle">
+              Détail du document
+            </p>
+          </div>
         </div>
-        <div className="facture-detail-actions">
+        
+        <div className="sage-detail-actions">
           <Link
             to="/comptabilite/factures"
-            className="facture-detail-back-button"
+            className="sage-button sage-button-secondary"
           >
-            ← Retour
+            <FaArrowLeft className="sage-button-icon" />
+            Retour
           </Link>
 
-            {/* AJOUT: Bouton d'export PDF */}
+          {/* Bouton d'export PDF */}
           <ExportPDFButton
             type="facture"
             data={facture}
-            label="📄 Exporter PDF"
-            className="facture-detail-export-button"
+            label="Exporter PDF"
+            className="sage-button sage-button-export"
             options={{
               filename: `${facture.type_facture}_${facture.numero_facture}.pdf`,
               title: `${getTypeLabel(facture.type_facture)} ${facture.numero_facture}`,
@@ -240,29 +300,34 @@ export const FactureDetailPage: React.FC = () => {
               includeFooter: true
             }}
           />
+
           <ExportExcelButton
-             type='facture'
-             data={facture}
-             label='Excel'
-              options={{
+            type='facture'
+            data={facture}
+            label='Exporter Excel'
+            className="sage-button sage-button-export"
+            options={{
               filename: `${facture.type_facture}_${facture.numero_facture}.xlsx`,
               includeHeader: true
             }}
-            />
+          />
           
           {facture.statut === 'brouillon' && (
             <button
               onClick={validerFacture}
               disabled={validating}
-              className="facture-detail-validate-button"
+              className="sage-button sage-button-success"
             >
               {validating ? (
                 <>
-                  <div className="facture-detail-action-spinner"></div>
+                  <div className="sage-button-spinner"></div>
                   Validation...
                 </>
               ) : (
-                '✅ Valider'
+                <>
+                  <FaCheck className="sage-button-icon" />
+                  Valider
+                </>
               )}
             </button>
           )}
@@ -270,9 +335,10 @@ export const FactureDetailPage: React.FC = () => {
           {(facture.statut === 'validee' || facture.statut === 'partiellement_payee') && (
             <button
               onClick={imprimerFacture}
-              className="facture-detail-print-button"
+              className="sage-button sage-button-secondary"
             >
-              🖨️ Imprimer
+              <FaPrint className="sage-button-icon" />
+              Imprimer
             </button>
           )}
           
@@ -280,15 +346,18 @@ export const FactureDetailPage: React.FC = () => {
             <button
               onClick={annulerFacture}
               disabled={cancelling}
-              className="facture-detail-cancel-button"
+              className="sage-button sage-button-danger"
             >
               {cancelling ? (
                 <>
-                  <div className="facture-detail-action-spinner"></div>
+                  <div className="sage-button-spinner"></div>
                   Annulation...
                 </>
               ) : (
-                '❌ Annuler'
+                <>
+                  <FaTimes className="sage-button-icon" />
+                  Annuler
+                </>
               )}
             </button>
           )}
@@ -296,203 +365,348 @@ export const FactureDetailPage: React.FC = () => {
           {facture.statut === 'brouillon' && (
             <Link
               to={`/comptabilite/factures/${facture.numero_facture}/edit`}
-              className="facture-detail-edit-button"
+              className="sage-button sage-button-primary"
             >
-              ✏️ Modifier
+              <FaEdit className="sage-button-icon" />
+              Modifier
             </Link>
           )}
         </div>
       </div>
 
-      {/* Carte de la facture */}
-      <div className="facture-detail-card">
-        {/* En-tête facture */}
-        <div className="facture-detail-header-info">
-          <div className="facture-detail-entreprise">
-            <h3>Entreprise</h3>
-            <div className="facture-detail-info">
-              <div><strong>Nom:</strong> {ENTREPRISE_INFO.nom}</div>
-              <div><strong>Adresse:</strong> {ENTREPRISE_INFO.adresse}</div>
-              <div><strong>Tel:</strong> {ENTREPRISE_INFO.telephone}</div>
-              <div><strong>Email:</strong> {ENTREPRISE_INFO.email}</div>
-            </div>
+      {/* Informations principales */}
+      <div className="sage-detail-grid">
+        {/* Carte Entreprise */}
+        <div className="sage-card sage-entreprise-card">
+          <div className="sage-card-header">
+            <FaBuilding className="sage-card-icon" />
+            <h3 className="sage-card-title">Entreprise</h3>
           </div>
-
-          <div className="facture-detail-client">
-            <h3>{facture.nom_tiers}</h3>
-            <div className="facture-detail-info">
-              <div><strong>Type:</strong> {facture.type_tiers}</div>
-              <div><strong>Adresse:</strong> {facture.adresse}</div>
-              <div><strong>Tel:</strong> {facture.telephone}</div>
-              <div><strong>Email:</strong> {facture.email}</div>
-              {facture.devise && facture.devise !== 'MGA' && (
-                <div><strong>Devise:</strong> {facture.devise}</div>
-              )}
-            </div>
-          </div>
-
-          <div className="facture-detail-meta">
-            <div className="facture-detail-meta-item">
-              <strong>N° Document:</strong> 
-              <span className="facture-detail-numero">{facture.numero_facture}</span>
-            </div>
-            <div className="facture-detail-meta-item">
-              <strong>Date:</strong> {new Date(facture.date).toLocaleDateString('fr-FR')}
-            </div>
-            <div className="facture-detail-meta-item">
-              <strong>Échéance:</strong> {new Date(facture.echeance).toLocaleDateString('fr-FR')}
-            </div>
-            <div className="facture-detail-meta-item">
-              <strong>Type:</strong> 
-              <span className={`facture-detail-badge type-${facture.type_facture}`}>
-                {getTypeLabel(facture.type_facture)}
-              </span>
-            </div>
-            <div className="facture-detail-meta-item">
-              <strong>Statut:</strong>
-              <span className={`facture-detail-badge statut-${facture.statut}`}>
-                {getStatutLabel(facture.statut)}
-              </span>
-            </div>
-            <div className="facture-detail-meta-item">
-              <strong>Règlement:</strong> 
-              <span className="facture-detail-reglement">{facture.reglement}</span>
-            </div>
-            <div className="facture-detail-meta-item">
-              <strong>Type Paiement:</strong>
-              <span className={getPaiementClass(facture.type_paiement)}>
-                {getPaiementLabel(facture.type_paiement)}
-              </span>
+          <div className="sage-card-content">
+            <div className="sage-entreprise-name">{ENTREPRISE_INFO.nom}</div>
+            <div className="sage-entreprise-details">
+              <div className="sage-detail-item">
+                <FaBuilding className="sage-detail-icon" />
+                <span>{ENTREPRISE_INFO.adresse}</span>
+              </div>
+              <div className="sage-detail-item">
+                <FaCreditCard className="sage-detail-icon" />
+                <span>{ENTREPRISE_INFO.telephone}</span>
+              </div>
+              <div className="sage-detail-item">
+                <FaCreditCard className="sage-detail-icon" />
+                <span>{ENTREPRISE_INFO.email}</span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Section Information Paiement */}
-        {(facture.type_paiement && facture.type_paiement !== 'comptant') && (
-          <div className="facture-detail-paiement-section">
-            <h3>Informations de Paiement</h3>
-            <div className="facture-detail-paiement-grid">
-              <div className="facture-detail-paiement-info">
-                <div className="facture-detail-paiement-type">
-                  <strong>Type:</strong> {getPaiementLabel(facture.type_paiement)}
+        {/* Carte Client */}
+        <div className="sage-card sage-client-card">
+          <div className="sage-card-header">
+            <FaUser className="sage-card-icon" />
+            <h3 className="sage-card-title">{facture.nom_tiers}</h3>
+          </div>
+          <div className="sage-card-content">
+            <div className="sage-client-type">
+              <span className="sage-badge sage-badge-tiers">
+                {facture.type_tiers}
+              </span>
+            </div>
+            <div className="sage-client-details">
+              <div className="sage-detail-item">
+                <FaBuilding className="sage-detail-icon" />
+                <span>{facture.adresse}</span>
+              </div>
+              <div className="sage-detail-item">
+                <FaCreditCard className="sage-detail-icon" />
+                <span>{facture.telephone}</span>
+              </div>
+              <div className="sage-detail-item">
+                <FaCreditCard className="sage-detail-icon" />
+                <span>{facture.email}</span>
+              </div>
+              {facture.devise && facture.devise !== 'MGA' && (
+                <div className="sage-detail-item">
+                  <FaDollarSign className="sage-detail-icon" />
+                  <span>Devise: {facture.devise}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Carte Métadonnées */}
+        <div className="sage-card sage-metadata-card">
+          <div className="sage-card-header">
+            <TypeIcon className="sage-card-icon" />
+            <h3 className="sage-card-title">Informations du document</h3>
+          </div>
+          <div className="sage-card-content sage-metadata-grid">
+            <div className="sage-metadata-item">
+              <div className="sage-metadata-label">Numéro</div>
+              <div className="sage-metadata-value sage-document-number">
+                #{facture.numero_facture}
+              </div>
+            </div>
+            <div className="sage-metadata-item">
+              <div className="sage-metadata-label">Date</div>
+              <div className="sage-metadata-value">
+                <FaCalendarAlt className="sage-value-icon" />
+                {new Date(facture.date).toLocaleDateString('fr-FR')}
+              </div>
+            </div>
+            <div className="sage-metadata-item">
+              <div className="sage-metadata-label">Échéance</div>
+              <div className="sage-metadata-value">
+                <FaCalendarAlt className="sage-value-icon" />
+                {new Date(facture.echeance).toLocaleDateString('fr-FR')}
+              </div>
+            </div>
+            <div className="sage-metadata-item">
+              <div className="sage-metadata-label">Type</div>
+              <div className="sage-metadata-value">
+                <span className="sage-badge sage-badge-type">
+                  <TypeIcon className="sage-badge-icon" />
+                  {getTypeLabel(facture.type_facture)}
+                </span>
+              </div>
+            </div>
+            <div className="sage-metadata-item">
+              <div className="sage-metadata-label">Statut</div>
+              <div className="sage-metadata-value">
+                <span className={`sage-badge sage-badge-${facture.statut}`}>
+                  <StatutIcon className="sage-badge-icon" />
+                  {getStatutLabel(facture.statut)}
+                </span>
+              </div>
+            </div>
+            <div className="sage-metadata-item">
+              <div className="sage-metadata-label">Règlement</div>
+              <div className="sage-metadata-value">
+                <FaCreditCard className="sage-value-icon" />
+                {facture.reglement}
+              </div>
+            </div>
+            <div className="sage-metadata-item">
+              <div className="sage-metadata-label">Type Paiement</div>
+              <div className="sage-metadata-value">
+                <span className={`sage-badge sage-badge-paiement-${facture.type_paiement}`}>
+                  <PaiementIcon className="sage-badge-icon" />
+                  {getPaiementLabel(facture.type_paiement)}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Section Information Paiement */}
+      {(facture.type_paiement && facture.type_paiement !== 'comptant') && (
+        <div className="sage-card sage-paiement-section">
+          <div className="sage-card-header">
+            <FaMoneyBillWave className="sage-card-icon" />
+            <h3 className="sage-card-title">Informations de Paiement</h3>
+          </div>
+          <div className="sage-card-content sage-paiement-content">
+            <div className="sage-paiement-grid">
+              <div className="sage-paiement-info">
+                <div className="sage-paiement-item">
+                  <div className="sage-paiement-label">
+                    <PaiementIcon className="sage-paiement-icon" />
+                    Type de paiement
+                  </div>
+                  <div className="sage-paiement-value">
+                    {getPaiementLabel(facture.type_paiement)}
+                  </div>
                 </div>
                 
                 {facture.date_finale_paiement && (
-                  <div className="facture-detail-paiement-date">
-                    <strong>Date finale:</strong> {new Date(facture.date_finale_paiement).toLocaleDateString('fr-FR')}
-                    {joursRestants !== null && (
-                      <span className={`facture-detail-jours-restants ${joursRestants < 0 ? 'retard' : joursRestants < 7 ? 'warning' : 'normal'}`}>
-                        {joursRestants < 0 ? `${Math.abs(joursRestants)}j de retard` : `${joursRestants}j restant`}
-                      </span>
-                    )}
+                  <div className="sage-paiement-item">
+                    <div className="sage-paiement-label">
+                      <FaCalendarAlt className="sage-paiement-icon" />
+                      Date finale
+                    </div>
+                    <div className="sage-paiement-value">
+                      {new Date(facture.date_finale_paiement).toLocaleDateString('fr-FR')}
+                      {joursRestants !== null && (
+                        <span className={`sage-jours-restants ${joursRestants < 0 ? 'retard' : joursRestants < 7 ? 'warning' : 'normal'}`}>
+                          {joursRestants < 0 ? `${Math.abs(joursRestants)}j de retard` : `${joursRestants}j restant`}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 )}
 
                 {facture.montant_minimum_paiement && facture.montant_minimum_paiement > 0 && (
-                  <div className="facture-detail-paiement-minimum">
-                    <strong>Minimum par paiement:</strong> {facture.montant_minimum_paiement.toLocaleString('fr-FR')} {deviseSymbol}
+                  <div className="sage-paiement-item">
+                    <div className="sage-paiement-label">
+                      <FaMoneyBillWave className="sage-paiement-icon" />
+                      Minimum par paiement
+                    </div>
+                    <div className="sage-paiement-value">
+                      {facture.montant_minimum_paiement.toLocaleString('fr-FR')} {deviseSymbol}
+                    </div>
                   </div>
                 )}
 
                 {facture.montant_acompte && facture.montant_acompte > 0 && (
-                  <div className="facture-detail-paiement-acompte">
-                    <strong>Acompte:</strong> {facture.montant_acompte.toLocaleString('fr-FR')} {deviseSymbol}
-                    {facture.total_ttc && (
-                      <span className="facture-detail-paiement-pourcentage">
-                        ({(facture.montant_acompte / facture.total_ttc * 100).toFixed(1)}%)
-                      </span>
-                    )}
+                  <div className="sage-paiement-item">
+                    <div className="sage-paiement-label">
+                      <FaPercentage className="sage-paiement-icon" />
+                      Acompte
+                    </div>
+                    <div className="sage-paiement-value">
+                      {facture.montant_acompte.toLocaleString('fr-FR')} {deviseSymbol}
+                      {facture.total_ttc && (
+                        <span className="sage-pourcentage">
+                          ({(facture.montant_acompte / facture.total_ttc * 100).toFixed(1)}%)
+                        </span>
+                      )}
+                    </div>
                   </div>
                 )}
 
                 {facture.penalite_retard && facture.penalite_retard > 0 && (
-                  <div className="facture-detail-paiement-penalite">
-                    <strong>Pénalité retard:</strong> {facture.penalite_retard}%
+                  <div className="sage-paiement-item">
+                    <div className="sage-paiement-label">
+                      <FaExclamationTriangle className="sage-paiement-icon" />
+                      Pénalité retard
+                    </div>
+                    <div className="sage-paiement-value">
+                      {facture.penalite_retard}%
+                    </div>
                   </div>
                 )}
               </div>
 
               {/* Barre de progression du paiement */}
               {(facture.montant_paye || 0) > 0 && (
-                <div className="facture-detail-progression">
-                  <div className="facture-detail-progression-header">
+                <div className="sage-progression-section">
+                  <div className="sage-progression-header">
                     <span>Progression du paiement</span>
-                    <span className="facture-detail-progression-text">
+                    <span className="sage-progression-percentage">
                       {progressionPaiement.toFixed(0)}%
                     </span>
                   </div>
-                  <div className="facture-detail-progression-bar">
+                  <div className="sage-progression-bar">
                     <div 
-                      className={`facture-detail-progression-fill ${progressionPaiement === 100 ? 'complete' : progressionPaiement > 0 ? 'partial' : 'empty'}`}
+                      className={`sage-progression-fill ${progressionPaiement === 100 ? 'complete' : progressionPaiement > 0 ? 'partial' : 'empty'}`}
                       style={{ width: `${progressionPaiement}%` }}
                     />
                   </div>
-                  <div className="facture-detail-progression-details">
-                    <span>Payé: {(facture.montant_paye || 0).toLocaleString('fr-FR')} {deviseSymbol}</span>
-                    <span>Reste: {(facture.montant_restant || facture.total_ttc || 0).toLocaleString('fr-FR')} {deviseSymbol}</span>
+                  <div className="sage-progression-details">
+                    <div className="sage-progression-detail">
+                      <span className="sage-detail-label">Payé:</span>
+                      <span className="sage-detail-value paye">
+                        {(facture.montant_paye || 0).toLocaleString('fr-FR')} {deviseSymbol}
+                      </span>
+                    </div>
+                    <div className="sage-progression-detail">
+                      <span className="sage-detail-label">Reste:</span>
+                      <span className="sage-detail-value restant">
+                        {(facture.montant_restant || facture.total_ttc || 0).toLocaleString('fr-FR')} {deviseSymbol}
+                      </span>
+                    </div>
                   </div>
                 </div>
               )}
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Lignes de facture */}
-        <div className="facture-detail-lignes">
-          <h3>Articles et Services</h3>
-          <div className="facture-detail-table-container">
-            <table className="facture-detail-table">
+      {/* Section Articles */}
+      <div className="sage-card sage-articles-section">
+        <div className="sage-card-header">
+          <FaShoppingCart className="sage-card-icon" />
+          <h3 className="sage-card-title">Articles et Services</h3>
+        </div>
+        <div className="sage-card-content">
+          <div className="sage-table-container">
+            <table className="sage-table">
               <thead>
                 <tr>
-                  <th>Référence</th>
-                  <th>Description</th>
-                  <th>Quantité</th>
-                  <th>Prix Unitaire ({facture.devise})</th>
-                  <th>Remise %</th>
-                  <th>TVA %</th>
-                  <th>Montant HT ({facture.devise})</th>
-                  <th>Montant TVA ({facture.devise})</th>
-                  <th>Montant TTC ({facture.devise})</th>
+                  <th className="sage-table-header">
+                    <FaCreditCard className="sage-table-icon" />
+                    Référence
+                  </th>
+                  <th className="sage-table-header">
+                    <FaStickyNote className="sage-table-icon" />
+                    Description
+                  </th>
+                  <th className="sage-table-header">
+                    <FaCalculator className="sage-table-icon" />
+                    Quantité
+                  </th>
+                  <th className="sage-table-header">
+                    <FaDollarSign className="sage-table-icon" />
+                    Prix Unitaire
+                  </th>
+                  <th className="sage-table-header">
+                    <FaPercentage className="sage-table-icon" />
+                    Remise
+                  </th>
+                  <th className="sage-table-header">
+                    <FaPercentage className="sage-table-icon" />
+                    TVA
+                  </th>
+                  <th className="sage-table-header">
+                    <FaMoneyBillWave className="sage-table-icon" />
+                    Montant HT
+                  </th>
+                  <th className="sage-table-header">
+                    <FaMoneyBillWave className="sage-table-icon" />
+                    Montant TVA
+                  </th>
+                  <th className="sage-table-header">
+                    <FaMoneyBillWave className="sage-table-icon" />
+                    Montant TTC
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {facture.lignes && facture.lignes.length > 0 ? (
                   facture.lignes.map((ligne, index) => (
-                    <tr key={index} className="facture-detail-ligne">
-                      <td className="facture-detail-ligne-reference">
+                    <tr key={index} className="sage-table-row">
+                      <td className="sage-table-cell sage-cell-reference">
                         <code>{ligne.code_article}</code>
                       </td>
-                      <td className="facture-detail-ligne-description">
+                      <td className="sage-table-cell sage-cell-description">
                         {ligne.description}
                       </td>
-                      <td className="facture-detail-ligne-quantite">
+                      <td className="sage-table-cell sage-cell-quantity">
                         {ligne.quantite}
                       </td>
-                      <td className="facture-detail-ligne-prix">
+                      <td className="sage-table-cell sage-cell-price">
                         {ligne.prix_unitaire.toLocaleString('fr-FR', {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2
                         })} {deviseSymbol}
                       </td>
-                      <td className="facture-detail-ligne-remise">
-                        {ligne.remise > 0 ? `${ligne.remise}%` : '-'}
+                      <td className="sage-table-cell sage-cell-discount">
+                        {ligne.remise > 0 ? (
+                          <span className="sage-discount-badge">
+                            {ligne.remise}%
+                          </span>
+                        ) : '-'}
                       </td>
-                      <td className="facture-detail-ligne-tva">
+                      <td className="sage-table-cell sage-cell-tva">
                         {ligne.taux_tva}%
                       </td>
-                      <td className="facture-detail-ligne-montant">
+                      <td className="sage-table-cell sage-cell-amount">
                         {ligne.montant_ht?.toLocaleString('fr-FR', {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2
                         })} {deviseSymbol}
                       </td>
-                      <td className="facture-detail-ligne-montant">
+                      <td className="sage-table-cell sage-cell-amount">
                         {ligne.montant_tva?.toLocaleString('fr-FR', {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2
                         })} {deviseSymbol}
                       </td>
-                      <td className="facture-detail-ligne-montant">
+                      <td className="sage-table-cell sage-cell-amount">
                         {ligne.montant_ttc?.toLocaleString('fr-FR', {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2
@@ -502,7 +716,8 @@ export const FactureDetailPage: React.FC = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={9} className="facture-detail-no-lignes">
+                    <td colSpan={9} className="sage-table-empty">
+                      <FaShoppingCart className="sage-empty-icon" />
                       Aucun article dans cette facture
                     </td>
                   </tr>
@@ -511,101 +726,158 @@ export const FactureDetailPage: React.FC = () => {
             </table>
           </div>
         </div>
+      </div>
 
-        {/* Totaux */}
-        <div className="facture-detail-totals">
-          <div className="facture-detail-totals-grid">
-            <div className="facture-detail-total-group">
-              <div className="facture-detail-total-row">
-                <span>Total HT:</span>
-                <span className="facture-detail-total-value">
-                  {facture.total_ht?.toLocaleString('fr-FR', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                  })} {deviseSymbol}
-                </span>
-              </div>
-              <div className="facture-detail-total-row">
-                <span>Total TVA:</span>
-                <span className="facture-detail-total-value">
-                  {facture.total_tva?.toLocaleString('fr-FR', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                  })} {deviseSymbol}
-                </span>
-              </div>
-              <div className="facture-detail-total-row facture-detail-total-ttc">
-                <span>Total TTC:</span>
-                <span className="facture-detail-total-value">
-                  {facture.total_ttc?.toLocaleString('fr-FR', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                  })} {deviseSymbol}
-                </span>
-              </div>
+      {/* Section Totaux */}
+      <div className="sage-card sage-totals-section">
+        <div className="sage-card-header">
+          <FaCalculator className="sage-card-icon" />
+          <h3 className="sage-card-title">Totaux</h3>
+        </div>
+        <div className="sage-card-content">
+          <div className="sage-totals-grid">
+            <div className="sage-totals-left">
+              <div className="sage-total-group">
+                <div className="sage-total-row">
+                  <span className="sage-total-label">Total HT:</span>
+                  <span className="sage-total-value">
+                    {facture.total_ht?.toLocaleString('fr-FR', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2
+                    })} {deviseSymbol}
+                  </span>
+                </div>
+                <div className="sage-total-row">
+                  <span className="sage-total-label">Total TVA:</span>
+                  <span className="sage-total-value">
+                    {facture.total_tva?.toLocaleString('fr-FR', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2
+                    })} {deviseSymbol}
+                  </span>
+                </div>
+                <div className="sage-total-row sage-total-ttc">
+                  <span className="sage-total-label">Total TTC:</span>
+                  <span className="sage-total-value">
+                    {facture.total_ttc?.toLocaleString('fr-FR', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2
+                    })} {deviseSymbol}
+                  </span>
+                </div>
 
-              {/* Informations de paiement */}
-              {(facture.montant_paye || 0) > 0 && (
-                <>
-                  <div className="facture-detail-total-row">
-                    <span>Montant payé:</span>
-                    <span className="facture-detail-total-value paye">
-                      {(facture.montant_paye || 0).toLocaleString('fr-FR', {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
-                      })} {deviseSymbol}
-                    </span>
-                  </div>
-                  <div className="facture-detail-total-row">
-                    <span>Montant restant:</span>
-                    <span className="facture-detail-total-value restant">
-                      {(facture.montant_restant || facture.total_ttc || 0).toLocaleString('fr-FR', {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
-                      })} {deviseSymbol}
-                    </span>
-                  </div>
-                </>
-              )}
+                {(facture.montant_paye || 0) > 0 && (
+                  <>
+                    <div className="sage-total-row">
+                      <span className="sage-total-label">Montant payé:</span>
+                      <span className="sage-total-value sage-amount-paid">
+                        {(facture.montant_paye || 0).toLocaleString('fr-FR', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                        })} {deviseSymbol}
+                      </span>
+                    </div>
+                    <div className="sage-total-row">
+                      <span className="sage-total-label">Montant restant:</span>
+                      <span className="sage-total-value sage-amount-remaining">
+                        {(facture.montant_restant || facture.total_ttc || 0).toLocaleString('fr-FR', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                        })} {deviseSymbol}
+                      </span>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
             
-            <div className="facture-detail-paiement-info">
-              <div className="facture-detail-paiement-item">
-                <strong>Mode de règlement:</strong> {facture.reglement}
-              </div>
-              <div className="facture-detail-paiement-item">
-                <strong>Type de paiement:</strong> {getPaiementLabel(facture.type_paiement)}
-              </div>
-              <div className="facture-detail-paiement-item">
-                <strong>Échéance:</strong> {new Date(facture.echeance).toLocaleDateString('fr-FR')}
-              </div>
-              {facture.devise && facture.devise !== 'MGA' && facture.taux_change && (
-                <div className="facture-detail-paiement-item">
-                  <strong>Taux de change:</strong> 1 {facture.devise} = {facture.taux_change} MGA
+            <div className="sage-totals-right">
+              <div className="sage-paiement-info">
+                <div className="sage-paiement-summary">
+                  <div className="sage-paiement-item">
+                    <FaCreditCard className="sage-paiement-item-icon" />
+                    <div>
+                      <div className="sage-paiement-item-label">Mode de règlement</div>
+                      <div className="sage-paiement-item-value">{facture.reglement}</div>
+                    </div>
+                  </div>
+                  <div className="sage-paiement-item">
+                    <PaiementIcon className="sage-paiement-item-icon" />
+                    <div>
+                      <div className="sage-paiement-item-label">Type de paiement</div>
+                      <div className="sage-paiement-item-value">{getPaiementLabel(facture.type_paiement)}</div>
+                    </div>
+                  </div>
+                  <div className="sage-paiement-item">
+                    <FaCalendarAlt className="sage-paiement-item-icon" />
+                    <div>
+                      <div className="sage-paiement-item-label">Échéance</div>
+                      <div className="sage-paiement-item-value">
+                        {new Date(facture.echeance).toLocaleDateString('fr-FR')}
+                      </div>
+                    </div>
+                  </div>
+                  {facture.devise && facture.devise !== 'MGA' && facture.taux_change && (
+                    <div className="sage-paiement-item">
+                      <FaExchangeAlt className="sage-paiement-item-icon" />
+                      <div>
+                        <div className="sage-paiement-item-label">Taux de change</div>
+                        <div className="sage-paiement-item-value">
+                          1 {facture.devise} = {facture.taux_change} MGA
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
-              {facture.statut === 'validee' && (
-                <div className="facture-detail-merci">
-                  <p>"Nous vous remercions de votre confiance"</p>
-                  <p>"Cordialement"</p>
-                </div>
-              )}
+                
+                {facture.statut === 'validee' && (
+                  <div className="sage-merci">
+                    <div className="sage-merci-text">
+                      <FaCheckCircle className="sage-merci-icon" />
+                      <div>
+                        <p className="sage-merci-title">Nous vous remercions de votre confiance</p>
+                        <p className="sage-merci-subtitle">Cordialement</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Informations supplémentaires */}
-        <div className="facture-detail-footer">
-          <div className="facture-detail-notes">
-            <h4>Notes</h4>
-            <p>{facture.notes || "Aucune note particulière"}</p>
-          </div>
-          <div className="facture-detail-timestamps">
-            <div>
-              <strong>Créée le:</strong> {facture.created_at ? new Date(facture.created_at).toLocaleString('fr-FR') : 'N/A'}
+      {/* Informations supplémentaires */}
+      <div className="sage-card sage-footer-section">
+        <div className="sage-card-header">
+          <FaHistory className="sage-card-icon" />
+          <h3 className="sage-card-title">Informations supplémentaires</h3>
+        </div>
+        <div className="sage-card-content sage-footer-content">
+          <div className="sage-footer-notes">
+            <div className="sage-footer-item">
+              <FaStickyNote className="sage-footer-icon" />
+              <div>
+                <div className="sage-footer-label">Notes</div>
+                <div className="sage-footer-value">
+                  {facture.notes || "Aucune note particulière"}
+                </div>
+              </div>
             </div>
-            <div>
-              <strong>Modifiée le:</strong> {facture.updated_at ? new Date(facture.updated_at).toLocaleString('fr-FR') : 'N/A'}
+          </div>
+          
+          <div className="sage-footer-timestamps">
+            <div className="sage-timestamp">
+              <div className="sage-timestamp-label">Créée le</div>
+              <div className="sage-timestamp-value">
+                {facture.created_at ? new Date(facture.created_at).toLocaleString('fr-FR') : 'N/A'}
+              </div>
+            </div>
+            <div className="sage-timestamp">
+              <div className="sage-timestamp-label">Modifiée le</div>
+              <div className="sage-timestamp-value">
+                {facture.updated_at ? new Date(facture.updated_at).toLocaleString('fr-FR') : 'N/A'}
+              </div>
             </div>
           </div>
         </div>

@@ -142,6 +142,7 @@ export interface FactureAvecPaiement extends Omit<Facture, 'type_paiement' | 'st
   date_finale_paiement?: string;
   montant_minimum_paiement?: number;
   penalite_retard?: number;
+  date_echeance: Date;
   historique_paiements?: {
     paiements: Paiement[];
     resume: {

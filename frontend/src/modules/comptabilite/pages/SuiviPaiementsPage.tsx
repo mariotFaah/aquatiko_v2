@@ -663,8 +663,7 @@ const handleRappelFlexible = async (facture: Facture) => {
       {/* EN-TÊTE AVEC KPIs */}
       <div className="suivi-header">
         <div className="suivi-titre">
-          <h1>📊 Suivi des Paiements</h1>
-          <p>Surveillance active des échéances, paiements partiels, retards et flexibles</p>
+          <h1>Suivi des Paiements</h1>
         </div>
         
         <div className="suivi-kpis">
