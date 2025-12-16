@@ -3,6 +3,7 @@ import axios from '../../../core/config/axios';
 import type { 
   Commande, 
   CommandeFormData, 
+  Expedition, 
   ExpeditionFormData, 
   CoutLogistiqueFormData,
   CalculMarge,
@@ -254,6 +255,16 @@ export const importExportApi = {
       return extractData(response);
     } catch (error: any) {
       console.error('❌ Erreur getConnaissementsByStatut:', error.response?.data || error.message);
+      throw error;
+    }
+  },
+   getExpeditions: async (): Promise<Expedition[]> => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/expeditions`);
+      return extractData(response);
+    } catch (error: any) {
+      console.error('❌ Erreur getExpeditions:', error.response?.data || error.message);
+      if (error.response?.status === 204) return [];
       throw error;
     }
   },

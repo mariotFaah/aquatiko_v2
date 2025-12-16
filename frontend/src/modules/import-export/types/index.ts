@@ -51,6 +51,7 @@ export interface Expedition {
   mode_transport?: string;
   instructions_speciales?: string;
   statut: 'preparation' | 'expédiée' | 'transit' | 'arrivée' | 'livrée';
+    transporteur_id?: number;
   created_at: string;
   updated_at: string;
 }
@@ -118,6 +119,7 @@ export interface ExpeditionFormData {
   transporteur?: string;
   mode_transport?: string;
   instructions_speciales?: string;
+    transporteur_id?: number;
   statut: 'preparation' | 'expédiée' | 'transit' | 'arrivée' | 'livrée';
 }
 
