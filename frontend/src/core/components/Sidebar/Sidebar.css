@@ -7,6 +7,13 @@
   z-index: 998;
 }
 
+.brand-logo-img {
+  width: 180px; /* Ajustez selon votre logo */
+  height: auto;
+  object-fit: contain;
+  margin-bottom: 10px;
+}
+
 .sidebar {
   position: fixed;
   top: 0;

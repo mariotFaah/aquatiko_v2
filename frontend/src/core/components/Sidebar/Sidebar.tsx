@@ -30,6 +30,8 @@ import {
 } from 'react-icons/fi';
 import './Sidebar.css';
 
+
+
 interface SidebarProps {
   isOpen: boolean;
   onToggle: () => void;
@@ -184,6 +186,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
     return user?.nom?.charAt(0) || user?.email?.charAt(0) || 'U';
   };
 
+  const logoImage = '/omniserve-experts.jpeg';
+
   return (
     <>
       {/* Overlay pour mobile */}
@@ -193,9 +197,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
         <div className="sidebar-header">
           {isOpen && (
             <div className="sidebar-brand">
-              <div className="brand-logo">🌊</div>
-              <h1 className="sidebar-title">OMNISERVE EXPERTS</h1>
+              <img src={logoImage} alt="Omniserve Experts Logo" className="brand-logo-img" />
+              <br />
+              
             </div>
+
           )}
           
           <button onClick={onToggle} className="sidebar-toggle inside">
