@@ -97,12 +97,11 @@ const TransporteurFormPage: React.FC = () => {
     try {
       setSaving(true);
       
-      let transporteur: Transporteur;
-      
+      // Suppression de la variable non utilisée
       if (isEdit && id) {
-        transporteur = await importExportApi.updateTransporteur(parseInt(id!), formData);
+        await importExportApi.updateTransporteur(parseInt(id!), formData);
       } else {
-        transporteur = await importExportApi.createTransporteur(formData);
+        await importExportApi.createTransporteur(formData);
       }
 
       alert(

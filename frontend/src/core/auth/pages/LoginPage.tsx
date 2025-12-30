@@ -9,7 +9,7 @@ import {
   FiShield,
   FiLock,
   FiMail,
-  FiCheck
+  
 } from 'react-icons/fi';
 import './LoginPage.css';
 
@@ -156,9 +156,7 @@ export const LoginPage: React.FC = () => {
                     onChange={(e) => setRememberMe(e.target.checked)}
                     disabled={isSubmitting}
                   />
-                  <span className="checkbox-custom">
-                    {rememberMe && <FiCheck size={14} />}
-                  </span>
+                  
                   <span className="remember-text">Se souvenir de moi</span>
                 </label>
                 <a href="#" className="forgot-password" onClick={(e) => {

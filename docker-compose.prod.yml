@@ -1,0 +1,62 @@
+# docker-compose.prod.yml
+version: '3.8'
+
+services:
+  mariadb:
+    image: mariadb:10.11
+    container_name: aquatiko_mariadb_prod
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${DB_NAME:-gestion_entreprise}
+      MYSQL_USER: ${DB_USER:-admin}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-adminpassword}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_prod_data:/var/lib/mysql
+      - ./mariadb-config:/etc/mysql/conf.d:ro
+    command: --innodb-buffer-pool-size=256M --innodb-log-file-size=64M
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    container_name: aquatiko_backend_prod
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      DB_HOST: mariadb
+      DB_PORT: 3306
+      DB_USER: ${DB_USER:-admin}
+      DB_PASSWORD: ${DB_PASSWORD:-adminpassword}
+      DB_NAME: ${DB_NAME:-gestion_entreprise}
+      JWT_SECRET: ${JWT_SECRET:-your-secret-key-change-this}
+    depends_on:
+      - mariadb
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    container_name: aquatiko_frontend_prod
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  mariadb_prod_data:

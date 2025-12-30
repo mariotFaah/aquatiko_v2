@@ -6,6 +6,25 @@ import type { CommandeFormData, LigneCommandeFormData, Article } from '../types'
 import type { Tiers as ComptabiliteTiers } from '../../comptabilite/types';
 import { useAlertDialog } from '../../../core/hooks/useAlertDialog';
 import AlertDialog from '../../../core/components/AlertDialog/AlertDialog';
+import {
+  FiPlus,
+  FiMinus,
+  FiSave,
+  FiX,
+  FiArrowLeft,
+  FiDownload,
+  
+  FiUser,
+  FiBriefcase,
+  FiCalendar,
+  FiDollarSign,
+  FiShoppingCart,
+  FiPackage,
+  FiCheckCircle,
+  FiTruck,
+  FiFileText,
+  FiXCircle
+} from 'react-icons/fi';
 import './CommandeFormPage.css';
 
 // Interface unifiée pour résoudre le conflit
@@ -36,7 +55,7 @@ const CommandeFormPage: React.FC = () => {
     fournisseur_id: 0,
     date_commande: new Date().toISOString().split('T')[0],
     devise: 'EUR',
-    statut: 'brouillon', // Statut sélectionnable par l'utilisateur
+    statut: 'brouillon',
     lignes: []
   });
 
@@ -62,7 +81,6 @@ const CommandeFormPage: React.FC = () => {
         comptabiliteApi.getArticles()
       ]);
       
-      // ADAPTER LES DONNÉES TIERS
       const adaptedTiers: UnifiedTiers[] = tiersData
         .filter((tier): tier is ComptabiliteTiers & { id_tiers: number, type_tiers: 'client' | 'fournisseur' } => 
           typeof tier.id_tiers === 'number' && 
@@ -105,7 +123,6 @@ const CommandeFormPage: React.FC = () => {
       [field]: value
     };
     
-    // Si l'article change, mettre à jour la description
     if (field === 'article_id' && value) {
       const article = articles.find(a => a.code_article === value);
       if (article) {
@@ -167,7 +184,7 @@ const CommandeFormPage: React.FC = () => {
       return 'Veuillez ajouter au moins une ligne de commande valide';
     }
 
-    // Validation spécifique selon le statut
+    const { totalTTC } = calculerTotaux();
     if (formData.statut === 'confirmée' && totalTTC === 0) {
       return 'Une commande confirmée doit avoir un montant total supérieur à 0';
     }
@@ -191,15 +208,11 @@ const CommandeFormPage: React.FC = () => {
     setLoading(true);
 
     try {
-      // Préparer les données pour l'API
       const commandeData = {
         ...formData,
         lignes: lignes.filter(l => l.article_id && l.quantite > 0)
       };
-
-      console.log('Données envoyées à l\'API:', commandeData);
       
-      // Appel API avec le statut choisi par l'utilisateur
       await importExportApi.createCommande(commandeData);
       
       alert(`Commande créée avec succès avec le statut "${formData.statut}"!`, {
@@ -207,7 +220,6 @@ const CommandeFormPage: React.FC = () => {
         title: 'Succès'
       });
       
-      // Navigation après un délai pour laisser voir le message de succès
       setTimeout(() => {
         navigate('/import-export/commandes');
       }, 1500);
@@ -215,7 +227,6 @@ const CommandeFormPage: React.FC = () => {
     } catch (error: any) {
       console.error('Erreur création commande:', error);
       
-      // Message d'erreur plus détaillé
       const errorMessage = error.response?.data?.message || 'Erreur lors de la création de la commande';
       alert(errorMessage, {
         type: 'error',
@@ -250,267 +261,366 @@ const CommandeFormPage: React.FC = () => {
     }
   };
 
+  const getStatutIcon = () => {
+    switch (formData.statut) {
+      case 'brouillon':
+        return <FiFileText className="statut-form-icon" />;
+      case 'confirmée':
+        return <FiCheckCircle className="statut-form-icon" />;
+      case 'expédiée':
+        return <FiTruck className="statut-form-icon" />;
+      case 'livrée':
+        return <FiPackage className="statut-form-icon" />;
+      case 'annulée':
+        return <FiXCircle className="statut-form-icon" />;
+      default:
+        return <FiFileText className="statut-form-icon" />;
+    }
+  };
+
   return (
-    <div className="commande-form-container">
-      <div className="commande-form-content">
-       
+    <div className="ms-crm-container">
+      {/* Header Microsoft Style */}
+      <div className="ms-crm-header">
+        <div className="ms-crm-header-left">
+          <div className="ms-crm-title-section">
+            <h1 className="ms-crm-page-title">
+              <FiShoppingCart className="page-title-icon" />
+              Nouvelle Commande
+            </h1>
+            <p className="ms-crm-subtitle">Créer une nouvelle commande d'import/export</p>
+          </div>
+        </div>
         
+        <div className="ms-crm-header-actions">
+          <Link 
+            to="/import-export/commandes"
+            className="ms-crm-btn ms-crm-btn-secondary"
+          >
+            <FiArrowLeft className="ms-crm-icon" />
+            Retour aux commandes
+          </Link>
+        </div>
+      </div>
 
-        <form onSubmit={handleSubmit} className="commande-form">
-          {/* Informations générales */}
-          <div className="form-section">
-            <h2 className="section-title">Informations Générales</h2>
-            <div className="form-grid">
-              <div className="form-group">
-                <label className="form-label required">Type de commande</label>
-                <select
-                  value={formData.type}
-                  onChange={(e) => handleInputChange('type', e.target.value)}
-                  className="form-select"
-                  required
-                >
-                  <option value="import">Import</option>
-                  <option value="export">Export</option>
-                </select>
+      {/* Main Content */}
+      <div className="ms-crm-content">
+        <div className="ms-crm-card">
+          <form onSubmit={handleSubmit} className="ms-crm-form">
+            
+            {/* Informations générales */}
+            <div className="ms-crm-form-section">
+              <div className="ms-crm-section-header">
+                <h2 className="ms-crm-section-title">
+                  <FiBriefcase className="section-icon" />
+                  Informations Générales
+                </h2>
               </div>
+              
+              <div className="ms-crm-form-grid">
+                <div className="ms-crm-form-group">
+                  <label className="ms-crm-form-label required">
+                    <FiDownload className="form-label-icon" />
+                    Type de commande
+                  </label>
+                  <select
+                    value={formData.type}
+                    onChange={(e) => handleInputChange('type', e.target.value)}
+                    className="ms-crm-form-select"
+                    required
+                  >
+                    <option value="import">Import</option>
+                    <option value="export">Export</option>
+                  </select>
+                </div>
 
-              <div className="form-group">
-                <label className="form-label required">Statut</label>
-                <select
-                  value={formData.statut}
-                  onChange={(e) => handleInputChange('statut', e.target.value as StatutCommande)}
-                  className="form-select"
-                  required
-                >
-                  <option value="brouillon">Brouillon</option>
-                  <option value="confirmée">Confirmée</option>
-                  <option value="expédiée">Expédiée</option>
-                  <option value="livrée">Livrée</option>
-                  <option value="annulée">Annulée</option>
-                </select>
-                <small className="form-hint">
-                  {formData.statut === 'brouillon' && 'La commande est en cours de préparation'}
-                  {formData.statut === 'confirmée' && 'La commande est validée et confirmée'}
-                  {formData.statut === 'expédiée' && 'Les marchandises ont été expédiées'}
-                  {formData.statut === 'livrée' && 'La commande a été livrée au client'}
-                  {formData.statut === 'annulée' && 'La commande a été annulée'}
-                </small>
-              </div>
+                <div className="ms-crm-form-group">
+                  <label className="ms-crm-form-label required">
+                    {getStatutIcon()}
+                    Statut
+                  </label>
+                  <select
+                    value={formData.statut}
+                    onChange={(e) => handleInputChange('statut', e.target.value as StatutCommande)}
+                    className="ms-crm-form-select"
+                    required
+                  >
+                    <option value="brouillon">Brouillon</option>
+                    <option value="confirmée">Confirmée</option>
+                    <option value="expédiée">Expédiée</option>
+                    <option value="livrée">Livrée</option>
+                    <option value="annulée">Annulée</option>
+                  </select>
+                  <div className="ms-crm-form-hint">
+                    {formData.statut === 'brouillon' && 'La commande est en cours de préparation'}
+                    {formData.statut === 'confirmée' && 'La commande est validée et confirmée'}
+                    {formData.statut === 'expédiée' && 'Les marchandises ont été expédiées'}
+                    {formData.statut === 'livrée' && 'La commande a été livrée au client'}
+                    {formData.statut === 'annulée' && 'La commande a été annulée'}
+                  </div>
+                </div>
 
-              <div className="form-group">
-                <label className="form-label required">Client</label>
-                <select
-                  value={formData.client_id || ''}
-                  onChange={(e) => handleInputChange('client_id', parseInt(e.target.value) || 0)}
-                  className="form-select"
-                  required
-                >
-                  <option value="">Sélectionner un client</option>
-                  {clients.map(tier => (
-                    <option key={tier.id} value={tier.id}>
-                      {tier.nom}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                <div className="ms-crm-form-group">
+                  <label className="ms-crm-form-label required">
+                    <FiUser className="form-label-icon" />
+                    Client
+                  </label>
+                  <select
+                    value={formData.client_id || ''}
+                    onChange={(e) => handleInputChange('client_id', parseInt(e.target.value) || 0)}
+                    className="ms-crm-form-select"
+                    required
+                  >
+                    <option value="">Sélectionner un client</option>
+                    {clients.map(tier => (
+                      <option key={tier.id} value={tier.id}>
+                        {tier.nom}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-              <div className="form-group">
-                <label className="form-label required">Fournisseur</label>
-                <select
-                  value={formData.fournisseur_id || ''}
-                  onChange={(e) => handleInputChange('fournisseur_id', parseInt(e.target.value) || 0)}
-                  className="form-select"
-                  required
-                >
-                  <option value="">Sélectionner un fournisseur</option>
-                  {fournisseurs.map(tier => (
-                    <option key={tier.id} value={tier.id}>
-                      {tier.nom}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                <div className="ms-crm-form-group">
+                  <label className="ms-crm-form-label required">
+                    <FiBriefcase className="form-label-icon" />
+                    Fournisseur
+                  </label>
+                  <select
+                    value={formData.fournisseur_id || ''}
+                    onChange={(e) => handleInputChange('fournisseur_id', parseInt(e.target.value) || 0)}
+                    className="ms-crm-form-select"
+                    required
+                  >
+                    <option value="">Sélectionner un fournisseur</option>
+                    {fournisseurs.map(tier => (
+                      <option key={tier.id} value={tier.id}>
+                        {tier.nom}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-              <div className="form-group">
-                <label className="form-label required">Date de commande</label>
-                <input
-                  type="date"
-                  value={formData.date_commande}
-                  onChange={(e) => handleInputChange('date_commande', e.target.value)}
-                  className="form-input"
-                  required
-                />
-              </div>
+                <div className="ms-crm-form-group">
+                  <label className="ms-crm-form-label required">
+                    <FiCalendar className="form-label-icon" />
+                    Date de commande
+                  </label>
+                  <input
+                    type="date"
+                    value={formData.date_commande}
+                    onChange={(e) => handleInputChange('date_commande', e.target.value)}
+                    className="ms-crm-form-input"
+                    required
+                  />
+                </div>
 
-              <div className="form-group">
-                <label className="form-label required">Devise</label>
-                <select
-                  value={formData.devise}
-                  onChange={(e) => handleInputChange('devise', e.target.value)}
-                  className="form-select"
-                  required
-                >
-                  <option value="EUR">EUR - Euro</option>
-                  <option value="USD">USD - Dollar US</option>
-                  <option value="MGA">MGA - Ariary Malgache</option>
-                </select>
+                <div className="ms-crm-form-group">
+                  <label className="ms-crm-form-label required">
+                    <FiDollarSign className="form-label-icon" />
+                    Devise
+                  </label>
+                  <select
+                    value={formData.devise}
+                    onChange={(e) => handleInputChange('devise', e.target.value)}
+                    className="ms-crm-form-select"
+                    required
+                  >
+                    <option value="EUR">EUR - Euro</option>
+                    <option value="USD">USD - Dollar US</option>
+                    <option value="MGA">MGA - Ariary Malgache</option>
+                  </select>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Lignes de commande */}
-          <div className="form-section">
-            <h2 className="section-title">Articles Commandés</h2>
-            
-            <div className="lignes-section">
-              <div className="ligne-header">
-                <div>Article</div>
-                <div>Description</div>
-                <div>Quantité</div>
-                <div>Prix Unitaire</div>
-                <div>TVA %</div>
-                <div>Montant HT</div>
-                <div>Action</div>
+            {/* Lignes de commande */}
+            <div className="ms-crm-form-section">
+              <div className="ms-crm-section-header">
+                <h2 className="ms-crm-section-title">
+                  <FiPackage className="section-icon" />
+                  Articles Commandés
+                </h2>
               </div>
+              
+              <div className="ms-crm-lignes-container">
+                <div className="ms-crm-ligne-header">
+                  <div className="ms-crm-ligne-col-article">Article</div>
+                  <div className="ms-crm-ligne-col-description">Description</div>
+                  <div className="ms-crm-ligne-col-qte">Quantité</div>
+                  <div className="ms-crm-ligne-col-prix">Prix Unitaire</div>
+                  <div className="ms-crm-ligne-col-tva">TVA %</div>
+                  <div className="ms-crm-ligne-col-montant">Montant HT</div>
+                  <div className="ms-crm-ligne-col-action"></div>
+                </div>
 
-              {lignes.map((ligne, index) => {
-                const montantHT = ligne.quantite * ligne.prix_unitaire;
+                {lignes.map((ligne, index) => {
+                  const montantHT = ligne.quantite * ligne.prix_unitaire;
 
-                return (
-                  <div key={index} className="ligne-item">
-                    <select
-                      value={ligne.article_id}
-                      onChange={(e) => handleLigneChange(index, 'article_id', e.target.value)}
-                      className="ligne-input"
-                      required
-                    >
-                      <option value="">Sélectionner un article</option>
-                      {articles.map(article => (
-                        <option key={article.code_article} value={article.code_article}>
-                          {article.code_article} - {article.description}
-                        </option>
-                      ))}
-                    </select>
+                  return (
+                    <div key={index} className="ms-crm-ligne-item">
+                      <div className="ms-crm-ligne-col-article">
+                        <select
+                          value={ligne.article_id}
+                          onChange={(e) => handleLigneChange(index, 'article_id', e.target.value)}
+                          className="ms-crm-ligne-select"
+                          required
+                        >
+                          <option value="">Sélectionner</option>
+                          {articles.map(article => (
+                            <option key={article.code_article} value={article.code_article}>
+                              {article.code_article}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
 
-                    <input
-                      type="text"
-                      value={ligne.description}
-                      onChange={(e) => handleLigneChange(index, 'description', e.target.value)}
-                      className="ligne-input"
-                      placeholder="Description"
-                      required
-                    />
+                      <div className="ms-crm-ligne-col-description">
+                        <input
+                          type="text"
+                          value={ligne.description}
+                          onChange={(e) => handleLigneChange(index, 'description', e.target.value)}
+                          className="ms-crm-ligne-input"
+                          placeholder="Description"
+                          required
+                        />
+                      </div>
 
-                    <input
-                      type="number"
-                      value={ligne.quantite}
-                      onChange={(e) => handleLigneChange(index, 'quantite', parseFloat(e.target.value) || 0)}
-                      className="ligne-input"
-                      min="0.01"
-                      step="0.01"
-                      required
-                    />
+                      <div className="ms-crm-ligne-col-qte">
+                        <input
+                          type="number"
+                          value={ligne.quantite}
+                          onChange={(e) => handleLigneChange(index, 'quantite', parseFloat(e.target.value) || 0)}
+                          className="ms-crm-ligne-input"
+                          min="0.01"
+                          step="0.01"
+                          required
+                        />
+                      </div>
 
-                    <input
-                      type="number"
-                      value={ligne.prix_unitaire}
-                      onChange={(e) => handleLigneChange(index, 'prix_unitaire', parseFloat(e.target.value) || 0)}
-                      className="ligne-input"
-                      min="0"
-                      step="0.01"
-                      required
-                    />
+                      <div className="ms-crm-ligne-col-prix">
+                        <input
+                          type="number"
+                          value={ligne.prix_unitaire}
+                          onChange={(e) => handleLigneChange(index, 'prix_unitaire', parseFloat(e.target.value) || 0)}
+                          className="ms-crm-ligne-input"
+                          min="0"
+                          step="0.01"
+                          required
+                        />
+                      </div>
 
-                    <input
-                      type="number"
-                      value={ligne.taux_tva}
-                      onChange={(e) => handleLigneChange(index, 'taux_tva', parseFloat(e.target.value) || 0)}
-                      className="ligne-input"
-                      min="0"
-                      max="100"
-                      step="0.1"
-                      required
-                    />
+                      <div className="ms-crm-ligne-col-tva">
+                        <input
+                          type="number"
+                          value={ligne.taux_tva}
+                          onChange={(e) => handleLigneChange(index, 'taux_tva', parseFloat(e.target.value) || 0)}
+                          className="ms-crm-ligne-input"
+                          min="0"
+                          max="100"
+                          step="0.1"
+                          required
+                        />
+                      </div>
 
-                    <div className="montant-ht">
-                      {new Intl.NumberFormat('fr-FR', { 
-                        style: 'currency', 
-                        currency: formData.devise 
-                      }).format(montantHT)}
+                      <div className="ms-crm-ligne-col-montant">
+                        <div className="ms-crm-ligne-montant">
+                          {new Intl.NumberFormat('fr-FR', { 
+                            style: 'currency', 
+                            currency: formData.devise 
+                          }).format(montantHT)}
+                        </div>
+                      </div>
+
+                      <div className="ms-crm-ligne-col-action">
+                        <button
+                          type="button"
+                          onClick={() => supprimerLigne(index)}
+                          className="ms-crm-btn ms-crm-btn-icon ms-crm-btn-danger"
+                          disabled={lignes.length === 1}
+                          title="Supprimer cette ligne"
+                        >
+                          <FiMinus className="action-icon" />
+                        </button>
+                      </div>
                     </div>
+                  );
+                })}
 
-                    <button
-                      type="button"
-                      onClick={() => supprimerLigne(index)}
-                      className="btn-supprimer-ligne"
-                      disabled={lignes.length === 1}
-                    >
-                      ✕
-                    </button>
+                <div className="ms-crm-ligne-actions">
+                  <button
+                    type="button"
+                    onClick={ajouterLigne}
+                    className="ms-crm-btn ms-crm-btn-secondary"
+                  >
+                    <FiPlus className="ms-crm-icon" />
+                    Ajouter une ligne
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Totaux */}
+            <div className="ms-crm-form-section">
+              <div className="ms-crm-section-header">
+                <h2 className="ms-crm-section-title">
+                  <FiDollarSign className="section-icon" />
+                  Récapitulatif
+                </h2>
+              </div>
+              
+              <div className="ms-crm-totaux-grid">
+                <div className="ms-crm-total-item">
+                  <div className="ms-crm-total-label">Total HT:</div>
+                  <div className="ms-crm-total-value">
+                    {new Intl.NumberFormat('fr-FR', { 
+                      style: 'currency', 
+                      currency: formData.devise 
+                    }).format(totalHT)}
                   </div>
-                );
-              })}
+                </div>
 
-              <button
-                type="button"
-                onClick={ajouterLigne}
-                className="btn-ajouter-ligne"
+                <div className="ms-crm-total-item">
+                  <div className="ms-crm-total-label">Total TVA:</div>
+                  <div className="ms-crm-total-value ms-crm-total-tva">
+                    {new Intl.NumberFormat('fr-FR', { 
+                      style: 'currency', 
+                      currency: formData.devise 
+                    }).format(totalTVA)}
+                  </div>
+                </div>
+
+                <div className="ms-crm-total-item">
+                  <div className="ms-crm-total-label">Total TTC:</div>
+                  <div className="ms-crm-total-value ms-crm-total-ttc">
+                    {new Intl.NumberFormat('fr-FR', { 
+                      style: 'currency', 
+                      currency: formData.devise 
+                    }).format(totalTTC)}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="ms-crm-form-actions">
+              <Link 
+                to="/import-export/commandes" 
+                className="ms-crm-btn ms-crm-btn-secondary"
               >
-                + Ajouter une ligne
+                <FiX className="ms-crm-icon" />
+                Annuler
+              </Link>
+              <button 
+                type="submit" 
+                className={`ms-crm-btn ms-crm-btn-primary ${formData.statut === 'annulée' ? 'ms-crm-btn-warning' : ''}`}
+                disabled={loading}
+              >
+                <FiSave className="ms-crm-icon" />
+                {loading ? 'Création en cours...' : getBoutonText()}
               </button>
             </div>
-          </div>
-
-          {/* Totaux */}
-          <div className="totaux-section">
-            <h2 className="section-title">Récapitulatif</h2>
-            <div className="totaux-grid">
-              <div className="total-item">
-                <span className="total-label">Total HT:</span>
-                <span className="total-value">
-                  {new Intl.NumberFormat('fr-FR', { 
-                    style: 'currency', 
-                    currency: formData.devise 
-                  }).format(totalHT)}
-                </span>
-              </div>
-
-              <div className="total-item">
-                <span className="total-label">Total TVA:</span>
-                <span className="total-value total-tva">
-                  {new Intl.NumberFormat('fr-FR', { 
-                    style: 'currency', 
-                    currency: formData.devise 
-                  }).format(totalTVA)}
-                </span>
-              </div>
-
-              <div className="total-item">
-                <span className="total-label">Total TTC:</span>
-                <span className="total-value total-ttc">
-                  {new Intl.NumberFormat('fr-FR', { 
-                    style: 'currency', 
-                    currency: formData.devise 
-                  }).format(totalTTC)}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div className="form-actions">
-            <Link to="/import-export/commandes" className="btn-secondary">
-              Annuler
-            </Link>
-            <button 
-              type="submit" 
-              className={`btn-primary ${formData.statut === 'annulée' ? 'btn-warning' : ''}`}
-              disabled={loading}
-            >
-              {loading ? 'Création en cours...' : getBoutonText()}
-            </button>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
 
       {/* Composant AlertDialog */}

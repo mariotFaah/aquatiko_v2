@@ -4,6 +4,48 @@
   margin: 0 auto;
 }
 
+.cell-actions {
+  display: flex;
+  align-items: center;
+}
+
+.btn-completer {
+  /* Mise en page */
+  display: inline-flex;
+  align-items: center;
+  gap: 8px; /* Espace entre l'icône et le texte */
+  padding: 8px 16px;
+  
+  /* Style visuel */
+  background-color: #f0f7ff; /* Bleu très clair */
+  color: #0066cc; /* Bleu principal */
+  border: 1px solid #d0e3ff;
+  border-radius: 6px;
+  
+  /* Typographie */
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-icone {
+  font-size: 18px; /* Taille de l'icône MdOutlinePayment */
+  color: #0076b6; /* Couleur spécifique des icônes de votre capture */
+}
+
+/* Effets au survol */
+.btn-completer:hover {
+  background-color: #e0efff;
+  border-color: #0066cc;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Effet au clic */
+.btn-completer:active {
+  transform: translateY(1px);
+}
+
 /* EN-TÊTE ET KPIs */
 .suivi-header {
   background: white;

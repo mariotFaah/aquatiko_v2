@@ -8,4 +8,5 @@ export interface Tiers {
   email?: string;    // Email optionnel
   telephone?: string; // Téléphone optionnel
   devise_preferee?: string; // Devise préférée optionnelle
+  reference : string; // Référence optionnelle
 }

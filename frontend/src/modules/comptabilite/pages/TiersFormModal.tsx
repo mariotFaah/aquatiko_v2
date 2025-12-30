@@ -27,6 +27,7 @@ export const TiersFormModal: React.FC<Props> = ({ tiers, onClose, onSave }) => {
       adresse: tiers.adresse,
       email: tiers.email,
       telephone: tiers.telephone,
+      reference: tiers.reference,
     } : {
       type_tiers: 'client',
       nom: '',
@@ -34,6 +35,7 @@ export const TiersFormModal: React.FC<Props> = ({ tiers, onClose, onSave }) => {
       adresse: '',
       email: '',
       telephone: '',
+      reference: '',
     }
   );
 

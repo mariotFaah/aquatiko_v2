@@ -1,5 +1,16 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { 
+  FaClipboardList, 
+  FaDollarSign, 
+  FaDownload, 
+  FaUpload, 
+  FaClock, 
+  FaTruck, 
+  FaBox, 
+  FaReceipt,
+  FaExclamationTriangle
+} from 'react-icons/fa';
 import type { Commande } from '../types';
 import './DashboardStats.css';
 
@@ -21,41 +32,25 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({ commandes, loading }) =
   if (loading) {
     return (
       <div className="dashboard-stats loading">
-        <div className="stat-skeleton"></div>
-        <div className="stat-skeleton"></div>
-        <div className="stat-skeleton"></div>
-        <div className="stat-skeleton"></div>
-        <div className="stat-skeleton"></div>
-        <div className="stat-skeleton"></div>
-        <div className="stat-skeleton"></div>
-        <div className="stat-skeleton"></div>
+        {Array(8).fill(0).map((_, i) => (
+          <div key={i} className="stat-skeleton"></div>
+        ))}
       </div>
     );
   }
 
-  // Calcul des statistiques AVEC les vraies données
+  // Calcul des statistiques
   const stats = {
-    // Commandes valides seulement
     total: commandesValides.length,
-    
-    // Types d'opérations
     import: commandesValides.filter(c => c.type === 'import').length,
     export: commandesValides.filter(c => c.type === 'export').length,
-    
-    // Statuts avec les vrais workflows
     brouillon: commandesValides.filter(c => c.statut === 'brouillon').length,
     confirmee: commandesValides.filter(c => c.statut === 'confirmée').length,
     expediee: commandesValides.filter(c => c.statut === 'expédiée').length,
     livree: commandesValides.filter(c => c.statut === 'livrée').length,
     annulee: commandesValides.filter(c => c.statut === 'annulée').length,
-    
-    // Chiffre d'affaires réel (seulement commandes valides)
     chiffreAffaires: commandesValides.reduce((sum, c) => sum + parseFloat(c.montant_total.toString()), 0),
-    
-    // Commandes avec expédition créée
     avecExpedition: commandesValides.filter(c => c.expedition).length,
-    
-    // Commandes avec coûts logistiques
     avecCouts: commandesValides.filter(c => 
       c.couts_logistiques && 
       (parseFloat(c.couts_logistiques.fret_maritime?.toString() || '0') > 0 ||
@@ -64,7 +59,6 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({ commandes, loading }) =
     ).length
   };
 
-  // Déterminer la devise principale pour l'affichage
   const getDevisePrincipale = () => {
     const devises = commandesValides.reduce((acc, cmd) => {
       acc[cmd.devise] = (acc[cmd.devise] || 0) + 1;
@@ -78,16 +72,14 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({ commandes, loading }) =
 
   const devisePrincipale = getDevisePrincipale();
 
-  // Cartes principales (toujours visibles)
   const mainStatCards = [
     {
       title: 'Commandes Actives',
       value: stats.total,
-      icon: '📋',
+      icon: FaClipboardList,
       color: 'blue',
       link: '/import-export/commandes',
-      description: 'Commandes avec articles',
-      priority: 1
+      description: 'Commandes avec articles'
     },
     {
       title: 'Chiffre d\'Affaires',
@@ -96,72 +88,63 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({ commandes, loading }) =
         currency: devisePrincipale,
         minimumFractionDigits: 0,
       }).format(stats.chiffreAffaires),
-      icon: '💰',
+      icon: FaDollarSign,
       color: 'indigo',
       link: '/import-export/analyses',
-      description: `${stats.total} commandes valides`,
-      priority: 1
+      description: `${stats.total} commandes valides`
     },
     {
       title: 'Opérations Import',
       value: stats.import,
-      icon: '📥',
+      icon: FaDownload,
       color: 'green',
       link: '/import-export/commandes?type=import',
-      description: `${stats.import} commandes`,
-      priority: 1
+      description: `${stats.import} commandes`
     },
     {
       title: 'Opérations Export',
       value: stats.export,
-      icon: '📤',
+      icon: FaUpload,
       color: 'purple',
       link: '/import-export/commandes?type=export',
-      description: `${stats.export} commandes`,
-      priority: 1
+      description: `${stats.export} commandes`
     }
   ];
 
-  // Cartes secondaires (visibles quand showAll = true)
   const secondaryStatCards = [
     {
       title: 'En Préparation',
       value: stats.brouillon + stats.confirmee,
-      icon: '🔄',
+      icon: FaClock,
       color: 'orange',
       link: '/import-export/commandes?statut=brouillon,confirmée',
-      description: `${stats.brouillon} brouillon + ${stats.confirmee} confirmée`,
-      priority: 2
+      description: `${stats.brouillon} brouillon + ${stats.confirmee} confirmée`
     },
     {
       title: 'Expédiées/Livrées',
       value: stats.expediee + stats.livree,
-      icon: '🚚',
+      icon: FaTruck,
       color: 'teal',
       link: '/import-export/expeditions',
-      description: `${stats.expediee} expédiée + ${stats.livree} livrée`,
-      priority: 2
+      description: `${stats.expediee} expédiée + ${stats.livree} livrée`
     },
     {
       title: 'Avec Expédition',
       value: stats.avecExpedition,
-      icon: '📦',
+      icon: FaBox,
       color: 'cyan',
       link: '/import-export/expeditions',
-      description: `${Math.round((stats.avecExpedition / stats.total) * 100)}% des commandes`,
-      priority: 2
+      description: `${Math.round((stats.avecExpedition / stats.total) * 100)}% des commandes`
     },
     {
       title: 'Avec Coûts Logistiques',
       value: stats.avecCouts,
-      icon: '🧾',
+      icon: FaReceipt,
       color: 'amber',
       link: '/import-export/analyses',
-      description: 'Coûts enregistrés',
-      priority: 2
+      description: 'Coûts enregistrés'
     }
   ];
-
 
   return (
     <div className="dashboard-stats">
@@ -172,11 +155,12 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({ commandes, loading }) =
         </p>
       </div>
       
-      {/* Grille principale - 4 cartes en haut */}
       <div className="stats-grid main-grid">
         {mainStatCards.map((stat, index) => (
           <Link key={index} to={stat.link} className={`stat-card stat-${stat.color}`}>
-            <div className="stat-icon">{stat.icon}</div>
+            <div className="stat-icon">
+              <stat.icon className="h-8 w-8" />
+            </div>
             <div className="stat-content">
               <div className="stat-value">{stat.value}</div>
               <div className="stat-title">{stat.title}</div>
@@ -189,12 +173,13 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({ commandes, loading }) =
         ))}
       </div>
 
-      {/* Grille secondaire - 4 cartes en bas (conditionnelle) */}
       {showAll && (
         <div className="stats-grid secondary-grid">
           {secondaryStatCards.map((stat, index) => (
             <Link key={index} to={stat.link} className={`stat-card stat-${stat.color}`}>
-              <div className="stat-icon">{stat.icon}</div>
+              <div className="stat-icon">
+                <stat.icon className="h-8 w-8" />
+              </div>
               <div className="stat-content">
                 <div className="stat-value">{stat.value}</div>
                 <div className="stat-title">{stat.title}</div>
@@ -208,7 +193,6 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({ commandes, loading }) =
         </div>
       )}
 
-      {/* Bouton toggle pour afficher/masquer les cartes secondaires */}
       <div className="stats-toggle">
         <button 
           className="toggle-btn"
@@ -218,11 +202,10 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({ commandes, loading }) =
         </button>
       </div>
 
-      {/* Alertes et indicateurs importants */}
       <div className="stats-alerts">
         {stats.brouillon > 0 && (
           <div className="alert-item warning">
-            <span className="alert-icon">📝</span>
+            <FaExclamationTriangle className="h-5 w-5 alert-icon" />
             <span className="alert-text">
               {stats.brouillon} commande(s) en brouillon à finaliser
             </span>
@@ -231,7 +214,7 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({ commandes, loading }) =
         
         {stats.avecExpedition < stats.total && (
           <div className="alert-item info">
-            <span className="alert-icon">🚚</span>
+            <FaTruck className="h-5 w-5 alert-icon" />
             <span className="alert-text">
               {stats.total - stats.avecExpedition} commande(s) sans expédition
             </span>
@@ -240,7 +223,7 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({ commandes, loading }) =
 
         {stats.annulee > 0 && (
           <div className="alert-item error">
-            <span className="alert-icon">❌</span>
+            <FaExclamationTriangle className="h-5 w-5 alert-icon" />
             <span className="alert-text">
               {stats.annulee} commande(s) annulée(s)
             </span>

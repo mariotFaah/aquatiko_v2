@@ -109,6 +109,7 @@ export interface Facture {
   adresse?: string;
   email?: string;
   telephone?: string;
+  telephone_tiers?: string; 
   type_tiers?: 'client' | 'fournisseur';
   numero_tiers?: string;
   devise?: string;
@@ -207,6 +208,7 @@ export interface ConversionDevise {
   devise_source: string;
   devise_cible: string;
   date?: string;
+  taux: number;
 }
 
 // TYPES POUR LES RAPPORTS - AMÉLIORÉS AVEC DONNÉES RÉELLES

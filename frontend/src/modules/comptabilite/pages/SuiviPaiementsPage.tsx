@@ -7,8 +7,24 @@ import { useAlertDialog } from '../../../core/hooks/useAlertDialog';
 import AlertDialog from '../../../core/components/AlertDialog/AlertDialog';
 import './SuiviPaiementsPage.css';
 import { CompleterPaiementModal } from '../components/CompleterPaiementModal';
+import { AppelTelephoniqueModal } from '../components/AppelTelephoniqueModal';
 import { emailApi } from '../services/emailApi';
-
+import { 
+  FiAlertCircle, 
+  FiClock, 
+  FiPieChart, 
+  FiTrendingUp,
+  FiCalendar,
+  FiMail,
+  FiPhone,
+  FiCheckCircle,
+  //FiDollarSign
+} from 'react-icons/fi';
+import { 
+  MdOutlinePayment,
+  MdOutlineSchedule,
+  MdOutlineWarningAmber,
+} from 'react-icons/md';
 
 export const SuiviPaiementsPage: React.FC = () => {
   const [factures, setFactures] = useState<Facture[]>([]);
@@ -17,6 +33,15 @@ export const SuiviPaiementsPage: React.FC = () => {
   const [vueActive, setVueActive] = useState<'echeances' | 'partiels' | 'retards' | 'flexibles'>('echeances');
   const [periode, setPeriode] = useState<'7jours' | '30jours' | '90jours'>('7jours');
   const [modalPaiement, setModalPaiement] = useState<{
+    isOpen: boolean;
+    facture: Facture | null;
+  }>({
+    isOpen: false,
+    facture: null
+  });
+
+  // État pour la modal d'appel téléphonique
+  const [modalAppel, setModalAppel] = useState<{
     isOpen: boolean;
     facture: Facture | null;
   }>({
@@ -52,59 +77,73 @@ export const SuiviPaiementsPage: React.FC = () => {
   };
 
   // 🎯 FONCTIONS POUR LES BOUTONS - VERSION CORRIGÉE
-const handleRelancer = async (facture: Facture) => {
-  try {
-    const result = await emailApi.envoyerRelance(facture, 
-      `Rappel concernant votre facture #${facture.numero_facture}. Merci de régulariser votre situation.`
-    );
-    
-    alert(result.message, {
-      type: 'success',
-      title: 'Relance envoyée'
-    });
-  } catch (error) {
-    // ✅ CORRECTION : Gestion sécurisée du type error
-    const errorMessage = error instanceof Error 
-      ? error.message 
-      : 'Erreur inconnue lors de l\'envoi de la relance';
-    
-    alert(`Erreur lors de l'envoi de la relance: ${errorMessage}`, {
-      type: 'error',
-      title: 'Erreur'
-    });
-  }
-};
+  const handleRelancer = async (facture: Facture) => {
+    try {
+      const result = await emailApi.envoyerRelance(facture, 
+        `Rappel concernant votre facture #${facture.numero_facture}. Merci de régulariser votre situation.`
+      );
+      
+      alert(result.message, {
+        type: 'success',
+        title: 'Relance envoyée'
+      });
+    } catch (error) {
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : 'Erreur inconnue lors de l\'envoi de la relance';
+      
+      alert(`Erreur lors de l'envoi de la relance: ${errorMessage}`, {
+        type: 'error',
+        title: 'Erreur'
+      });
+    }
+  };
 
-const handleAppeler = (facture: Facture) => {
-  // Simulation d'appel téléphonique
-  alert(`Appel en cours vers le client ${facture.nom_tiers}...\nFacture #${facture.numero_facture} - ${formaterMontant(facture.montant_restant)} MGA`, {
-    type: 'info',
-    title: '📞 Appel téléphonique'
-  });
-};
+  // 🎯 FONCTION APPEL TELEPHONIQUE
+  const handleAppeler = (facture: Facture) => {
+    setModalAppel({
+      isOpen: true,
+      facture
+    });
+  };
 
-const handleRappelFlexible = async (facture: Facture) => {
-  try {
-    const result = await emailApi.envoyerRelance(facture,
-      `Rappel pour votre paiement flexible. Prochaine échéance: ${facture.date_finale_paiement ? new Date(facture.date_finale_paiement).toLocaleDateString('fr-FR') : 'Non définie'}. Montant minimum: ${formaterMontant(facture.montant_minimum_paiement)} MGA.`
-    );
-    
-    alert(result.message, {
+  // Fonction pour fermer la modal d'appel
+  const fermerModalAppel = () => {
+    setModalAppel({
+      isOpen: false,
+      facture: null
+    });
+  };
+
+  // Fonction appelée quand l'appel est réussi
+  const handleAppelReussi = () => {
+    alert('Appel téléphonique enregistré avec succès !', {
       type: 'success',
-      title: 'Rappel flexible envoyé'
+      title: 'Appel réussi'
     });
-  } catch (error) {
-    // ✅ CORRECTION : Gestion sécurisée du type error
-    const errorMessage = error instanceof Error 
-      ? error.message 
-      : 'Erreur inconnue lors de l\'envoi du rappel';
-    
-    alert(`Erreur lors de l'envoi du rappel: ${errorMessage}`, {
-      type: 'error',
-      title: 'Erreur'
-    });
-  }
-};
+  };
+
+  const handleRappelFlexible = async (facture: Facture) => {
+    try {
+      const result = await emailApi.envoyerRelance(facture,
+        `Rappel pour votre paiement flexible. Prochaine échéance: ${facture.date_finale_paiement ? new Date(facture.date_finale_paiement).toLocaleDateString('fr-FR') : 'Non définie'}. Montant minimum: ${formaterMontant(facture.montant_minimum_paiement)} MGA.`
+      );
+      
+      alert(result.message, {
+        type: 'success',
+        title: 'Rappel flexible envoyé'
+      });
+    } catch (error) {
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : 'Erreur inconnue lors de l\'envoi du rappel';
+      
+      alert(`Erreur lors de l'envoi du rappel: ${errorMessage}`, {
+        type: 'error',
+        title: 'Erreur'
+      });
+    }
+  };
 
   // 🎯 FONCTIONS MODAL
   const ouvrirModalPaiement = (facture: Facture) => {
@@ -193,10 +232,10 @@ const handleRappelFlexible = async (facture: Facture) => {
   };
 
   // 🎯 CALCULS MÉTRIQUES
-  const getMontantTotalEnRisque = () => {
+  /*const getMontantTotalEnRisque = () => {
     const facturesRisque = [...getFacturesAvecEcheance(), ...getFacturesEnRetard()];
     return facturesRisque.reduce((total, facture) => total + (facture.montant_restant || 0), 0);
-  };
+  };*/
 
   const getProchainPaiement = () => {
     const echeances = getFacturesAvecEcheance();
@@ -231,10 +270,10 @@ const handleRappelFlexible = async (facture: Facture) => {
   };
 
   const getIconeStatut = (jours: number) => {
-    if (jours < 0) return '🔴';
-    if (jours <= 3) return '🟠';
-    if (jours <= 7) return '🟡';
-    return '🟢';
+    if (jours < 0) return <MdOutlineWarningAmber className="icone-statut critique" />;
+    if (jours <= 3) return <FiAlertCircle className="icone-statut eleve" />;
+    if (jours <= 7) return <FiClock className="icone-statut moyen" />;
+    return <FiCheckCircle className="icone-statut faible" />;
   };
 
   const getPourcentagePaye = (facture: Facture): number => {
@@ -244,7 +283,10 @@ const handleRappelFlexible = async (facture: Facture) => {
   };
 
   const formaterMontant = (montant: number | undefined) => {
-    return (montant || 0).toLocaleString('fr-FR');
+    return (montant || 0).toLocaleString('fr-FR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
   };
 
   // 🎯 RENDU CONDITIONNEL
@@ -254,7 +296,10 @@ const handleRappelFlexible = async (facture: Facture) => {
     return (
       <div className="suivi-tableau">
         <div className="suivi-tableau-header">
-          <h3>📅 Échéances à venir ({facturesEcheance.length})</h3>
+          <h3>
+            <FiCalendar className="tableau-icone" />
+            Échéances à venir ({facturesEcheance.length})
+          </h3>
           <div className="filtres-periode">
             {[
               { key: '7jours', label: '7 jours' },
@@ -328,9 +373,10 @@ const handleRappelFlexible = async (facture: Facture) => {
                     <div className="cell-actions">
                       <button 
                         onClick={() => ouvrirModalPaiement(facture)}
-                        className="btn-payer"
+                        className="btn-completer"
                       >
-                        💳 Payer
+                        <MdOutlinePayment className="btn-icone" />
+                        Compléter
                       </button>
                     </div>
                   </td>
@@ -342,7 +388,7 @@ const handleRappelFlexible = async (facture: Facture) => {
 
         {facturesEcheance.length === 0 && (
           <div className="aucune-donnee">
-            🎉 Aucune échéance dans les {periode === '7jours' ? '7' : periode === '30jours' ? '30' : '90'} prochains jours
+            Aucune échéance dans les {periode === '7jours' ? '7' : periode === '30jours' ? '30' : '90'} prochains jours
           </div>
         )}
       </div>
@@ -354,7 +400,10 @@ const handleRappelFlexible = async (facture: Facture) => {
 
     return (
       <div className="suivi-tableau">
-        <h3>🟡 Paiements partiels ({facturesPartielles.length})</h3>
+        <h3>
+          <FiPieChart className="tableau-icone" />
+          Paiements partiels ({facturesPartielles.length})
+        </h3>
         
         <table className="suivi-table">
           <thead>
@@ -420,9 +469,10 @@ const handleRappelFlexible = async (facture: Facture) => {
                     <div className="cell-actions">
                       <button 
                         onClick={() => ouvrirModalPaiement(facture)}
-                        className="btn-payer"
+                        className="btn-completer"
                       >
-                        💳 Compléter
+                        <MdOutlinePayment className="btn-icone" />
+                        Compléter
                       </button>
                     </div>
                   </td>
@@ -434,7 +484,7 @@ const handleRappelFlexible = async (facture: Facture) => {
 
         {facturesPartielles.length === 0 && (
           <div className="aucune-donnee">
-            ✅ Aucun paiement partiel en cours
+            Aucun paiement partiel en cours
           </div>
         )}
       </div>
@@ -446,7 +496,10 @@ const handleRappelFlexible = async (facture: Facture) => {
 
     return (
       <div className="suivi-tableau">
-        <h3>🔴 Retards de paiement ({facturesRetard.length})</h3>
+        <h3>
+          <MdOutlineWarningAmber className="tableau-icone" />
+          Retards de paiement ({facturesRetard.length})
+        </h3>
         
         <table className="suivi-table">
           <thead>
@@ -476,7 +529,7 @@ const handleRappelFlexible = async (facture: Facture) => {
                       <div className={`niveau-retard ${joursRetard > 60 ? 'critique' : joursRetard > 30 ? 'eleve' : 'modere'}`}>
                         {joursRetard} jours
                       </div>
-                      {joursRetard > 60 && <div className="alerte-critique">🚨 CRITIQUE</div>}
+                      {joursRetard > 60 && <div className="alerte-critique">CRITIQUE</div>}
                     </div>
                   </td>
                   <td>
@@ -494,20 +547,23 @@ const handleRappelFlexible = async (facture: Facture) => {
                     <div className="cell-rappel">
                       <div className="dernier-rappel">Jamais relancé</div>
                       <button className="btn-relancer" onClick={() => handleRelancer(facture)}>
-                        📧 Relancer
+                        <FiMail className="btn-icone" />
+                        Relancer
                       </button>
                     </div>
                   </td>
                   <td>
                     <div className="cell-actions-urgentes">
                       <button className="btn-appeler" onClick={() => handleAppeler(facture)}>
-                        📞 Appeler
+                        <FiPhone className="btn-icone" />
+                        Appeler
                       </button>
                       <button 
                         onClick={() => ouvrirModalPaiement(facture)}
-                        className="btn-payer-urgence"
+                        className="btn-completer"
                       >
-                        💰 Régulariser
+                        <MdOutlinePayment className="btn-icone" />
+                        Compléter
                       </button>
                     </div>
                   </td>
@@ -519,7 +575,7 @@ const handleRappelFlexible = async (facture: Facture) => {
 
         {facturesRetard.length === 0 && (
           <div className="aucune-donnee succes">
-            🎉 Aucun retard de paiement !
+            Aucun retard de paiement !
           </div>
         )}
       </div>
@@ -534,7 +590,10 @@ const handleRappelFlexible = async (facture: Facture) => {
     return (
       <div className="suivi-tableau">
         <div className="suivi-tableau-header">
-          <h3>🔄 Paiements flexibles ({facturesFlexibles.length})</h3>
+          <h3>
+            <FiTrendingUp className="tableau-icone" />
+            Paiements flexibles ({facturesFlexibles.length})
+          </h3>
           <div className="stats-performance">
             <div className="performance-badge">
               <span className="performance-label">Taux de réussite:</span>
@@ -572,7 +631,7 @@ const handleRappelFlexible = async (facture: Facture) => {
                     <div className="cell-client">
                       <div className="nom-client">{facture.nom_tiers || 'Client inconnu'}</div>
                       <div className="numero-facture">Facture #{facture.numero_facture}</div>
-                      <div className="type-flexible">🔄 Flexible</div>
+                      <div className="type-flexible">Flexible</div>
                     </div>
                   </td>
                   <td>
@@ -621,13 +680,15 @@ const handleRappelFlexible = async (facture: Facture) => {
                     <div className="cell-actions">
                       <button 
                         onClick={() => ouvrirModalPaiement(facture)}
-                        className="btn-payer-flexible"
+                        className="btn-completer"
                       >
-                        💳 Payer
+                        <MdOutlinePayment className="btn-icone" />
+                        Compléter
                       </button>
                       {joursRestants <= 7 && (
                         <button className="btn-rappel-flexible" onClick={() => handleRappelFlexible(facture)}>
-                          🔔 Rappel
+                          <MdOutlineSchedule className="btn-icone" />
+                          Rappel
                         </button>
                       )}
                     </div>
@@ -640,7 +701,7 @@ const handleRappelFlexible = async (facture: Facture) => {
 
         {facturesFlexibles.length === 0 && (
           <div className="aucune-donnee">
-            ✅ Aucun paiement flexible en cours
+            Aucun paiement flexible en cours
           </div>
         )}
       </div>
@@ -668,44 +729,60 @@ const handleRappelFlexible = async (facture: Facture) => {
         
         <div className="suivi-kpis">
           <div className="kpi-card">
+            <div className="kpi-icone">
+              <FiCalendar />
+            </div>
             <div className="kpi-valeur">{getFacturesAvecEcheance().length}</div>
             <div className="kpi-label">Échéances proches</div>
           </div>
           <div className="kpi-card">
+            <div className="kpi-icone">
+              <FiPieChart />
+            </div>
             <div className="kpi-valeur">{getFacturesPartiellementPayees().length}</div>
             <div className="kpi-label">Paiements partiels</div>
           </div>
           <div className="kpi-card kpi-risque">
+            <div className="kpi-icone">
+              <MdOutlineWarningAmber />
+            </div>
             <div className="kpi-valeur">{getFacturesEnRetard().length}</div>
             <div className="kpi-label">En retard</div>
           </div>
           <div className="kpi-card kpi-flexible">
+            <div className="kpi-icone">
+              <FiTrendingUp />
+            </div>
             <div className="kpi-valeur">{getFacturesFlexiblesEnCours().length}</div>
             <div className="kpi-label">Flexibles en cours</div>
             <div className="kpi-sous-titre">
               {performanceFlexible.tauxReussite.toFixed(1)}% de réussite
             </div>
           </div>
-          <div className="kpi-card kpi-montant">
+          {/*<div className="kpi-card kpi-montant">
+            <div className="kpi-icone">
+              <FiDollarSign />
+            </div>
             <div className="kpi-valeur">{formaterMontant(getMontantTotalEnRisque())}</div>
             <div className="kpi-label">MGA à risque</div>
-          </div>
+          </div>*/}
         </div>
       </div>
 
       {/* SELECTION DE VUE */}
       <div className="suivi-vues">
         {[
-          { key: 'echeances', label: '📅 Échéances', count: getFacturesAvecEcheance().length },
-          { key: 'partiels', label: '🟡 Paiements partiels', count: getFacturesPartiellementPayees().length },
-          { key: 'retards', label: '🔴 Retards', count: getFacturesEnRetard().length },
-          { key: 'flexibles', label: '🔄 Paiements flexibles', count: getFacturesFlexiblesEnCours().length }
-        ].map(({ key, label, count }) => (
+          { key: 'echeances', label: 'Échéances', count: getFacturesAvecEcheance().length, icon: FiCalendar },
+          { key: 'partiels', label: 'Paiements partiels', count: getFacturesPartiellementPayees().length, icon: FiPieChart },
+          { key: 'retards', label: 'Retards', count: getFacturesEnRetard().length, icon: MdOutlineWarningAmber },
+          { key: 'flexibles', label: 'Paiements flexibles', count: getFacturesFlexiblesEnCours().length, icon: FiTrendingUp }
+        ].map(({ key, label, count, icon: Icon }) => (
           <button
             key={key}
             onClick={() => setVueActive(key as any)}
             className={`vue-btn ${vueActive === key ? 'active' : ''}`}
           >
+            <Icon className="vue-btn-icone" />
             {label} <span className="count-badge">{count}</span>
           </button>
         ))}
@@ -724,17 +801,29 @@ const handleRappelFlexible = async (facture: Facture) => {
         <div className="alertes-urgentes">
           {getPlusGrosRetard() && (
             <div className="alerte alerte-urgence">
-              <div className="alerte-icone">🚨</div>
+              <div className="alerte-icone">
+                <MdOutlineWarningAmber />
+              </div>
               <div className="alerte-contenu">
                 <strong>Retard critique :</strong> {getPlusGrosRetard()?.nom_tiers} doit {formaterMontant(getPlusGrosRetard()?.montant_restant)} MGA depuis {Math.abs(getJoursDifference(getPlusGrosRetard()?.date_finale_paiement))} jours
               </div>
-              <button className="alerte-action">Agir maintenant</button>
+              <button 
+                className="alerte-action"
+                onClick={() => {
+                  const plusGros = getPlusGrosRetard();
+                  if (plusGros) handleAppeler(plusGros);
+                }}
+              >
+                Appeler maintenant
+              </button>
             </div>
           )}
           
           {getProchainPaiement() && (
             <div className="alerte alerte-info">
-              <div className="alerte-icone">ℹ️</div>
+              <div className="alerte-icone">
+                <FiClock />
+              </div>
               <div className="alerte-contenu">
                 <strong>Prochaine échéance :</strong> {getProchainPaiement()?.nom_tiers} - {formaterMontant(getProchainPaiement()?.montant_restant)} MGA dans {getJoursDifference(getProchainPaiement()?.date_finale_paiement)} jours
               </div>
@@ -750,6 +839,19 @@ const handleRappelFlexible = async (facture: Facture) => {
           isOpen={modalPaiement.isOpen}
           onClose={fermerModalPaiement}
           onPaiementComplete={handlePaiementComplete}
+        />
+      )}
+
+      {/* Modal d'appel téléphonique */}
+      {modalAppel.facture && (
+        <AppelTelephoniqueModal
+          isOpen={modalAppel.isOpen}
+          onClose={fermerModalAppel}
+          numero={modalAppel.facture.telephone_tiers || ''}
+          nomClient={modalAppel.facture.nom_tiers || ''}
+          numeroFacture={modalAppel.facture.numero_facture?.toString() ?? ''}
+          montantDu={modalAppel.facture.montant_restant || 0}
+          onAppelReussi={handleAppelReussi}
         />
       )}
 

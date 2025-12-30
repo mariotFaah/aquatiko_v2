@@ -179,15 +179,12 @@ export const FacturesListPage: React.FC = () => {
   };
 
   const handleAnnulerFacture = async (numeroFacture: number) => {
-    // Demande de confirmation
     if (!window.confirm('Êtes-vous sûr de vouloir annuler cette facture ? Cette action est irréversible.')) {
       return;
     }
 
     try {
       setAnnulationEnCours(numeroFacture);
-      
-      // Utiliser la méthode annulerFacture de l'API
       await comptabiliteApi.annulerFacture(numeroFacture);
       
       alert('Facture annulée avec succès!', {
@@ -195,7 +192,6 @@ export const FacturesListPage: React.FC = () => {
         title: 'Succès'
       });
       
-      // Recharger les factures pour mettre à jour l'affichage
       loadFactures();
     } catch (error: any) {
       console.error('Erreur lors de l\'annulation:', error);
@@ -247,56 +243,68 @@ export const FacturesListPage: React.FC = () => {
         
         {/* Filters and Search Bar */}
         <div className="ms-crm-filters-bar">
-          <div className="ms-crm-search-box">
-            <FiSearch className="ms-crm-search-icon" />
-            <input
-              type="text"
-              placeholder="Rechercher par n° facture, client..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="ms-crm-search-input"
-            />
+          {/* Search Box */}
+          <div className="ms-crm-search-wrapper">
+            <label className="ms-crm-filter-label">
+              <FiSearch className="filter-label-icon" />
+              Rechercher
+            </label>
+            <div className="ms-crm-search-box">
+              <input
+                type="text"
+                placeholder="N° facture, client, référence..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="ms-crm-search-input"
+              />
+            </div>
           </div>
           
-          <div className="ms-crm-filters">
-            <div className="ms-crm-filter-group">
-              <div className="filter-icon-wrapper">
-                <FiFilter className="filter-group-icon" />
-              </div>
-              <select
-                value={filter}
-                onChange={(e) => setFilter(e.target.value as any)}
-                className="ms-crm-filter-select"
-              >
-                <option value="all">Tous les statuts</option>
-                <option value="brouillon">Brouillons</option>
-                <option value="validee">Validées</option>
-                <option value="annulee">Annulées</option>
-              </select>
-            </div>
+          {/* Status Filter */}
+          <div className="ms-crm-filter-wrapper">
+            <label className="ms-crm-filter-label">
+              <FiFilter className="filter-label-icon" />
+              Statut
+            </label>
+            <select
+              value={filter}
+              onChange={(e) => setFilter(e.target.value as any)}
+              className="ms-crm-filter-select"
+            >
+              <option value="all">Tous les statuts</option>
+              <option value="brouillon">Brouillons</option>
+              <option value="validee">Validées</option>
+              <option value="annulee">Annulées</option>
+              <option value="partiellement_payee">Partiellement payées</option>
+              <option value="payee">Payées</option>
+              <option value="en_retard">En retard</option>
+            </select>
+          </div>
 
-            <div className="ms-crm-filter-group">
-              <div className="filter-icon-wrapper">
-                <FiType className="filter-group-icon" />
-              </div>
-              <select
-                value={typeFilter}
-                onChange={(e) => setTypeFilter(e.target.value as any)}
-                className="ms-crm-filter-select"
-              >
-                <option value="all">Tous les types</option>
-                <option value="facture">Factures</option>
-                <option value="proforma">Proformas</option>
-                <option value="avoir">Avoirs</option>
-              </select>
-            </div>
+          {/* Type Filter */}
+          <div className="ms-crm-filter-wrapper">
+            <label className="ms-crm-filter-label">
+              <FiType className="filter-label-icon" />
+              Type
+            </label>
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value as any)}
+              className="ms-crm-filter-select"
+            >
+              <option value="all">Tous les types</option>
+              <option value="facture">Factures</option>
+              <option value="proforma">Proformas</option>
+              <option value="avoir">Avoirs</option>
+            </select>
+          </div>
 
-            <div className="ms-crm-stats">
-              <span className="ms-crm-stat-badge">
-                <FiTrendingUp className="stat-icon" />
-                {filteredFactures.length} facture{filteredFactures.length > 1 ? 's' : ''}
-              </span>
-            </div>
+          {/* Stats */}
+          <div className="ms-crm-stats">
+            <span className="ms-crm-stat-badge">
+              <FiTrendingUp className="stat-icon" />
+              {filteredFactures.length} facture{filteredFactures.length > 1 ? 's' : ''}
+            </span>
           </div>
         </div>
 

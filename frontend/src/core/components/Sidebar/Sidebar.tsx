@@ -79,7 +79,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
     }));
   };
 
-  // ✅ CORRIGER la fonction hasAccess
   const hasAccess = (item: MenuItemBase): boolean => {
     if (!item.requiredRole) return true;
     if (!user) return false;
@@ -102,7 +101,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
       name: 'Comptabilité',
       path: '/comptabilite',
       icon: <FiDollarSign size={20} />,
-      badge: '3',
+      
       requiredRole: ['admin', 'comptable'],
       children: [
         { name: 'Vue générale', path: '/comptabilite', icon: <FiTrendingUp size={16} /> },
@@ -121,7 +120,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
       name: 'Import-Export',
       path: '/import-export',
       icon: <FiGlobe size={20} />,
-      badge: 'New',
+      
       requiredRole: ['admin', 'commercial'],
       children: [
         { name: 'Vue générale', path: '/import-export', icon: <FiTrendingUp size={16} /> },
@@ -135,7 +134,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
       name: 'CRM',
       path: '/crm',
       icon: <FiUserCheck size={20} />,
-      badge: '12',
+      
       requiredRole: ['admin', 'commercial'],
       children: [
         { name: 'Vue générale', path: '/crm', icon: <FiTrendingUp size={16} /> },
@@ -162,7 +161,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
   // Filtrer les menus selon les permissions
   const filteredMenuItems = menuItems.filter(hasAccess);
 
-  // ✅ CORRIGER l'affichage du profil utilisateur
   const getUserDisplayName = () => {
     if (user?.prenom && user?.nom) {
       return `${user.prenom} ${user.nom}`;

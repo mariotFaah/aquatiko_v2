@@ -19,8 +19,16 @@ export const TauxChangeCalculator: React.FC<TauxChangeCalculatorProps> = ({ onCo
   React.useEffect(() => {
     const loadDevises = async () => {
       try {
-        const devisesDisponibles = await deviseApi.getDevisesDisponibles();
-        setDevises(devisesDisponibles);
+        // Remplacer getDevisesDisponibles() par getTauxChange()
+        const tauxChanges = await deviseApi.getTauxChange();
+        // Extraire les devises uniques des taux de change
+        const devisesUniques = Array.from(
+          new Set([
+            'MGA', // Devise par défaut
+            ...tauxChanges.flatMap(t => [t.devise_source, t.devise_cible])
+          ])
+        );
+        setDevises(devisesUniques);
       } catch (error) {
         console.error('Erreur chargement devises:', error);
       }
@@ -36,11 +44,13 @@ export const TauxChangeCalculator: React.FC<TauxChangeCalculatorProps> = ({ onCo
 
     setLoading(true);
     try {
-      const tauxData = await deviseApi.getTauxChangeActuel(source, cible);
-      const taux = typeof tauxData.taux === 'number' ? tauxData.taux : parseFloat(tauxData.taux);
+      // Remplacer getTauxChangeActuel() par convertirDevise()
+      const conversion = await deviseApi.convertirDevise(1, source, cible);
+      const taux = conversion.taux || 1;
       setTauxChange(taux);
     } catch (error) {
       console.error('Erreur chargement taux change:', error);
+      // Fallback avec taux par défaut
       const tauxParDefaut: { [key: string]: number } = {
         'MGA-USD': 0.00022,
         'USD-MGA': 4500,
