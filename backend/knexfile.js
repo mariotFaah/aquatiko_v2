@@ -1,32 +1,64 @@
+// knexfile.js
 import dotenv from 'dotenv';
-dotenv.config();
+import path from 'path';
+import { fileURLToPath } from 'url';
+import fs from 'fs'; // <-- Ajouter l'import fs
 
-const dbConfig = {
-  client: 'mysql2',
-  connection: {
-    host: process.env.MYSQLHOST || process.env.DB_HOST || '127.0.0.1',
-    port: process.env.MYSQLPORT || process.env.DB_PORT || 3306,
-    user: process.env.MYSQLUSER || process.env.DB_USER || 'admin',
-    password: process.env.MYSQLPASSWORD || process.env.DB_PASSWORD || 'mot_de_passe',
-    database: process.env.MYSQLDATABASE || process.env.DB_NAME || 'gestion_entreprise',
-    charset: 'utf8mb4',
-    ssl: process.env.MYSQLHOST ? { rejectUnauthorized: false } : undefined
-  },
-  migrations: {
-    directory: './migrations',
-    tableName: 'knex_migrations'
-  },
-  seeds: {
-    directory: './seeds'
-  },
-  pool: {
-    min: 2,
-    max: 10
-  }
-};
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 export default {
-  development: dbConfig,
-  production: dbConfig,
-  test: dbConfig
+  development: {
+    client: 'mysql2',
+    connection: {
+      host: process.env.DB_HOST,
+      port: process.env.DB_PORT,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      ssl: process.env.DB_SSL_CA ? {
+        ca: fs.readFileSync(process.env.DB_SSL_CA)
+      } : undefined
+    },
+    migrations: {
+      directory: './migrations',
+      tableName: 'knex_migrations'
+    },
+    seeds: {
+      directory: './seeds'
+    },
+    pool: {
+      min: 2,
+      max: 10
+    }
+  },
+
+  production: {
+    client: 'mysql2',
+    connection: {
+      host: process.env.DB_HOST,
+      port: process.env.DB_PORT,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      ssl: process.env.DB_SSL_CA ? {
+        ca: fs.readFileSync(process.env.DB_SSL_CA)
+      } : undefined
+    },
+    migrations: {
+      directory: './migrations',
+      tableName: 'knex_migrations'
+    },
+    seeds: {
+      directory: './seeds'
+    },
+    pool: {
+      min: 2,
+      max: 20,
+      acquireTimeoutMillis: 60000,
+      idleTimeoutMillis: 30000
+    }
+  }
 };

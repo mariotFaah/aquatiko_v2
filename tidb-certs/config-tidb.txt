@@ -1,0 +1,134 @@
+Overview
+Connect to your app
+
+Enjoy immediate productivity in minutes
+
+Import your own data
+
+Import from local, Amazon S3 and CLI
+
+Guided tour of SQL Editor
+
+Learn how to perform vector search
+
+Capacity used this month
+
+Current Spend
+
+Free
+
+
+Request Units
+
+0
+
+Row-based Storage
+
+0 MiB
+
+Columnar Storage
+
+0 MiB
+
+Core Metrics
+
+Request Units 
+
+Total RU per second
+Used Storage Size 
+
+Row-based storage
+Columnar storage
+Query Per Second 
+
+All
+Query Duration 
+
+Avg
+P99
+Total Connection 
+
+All
+Code Examples
+
+AI-Powered Vector Search
+
+Upload text or images and discover similar data with advanced vector search
+
+Next.js To-Do App
+
+Build and deploy a To-Do app with Next.js, powered by TiDB
+
+Cluster Properties
+
+Starter
+Cluster Name
+
+Cluster0
+
+Status
+
+Active
+
+TiDB Version
+
+v7.5.6
+
+Cloud Provider
+
+AWS
+
+Region
+
+Singapore (ap-southeast-1)
+
+Created by
+
+mariotfanantenana@gmail.com
+
+Created at
+
+2026-01-02 04:38:31
+
+
+
+Connect to 
+Cluster0
+Connection Type
+Public
+Branch
+main
+Database
+test
+Operating System
+Others (Detected)
+Your current IP address (41.74.209.166) is allowed to connect.
+Connect With
+General
+Generated! Password: 
+Ypx8j5ITc9hnTDc4
+Password cannot be displayed next time for safety. Please keep it in a safe place.
+Download the CA cert for server certificate verification and replace <CA_PATH> with your local path.
+HOST:
+
+gateway01.ap-southeast-1.prod.aws.tidbcloud.com
+
+PORT:
+
+4000
+
+USERNAME:
+
+2qPUn2vZZNoVfnd.root
+
+PASSWORD:
+
+Ypx8j5ITc9hnTDc4
+
+DATABASE:
+
+test
+
+CA:
+
+<CA_PATH>
